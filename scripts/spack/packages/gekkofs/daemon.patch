@@ -1,0 +1,42 @@
+--- a/src/daemon/CMakeLists.txt	2021-07-08 16:40:56.952476529 -0700
++++ b/src/daemon/CMakeLists.txt	2021-07-08 16:49:09.257352458 -0700
+@@ -66,31 +66,23 @@
+     )
+ ################### Forwarding daemon ###################
+ if (GKFS_ENABLE_FORWARDING)
+-    if (GKFS_ENABLE_AGIOS)
+-        set(FWD_DAEMON_SRC
+-            ${DAEMON_SRC}
+-            scheduler/agios.cpp
++    set(FWD_DAEMON_SRC
++        ${DAEMON_SRC}
++        scheduler/agios.cpp
+         )
+-        set(FWD_DAEMON_HEADERS
+-            ${DAEMON_HEADERS}
+-            ../../include/daemon/scheduler/agios.hpp
++    set(FWD_DAEMON_HEADERS
++        ${DAEMON_HEADERS}
++        ../../include/daemon/scheduler/agios.hpp
+         )
+-        add_executable(gkfwd_daemon ${FWD_DAEMON_SRC} ${FWD_DAEMON_HEADERS})
++    add_executable(gkfwd_daemon ${FWD_DAEMON_SRC} ${FWD_DAEMON_HEADERS})
+ 
++    if (GKFS_ENABLE_AGIOS)
+         target_compile_definitions(gkfwd_daemon
+             PUBLIC
+             GKFS_ENABLE_FORWARDING
+             DGKFS_ENABLE_AGIOS
+             )
+     else ()
+-        set(FWD_DAEMON_SRC
+-            ${DAEMON_SRC}
+-        )
+-        set(FWD_DAEMON_HEADERS
+-            ${DAEMON_HEADERS}
+-        )
+-        add_executable(gkfwd_daemon ${FWD_DAEMON_SRC} ${FWD_DAEMON_HEADERS})
+-
+         target_compile_definitions(gkfwd_daemon
+             PUBLIC
+             GKFS_ENABLE_FORWARDING
