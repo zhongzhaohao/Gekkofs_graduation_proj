@@ -90,7 +90,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
         syscall_number, args);
 
     switch(syscall_number) {
-
+	#ifdef SYS_open
         case SYS_open:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<char*>(arg0),
@@ -101,7 +101,8 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#endif
+	#ifdef SYS_creat
         case SYS_creat:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<const char*>(arg0),
@@ -111,7 +112,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#endif
         case SYS_openat:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -121,7 +122,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#ifdef SYS_epoll_create
         case SYS_epoll_create:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -130,7 +131,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#endif
         case SYS_epoll_create1:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -147,7 +148,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#ifdef SYS_dup2
         case SYS_dup2:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<unsigned int>(arg0),
@@ -156,7 +157,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#endif
         case SYS_dup3:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<unsigned int>(arg0),
@@ -166,7 +167,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#ifdef SYS_inotify_init
         case SYS_inotify_init:
             *result = syscall_no_intercept_wrapper(syscall_number);
 
@@ -175,7 +176,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#endif
         case SYS_inotify_init1:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -197,7 +198,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#ifdef SYS_signalfd
         case SYS_signalfd:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -207,7 +208,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#endif
         case SYS_signalfd4:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -255,7 +256,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#ifdef SYS_pipe
         case SYS_pipe:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<int*>(arg0));
@@ -268,7 +269,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#endif
         case SYS_pipe2:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -282,7 +283,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-
+	#ifdef SYS_eventfd
         case SYS_eventfd:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -292,7 +293,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-
+	#endif
         case SYS_eventfd2:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -444,19 +445,20 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
                     reinterpret_cast<const char* const*>(arg3), arg4);
             break;
 #endif
-
+#ifdef SYS_open
         case SYS_open:
             *result = gkfs::hook::hook_openat(
                     AT_FDCWD, reinterpret_cast<char*>(arg0),
                     static_cast<int>(arg1), static_cast<mode_t>(arg2));
             break;
-
+#endif
+#ifdef SYS_creat
         case SYS_creat:
             *result = gkfs::hook::hook_openat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0),
                     O_WRONLY | O_CREAT | O_TRUNC, static_cast<mode_t>(arg1));
             break;
-
+#endif
         case SYS_openat:
             *result = gkfs::hook::hook_openat(
                     static_cast<int>(arg0), reinterpret_cast<const char*>(arg1),
@@ -466,13 +468,13 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
         case SYS_close:
             *result = gkfs::hook::hook_close(static_cast<int>(arg0));
             break;
-
+#ifdef SYS_stat
         case SYS_stat:
             *result =
                     gkfs::hook::hook_stat(reinterpret_cast<char*>(arg0),
                                           reinterpret_cast<struct stat*>(arg1));
             break;
-
+#endif
 #ifdef STATX_TYPE
         case SYS_statx:
             *result = gkfs::hook::hook_statx(
@@ -481,13 +483,13 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
                     reinterpret_cast<struct statx*>(arg4));
             break;
 #endif
-
+#ifdef SYS_lstat
         case SYS_lstat:
             *result = gkfs::hook::hook_lstat(
                     reinterpret_cast<char*>(arg0),
                     reinterpret_cast<struct stat*>(arg1));
             break;
-
+#endif
         case SYS_fstat:
             *result = gkfs::hook::hook_fstat(
                     static_cast<int>(arg0),
@@ -558,42 +560,43 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
                     static_cast<unsigned long>(arg3),
                     static_cast<unsigned long>(arg4));
             break;
-
+#ifdef SYS_unlink
         case SYS_unlink:
             *result = gkfs::hook::hook_unlinkat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0), 0);
             break;
-
+#endif
         case SYS_unlinkat:
             *result = gkfs::hook::hook_unlinkat(
                     static_cast<int>(arg0), reinterpret_cast<const char*>(arg1),
                     static_cast<int>(arg2));
             break;
-
+#ifdef SYS_rmdir
         case SYS_rmdir:
             *result = gkfs::hook::hook_unlinkat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0),
                     AT_REMOVEDIR);
             break;
-
+#endif
+#ifdef SYS_symlink
         case SYS_symlink:
             *result = gkfs::hook::hook_symlinkat(
                     reinterpret_cast<const char*>(arg0), AT_FDCWD,
                     reinterpret_cast<const char*>(arg1));
             break;
-
+#endif
         case SYS_symlinkat:
             *result = gkfs::hook::hook_symlinkat(
                     reinterpret_cast<const char*>(arg0), static_cast<int>(arg1),
                     reinterpret_cast<const char*>(arg2));
             break;
-
+#ifdef SYS_access
         case SYS_access:
             *result =
                     gkfs::hook::hook_access(reinterpret_cast<const char*>(arg0),
                                             static_cast<int>(arg1));
             break;
-
+#endif
         case SYS_faccessat:
             *result = gkfs::hook::hook_faccessat(
                     static_cast<int>(arg0), reinterpret_cast<const char*>(arg1),
@@ -627,25 +630,25 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
         case SYS_dup:
             *result = gkfs::hook::hook_dup(static_cast<unsigned int>(arg0));
             break;
-
+#ifdef SYS_dup2
         case SYS_dup2:
             *result = gkfs::hook::hook_dup2(static_cast<unsigned int>(arg0),
                                             static_cast<unsigned int>(arg1));
             break;
-
+#endif
         case SYS_dup3:
             *result = gkfs::hook::hook_dup3(static_cast<unsigned int>(arg0),
                                             static_cast<unsigned int>(arg1),
                                             static_cast<int>(arg2));
             break;
-
+#ifdef SYS_getdents
         case SYS_getdents:
             *result = gkfs::hook::hook_getdents(
                     static_cast<unsigned int>(arg0),
                     reinterpret_cast<struct linux_dirent*>(arg1),
                     static_cast<unsigned int>(arg2));
             break;
-
+#endif
         case SYS_getdents64:
             *result = gkfs::hook::hook_getdents64(
                     static_cast<unsigned int>(arg0),
@@ -657,21 +660,22 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
             *result = gkfs::hook::hook_mkdirat(
                     static_cast<unsigned int>(arg0),
                     reinterpret_cast<const char*>(arg1),
-                    static_cast<mode_t>(arg2));
-            break;
-
+		    static_cast<mode_t>(arg2));
+	    break;
+#ifdef SYS_mkdir
         case SYS_mkdir:
             *result = gkfs::hook::hook_mkdirat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0),
                     static_cast<mode_t>(arg1));
             break;
-
+#endif
+#ifdef SYS_chmod
         case SYS_chmod:
             *result = gkfs::hook::hook_fchmodat(AT_FDCWD,
                                                 reinterpret_cast<char*>(arg0),
                                                 static_cast<mode_t>(arg1));
             break;
-
+#endif
         case SYS_fchmod:
             *result = gkfs::hook::hook_fchmod(static_cast<unsigned int>(arg0),
                                               static_cast<mode_t>(arg1));
@@ -700,13 +704,13 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
             *result = gkfs::hook::hook_getcwd(reinterpret_cast<char*>(arg0),
                                               static_cast<unsigned long>(arg1));
             break;
-
+#ifdef SYS_readlink
         case SYS_readlink:
             *result = gkfs::hook::hook_readlinkat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0),
                     reinterpret_cast<char*>(arg1), static_cast<int>(arg2));
             break;
-
+#endif
         case SYS_readlinkat:
             *result = gkfs::hook::hook_readlinkat(
                     static_cast<int>(arg0), reinterpret_cast<const char*>(arg1),
@@ -718,13 +722,13 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
                                              static_cast<unsigned int>(arg1),
                                              static_cast<unsigned long>(arg2));
             break;
-
+#ifdef SYS_rename
         case SYS_rename:
             *result = gkfs::hook::hook_renameat(
                     AT_FDCWD, reinterpret_cast<const char*>(arg0), AT_FDCWD,
                     reinterpret_cast<const char*>(arg1), 0);
             break;
-
+#endif
         case SYS_renameat:
             *result = gkfs::hook::hook_renameat(
                     static_cast<int>(arg0), reinterpret_cast<const char*>(arg1),

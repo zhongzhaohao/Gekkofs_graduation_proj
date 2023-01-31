@@ -105,7 +105,7 @@ hook_close(int fd) {
 
     return syscall_no_intercept_wrapper(SYS_close, fd);
 }
-
+#ifdef SYS_stat
 int
 hook_stat(const char* path, struct stat* buf) {
 
@@ -119,6 +119,7 @@ hook_stat(const char* path, struct stat* buf) {
 
     return syscall_no_intercept_wrapper(SYS_stat, rel_path.c_str(), buf);
 }
+#endif
 
 #ifdef STATX_TYPE
 
@@ -158,6 +159,7 @@ hook_statx(int dirfd, const char* path, int flags, unsigned int mask,
 
 #endif
 
+#ifdef SYS_lstat
 int
 hook_lstat(const char* path, struct stat* buf) {
 
@@ -170,6 +172,7 @@ hook_lstat(const char* path, struct stat* buf) {
     }
     return syscall_no_intercept_wrapper(SYS_lstat, rel_path.c_str(), buf);
 }
+#endif
 
 int
 hook_fstat(unsigned int fd, struct stat* buf) {
@@ -414,6 +417,7 @@ hook_flock(unsigned long fd, int flags) {
         return -EBADF;
 }
 
+#ifdef SYS_access
 int
 hook_access(const char* path, int mask) {
 
@@ -429,6 +433,7 @@ hook_access(const char* path, int mask) {
     }
     return syscall_no_intercept_wrapper(SYS_access, rel_path.c_str(), mask);
 }
+#endif
 
 int
 hook_faccessat(int dirfd, const char* cpath, int mode) {
@@ -547,7 +552,7 @@ hook_dup(unsigned int fd) {
     }
     return syscall_no_intercept_wrapper(SYS_dup, fd);
 }
-
+#ifdef SYS_dup2
 int
 hook_dup2(unsigned int oldfd, unsigned int newfd) {
 
@@ -558,7 +563,7 @@ hook_dup2(unsigned int oldfd, unsigned int newfd) {
     }
     return syscall_no_intercept_wrapper(SYS_dup2, oldfd, newfd);
 }
-
+#endif
 int
 hook_dup3(unsigned int oldfd, unsigned int newfd, int flags) {
 
@@ -573,7 +578,7 @@ hook_dup3(unsigned int oldfd, unsigned int newfd, int flags) {
     }
     return syscall_no_intercept_wrapper(SYS_dup3, oldfd, newfd, flags);
 }
-
+#ifdef SYS_getdents
 int
 hook_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count) {
 
@@ -585,7 +590,7 @@ hook_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count) {
     }
     return syscall_no_intercept_wrapper(SYS_getdents, fd, dirp, count);
 }
-
+#endif
 
 int
 hook_getdents64(unsigned int fd, struct linux_dirent64* dirp,
