@@ -1,14 +1,3 @@
-From dc462223c52f97e94464eb597e1af9ab961aa781 Mon Sep 17 00:00:00 2001
-From: sktzwhj <whj_nudt@foxmail.com>
-Date: Thu, 24 Feb 2022 17:34:40 +0800
-Subject: [PATCH] changes for gekkofs
-
----
- CMakeLists.txt                                | 16 +++---
- .../include/libsyscall_intercept_hook_point.h | 17 ++++++-
- arch/aarch64/src/intercept.c                  | 50 ++++++++++++++++---
- 3 files changed, 65 insertions(+), 18 deletions(-)
-
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 13fcdb9..11b621a 100644
 --- a/CMakeLists.txt
@@ -143,6 +132,27 @@ index a15aa97..72e4b7a 100644
  	}
  
  	return (struct wrapper_ret){.x0 = context->x0, .x1 = 1 };
--- 
-2.17.1
-
+diff --git a/arch/aarch64/src/intercept.h b/arch/aarch64/src/intercept.h
+index be593a5..7408f10 100644
+--- a/arch/aarch64/src/intercept.h
++++ b/arch/aarch64/src/intercept.h
+@@ -202,6 +202,6 @@ bool is_overwritable_nop(const struct intercept_disasm_result *ins);
+ 
+ unsigned char *create_jump(unsigned char *from, void *to);
+ 
+-const char *cmdline;
++extern const char *cmdline;
+ extern size_t page_size;
+ #endif
+diff --git a/src/intercept.h b/src/intercept.h
+index 3c40795..d04629c 100644
+--- a/src/intercept.h
++++ b/src/intercept.h
+@@ -229,6 +229,6 @@ bool is_overwritable_nop(const struct intercept_disasm_result *ins);
+ 
+ void create_jump(unsigned char opcode, unsigned char *from, void *to);
+ 
+-const char *cmdline;
++extern const char *cmdline;
+ 
+ #endif
