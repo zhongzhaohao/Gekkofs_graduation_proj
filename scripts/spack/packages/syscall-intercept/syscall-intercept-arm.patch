@@ -1,0 +1,107 @@
+diff --git a/arch/aarch64/include/libsyscall_intercept_hook_point.h b/arch/aarch64/include/libsyscall_intercept_hook_point.h
+index 2fe7d57..46f7eff 100644
+--- a/arch/aarch64/include/libsyscall_intercept_hook_point.h
++++ b/arch/aarch64/include/libsyscall_intercept_hook_point.h
+@@ -57,8 +57,21 @@ extern int (*intercept_hook_point)(long syscall_number,
+ 			long arg4, long arg5,
+ 			long *result);
+ 
+-extern void (*intercept_hook_point_clone_child)(void);
+-extern void (*intercept_hook_point_clone_parent)(long pid);
++
++extern void (*intercept_hook_point_clone_child)(
++			unsigned long flags, void *child_stack,
++			int *ptid, int *ctid, long newtls);
++
++extern void (*intercept_hook_point_clone_parent)(
++			unsigned long flags, void *child_stack,
++			int *ptid, int *ctid, long newtls,
++			long returned_pid);
++
++extern void (*intercept_hook_point_post_kernel)(long syscall_number,
++			long arg0, long arg1,
++			long arg2, long arg3,
++			long arg4, long arg5,
++			long result);
+ 
+ /*
+  * syscall_no_intercept - syscall without interception
+diff --git a/arch/aarch64/src/intercept.c b/arch/aarch64/src/intercept.c
+index a15aa97..72e4b7a 100644
+--- a/arch/aarch64/src/intercept.c
++++ b/arch/aarch64/src/intercept.c
+@@ -68,11 +68,24 @@ int (*intercept_hook_point)(long syscall_number,
+ 			long *result)
+ 	__attribute__((visibility("default")));
+ 
+-void (*intercept_hook_point_clone_child)(void)
+-	__attribute__((visibility("default")));
+-void (*intercept_hook_point_clone_parent)(long)
+-	__attribute__((visibility("default")));
+-
++void (*intercept_hook_point_clone_child)(
++		unsigned long flags, void *child_stack,
++		int *ptid, int *ctid,
++		long newtls)
++__attribute__((visibility("default")));
++
++void (*intercept_hook_point_clone_parent)(
++		unsigned long flags, void *child_stack,
++		int *ptid, int *ctid,
++		long newtls, long returned_pid)
++__attribute__((visibility("default")));
++
++void (*intercept_hook_point_post_kernel)(long syscall_number,
++		long arg0, long arg1,
++		long arg2, long arg3,
++		long arg4, long arg5,
++		long result)
++__attribute__((visibility("default")));
+ bool debug_dumps_on;
+ 
+ void
+@@ -630,7 +643,15 @@ intercept_routine(struct context *context)
+ 
+ 	if (handle_magic_syscalls(&desc, &result) == 0)
+ 		return (struct wrapper_ret){.x0 = result, .x1 = 1 };
+-
++	if (intercept_hook_point_post_kernel != NULL)
++		intercept_hook_point_post_kernel(desc.nr,
++				desc.args[0],
++				desc.args[1],
++				desc.args[2],
++				desc.args[3],
++				desc.args[4],
++				desc.args[5],
++				result);
+ 	intercept_log_syscall(patch, &desc, UNKNOWN, 0);
+ 
+ 	if (intercept_hook_point != NULL)
+@@ -693,12 +714,25 @@ intercept_routine(struct context *context)
+ struct wrapper_ret
+ intercept_routine_post_clone(struct context *context)
+ {
++	struct syscall_desc desc;
++	get_syscall_in_context(context, &desc);
+ 	if (context->x0 == 0) {
+ 		if (intercept_hook_point_clone_child != NULL)
+-			intercept_hook_point_clone_child();
++			intercept_hook_point_clone_child(
++				(unsigned long)desc.args[0],
++				(void *)desc.args[1],
++				(int *)desc.args[2],
++				(int *)desc.args[3],
++				desc.args[4]);
+ 	} else {
+ 		if (intercept_hook_point_clone_parent != NULL)
+-			intercept_hook_point_clone_parent(context->x0);
++			intercept_hook_point_clone_parent(
++					(unsigned long)desc.args[0],
++					(void *)desc.args[1],
++					(int *)desc.args[2],
++					(int *)desc.args[3],
++					desc.args[4],
++					context->x0);
+ 	}
+ 
+ 	return (struct wrapper_ret){.x0 = context->x0, .x1 = 1 };

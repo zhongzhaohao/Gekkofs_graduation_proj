@@ -41,12 +41,14 @@ to I/O, which reduces interferences and improves performance."""
     variant('guided_distributor', default=False, description='Enables the guided distributor.')
     # variant('prometheus', default=False, description='Enables Prometheus support for statistics.')
     variant('dedicated_psm2', default=False, description='Use dedicated _non-system_ opa-psm2 version 11.2.185.')
-
+    variant('compile', default='x86', multi=False, values=('x86','powerpc','arm'), description='Architecture to compile syscall intercept.')
     # general dependencies
     depends_on('cmake@3.6.0:', type='build')
     depends_on('lz4', when='@0.8:')
     depends_on('argobots')
-    depends_on('syscall-intercept')
+    depends_on('syscall-intercept@arm', when='compile=arm')
+    depends_on('syscall-intercept@powerpc', when='compile=powerpc')
+    depends_on('syscall-intercept@x86', when='compile=x86')
     depends_on('date cxxstd=14 +shared +tz tzdb=system')
     depends_on('opa-psm2@11.2.185', when='+dedicated_psm2')
     # 0.8.0 specific
