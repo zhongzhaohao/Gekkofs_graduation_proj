@@ -84,3 +84,6 @@ to I/O, which reduces interferences and improves performance."""
         """Run tests"""
         with working_dir(self.build_directory):
             make('test', parallel=False)
+
+    def setup_run_environment(self, env): 
+        env.set('GKFS_PRLD', join_path(self.prefix.lib, 'libgkfs_intercept.so'))

@@ -26,6 +26,7 @@ class SyscallIntercept(CMakePackage):
 
     with when('@x86'):
         patch('syscall-intercept.patch')
+        patch('syscall-intercept-clone.patch')
 
     @property
     def root_cmakelists_dir(self):
