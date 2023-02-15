@@ -40,6 +40,7 @@ to I/O, which reduces interferences and improves performance."""
     variant('agios', default=False, description='Enables the AGIOS scheduler for the forwarding mode.')
     variant('guided_distributor', default=False, description='Enables the guided distributor.')
     variant('prometheus', default=False, description='Enables Prometheus support for statistics.')
+    variant('parallax', default=False, description='Enables Parallax key-value database.')
     variant('dedicated_psm2', default=False, description='Use dedicated _non-system_ opa-psm2 version 11.2.185.')
     variant('compile', default='x86', multi=False, values=('x86','powerpc','arm'), description='Architecture to compile syscall intercept.')
     # general dependencies
@@ -70,6 +71,7 @@ to I/O, which reduces interferences and improves performance."""
     depends_on('agios@latest', when='@master +agios')
     # Prometheus CPP
     depends_on('prometheus-cpp', when='@0.9:,latest +prometheus')
+    depends_on('parallax', when='@0.9:,latest +parallax')
 
     def cmake_args(self):
         """Set up GekkoFS CMake arguments"""
@@ -79,6 +81,7 @@ to I/O, which reduces interferences and improves performance."""
             self.define_from_variant('GKFS_ENABLE_AGIOS', 'agios'),
             self.define_from_variant('GKFS_USE_GUIDED_DISTRIBUTION', 'guided_distributor'),
             self.define_from_variant('GKFS_ENABLE_PROMETHEUS', 'prometheus'),
+            self.define_from_variant('GKFS_USE_PARALLAX', 'parallax'),
         ]
         return args
 
