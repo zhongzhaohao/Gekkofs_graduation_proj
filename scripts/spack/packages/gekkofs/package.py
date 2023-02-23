@@ -41,6 +41,7 @@ to I/O, which reduces interferences and improves performance."""
     variant('guided_distributor', default=False, description='Enables the guided distributor.')
     variant('prometheus', default=False, description='Enables Prometheus support for statistics.')
     variant('parallax', default=False, description='Enables Parallax key-value database.')
+    variant('rename', default=False, description='Enables experimental rename support.')
     variant('dedicated_psm2', default=False, description='Use dedicated _non-system_ opa-psm2 version 11.2.185.')
     variant('compile', default='x86', multi=False, values=('x86','powerpc','arm'), description='Architecture to compile syscall intercept.')
     # general dependencies
@@ -82,6 +83,7 @@ to I/O, which reduces interferences and improves performance."""
             self.define_from_variant('GKFS_USE_GUIDED_DISTRIBUTION', 'guided_distributor'),
             self.define_from_variant('GKFS_ENABLE_PROMETHEUS', 'prometheus'),
             self.define_from_variant('GKFS_USE_PARALLAX', 'parallax'),
+            self.define_from_variant('RENAME_SUPPORT', 'rename'),
         ]
         return args
 
