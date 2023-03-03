@@ -90,7 +90,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
         syscall_number, args);
 
     switch(syscall_number) {
-	#ifdef SYS_open
+#ifdef SYS_open
         case SYS_open:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<char*>(arg0),
@@ -101,8 +101,8 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#endif
-	#ifdef SYS_creat
+#endif
+#ifdef SYS_creat
         case SYS_creat:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<const char*>(arg0),
@@ -112,7 +112,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#endif
+#endif
         case SYS_openat:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -122,7 +122,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#ifdef SYS_epoll_create
+#ifdef SYS_epoll_create
         case SYS_epoll_create:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -131,7 +131,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#endif
+#endif
         case SYS_epoll_create1:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -148,7 +148,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#ifdef SYS_dup2
+#ifdef SYS_dup2
         case SYS_dup2:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<unsigned int>(arg0),
@@ -157,7 +157,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#endif
+#endif
         case SYS_dup3:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<unsigned int>(arg0),
@@ -167,7 +167,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#ifdef SYS_inotify_init
+#ifdef SYS_inotify_init
         case SYS_inotify_init:
             *result = syscall_no_intercept_wrapper(syscall_number);
 
@@ -176,7 +176,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#endif
+#endif
         case SYS_inotify_init1:
             *result = syscall_no_intercept_wrapper(syscall_number,
                                                    static_cast<int>(arg0));
@@ -198,7 +198,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#ifdef SYS_signalfd
+#ifdef SYS_signalfd
         case SYS_signalfd:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -208,7 +208,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#endif
+#endif
         case SYS_signalfd4:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, static_cast<int>(arg0),
@@ -256,7 +256,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#ifdef SYS_pipe
+#ifdef SYS_pipe
         case SYS_pipe:
             *result = syscall_no_intercept_wrapper(
                     syscall_number, reinterpret_cast<int*>(arg0));
@@ -269,7 +269,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#endif
+#endif
         case SYS_pipe2:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -283,7 +283,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
             }
 
             break;
-	#ifdef SYS_eventfd
+#ifdef SYS_eventfd
         case SYS_eventfd:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -293,7 +293,7 @@ hook_internal(long syscall_number, long arg0, long arg1, long arg2, long arg3,
                 *result = CTX->register_internal_fd(*result);
             }
             break;
-	#endif
+#endif
         case SYS_eventfd2:
 
             *result = syscall_no_intercept_wrapper(syscall_number,
@@ -660,8 +660,8 @@ hook(long syscall_number, long arg0, long arg1, long arg2, long arg3, long arg4,
             *result = gkfs::hook::hook_mkdirat(
                     static_cast<unsigned int>(arg0),
                     reinterpret_cast<const char*>(arg1),
-		    static_cast<mode_t>(arg2));
-	    break;
+                    static_cast<mode_t>(arg2));
+            break;
 #ifdef SYS_mkdir
         case SYS_mkdir:
             *result = gkfs::hook::hook_mkdirat(
