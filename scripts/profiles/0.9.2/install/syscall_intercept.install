@@ -48,7 +48,7 @@ pkg_install() {
     CURR="${SOURCE_DIR}/${ID}"
     EXTRA_INSTALL_ARGS="${PROFILE_EXTRA_INSTALL_ARGS[${ID}]}"
     prepare_build_dir "${CURR}"
-    if [[ ${EXTRA_INSTALL_ARGS} == "ARM" ]]; then
+    if [[ ${EXTRA_INSTALL_ARGS} == "ARM64" ]]; then
         cd "${CURR}"/arch/aarch64/
         mkdir -p build
         cd build
@@ -61,7 +61,7 @@ pkg_install() {
     -DBUILD_EXAMPLES:BOOL=OFF \
     -DBUILD_TESTS:BOOK=OFF ..
     make -j"${CORES}" install
-    if [[ ${EXTRA_INSTALL_ARGS} == "ARM" ]]; then
+    if [[ ${EXTRA_INSTALL_ARGS} == "ARM64" ]]; then
         cp "${CURR}"/arch/aarch64/include/libsyscall_intercept_hook_point.h ${INSTALL_DIR}/include
     fi
 }

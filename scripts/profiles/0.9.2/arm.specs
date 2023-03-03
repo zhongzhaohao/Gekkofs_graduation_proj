@@ -79,5 +79,5 @@ order=(
 #  - PERFORM_TEST: whether tests for the package should be executed
 extra_install_args=(
     ["libfabric"]="--enable-psm2=no --enable-sockets=yes"
-    ["syscall_intercept"]="ARM"
+    ["syscall_intercept"]="ARM64"
 )
