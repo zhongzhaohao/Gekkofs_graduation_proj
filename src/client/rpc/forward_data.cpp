@@ -46,23 +46,17 @@ namespace gkfs::rpc {
  * NOTE: No errno is defined here!
  */
 
-// TODO If we decide to keep this functionality with one segment, the function
-// can be merged mostly. Code is mostly redundant
-
 /**
  * Send an RPC request to write from a buffer.
  * @param path
  * @param buf
  * @param append_flag
- * @param in_offset
  * @param write_size
- * @param updated_metadentry_size
  * @return pair<error code, written size>
  */
 pair<int, ssize_t>
-forward_write(const string& path, const void* buf, const bool append_flag,
-              const off64_t in_offset, const size_t write_size,
-              const int64_t updated_metadentry_size) {
+forward_write(const string& path, const void* buf, const off64_t offset,
+              const size_t write_size) {
 
     // import pow2-optimized arithmetic functions
     using namespace gkfs::utils::arithmetic;
@@ -71,9 +65,6 @@ forward_write(const string& path, const void* buf, const bool append_flag,
 
     // Calculate chunkid boundaries and numbers so that daemons know in
     // which interval to look for chunks
-    off64_t offset =
-            append_flag ? in_offset : (updated_metadentry_size - write_size);
-
     auto chnk_start = block_index(offset, gkfs::config::rpc::chunksize);
     auto chnk_end = block_index((offset + write_size) - 1,
                                 gkfs::config::rpc::chunksize);

@@ -106,7 +106,7 @@ gkfs_readlink(const std::string& path, char* buf, int bufsize);
 
 ssize_t
 gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
-            size_t count, off64_t offset);
+            size_t count, off64_t offset, bool update_pos = false);
 
 ssize_t
 gkfs_pwrite_ws(int fd, const void* buf, size_t count, off64_t offset);
