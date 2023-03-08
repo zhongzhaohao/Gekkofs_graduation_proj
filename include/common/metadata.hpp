@@ -40,6 +40,9 @@ namespace gkfs::metadata {
 
 constexpr mode_t LINK_MODE = ((S_IRWXU | S_IRWXG | S_IRWXO) | S_IFLNK);
 
+uint16_t
+gen_unique_id(const std::string& path);
+
 class Metadata {
 private:
     time_t atime_{}; // access time. gets updated on file access unless mounted

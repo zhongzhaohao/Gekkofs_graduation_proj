@@ -29,7 +29,7 @@
 #ifndef DB_MERGE_HPP
 #define DB_MERGE_HPP
 
-
+#include <daemon/backend/metadata/metadata_module.hpp>
 #include <rocksdb/merge_operator.h>
 #include <common/metadata.hpp>
 
@@ -68,15 +68,18 @@ protected:
 };
 
 class IncreaseSizeOperand : public MergeOperand {
+private:
+    constexpr const static char serialize_sep = ',';
+    constexpr const static char serialize_end = '\0';
+
+    size_t size_;
+    uint16_t merge_id_;
+    bool append_;
+
 public:
-    constexpr const static char separator = ',';
-    constexpr const static char true_char = 't';
-    constexpr const static char false_char = 'f';
+    IncreaseSizeOperand(size_t size);
 
-    size_t size;
-    bool append;
-
-    IncreaseSizeOperand(size_t size, bool append);
+    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append);
 
     explicit IncreaseSizeOperand(const rdb::Slice& serialized_op);
 
@@ -85,12 +88,28 @@ public:
 
     std::string
     serialize_params() const override;
+
+    size_t
+    size() const {
+        return size_;
+    }
+
+    uint16_t
+    merge_id() const {
+        return merge_id_;
+    }
+
+    bool
+    append() const {
+        return append_;
+    }
 };
 
 class DecreaseSizeOperand : public MergeOperand {
-public:
-    size_t size;
+private:
+    size_t size_;
 
+public:
     explicit DecreaseSizeOperand(size_t size);
 
     explicit DecreaseSizeOperand(const rdb::Slice& serialized_op);
@@ -100,6 +119,11 @@ public:
 
     std::string
     serialize_params() const override;
+
+    size_t
+    size() const {
+        return size_;
+    }
 };
 
 class CreateOperand : public MergeOperand {

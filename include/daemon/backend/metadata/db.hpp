@@ -50,7 +50,6 @@ namespace gkfs::metadata {
 constexpr auto rocksdb_backend = "rocksdb";
 constexpr auto parallax_backend = "parallaxdb";
 
-
 class MetadataDB {
 private:
     std::string path_;
@@ -121,12 +120,13 @@ public:
      * @brief Increases only the size part of the metadata entry via a RocksDB
      * Operand.
      * @param key KV store key
-     * @param size new size for entry
+     * @param io_size new size for entry
      * @param append
      * @throws DBException on failure, NotFoundException if entry doesn't exist
      */
-    void
-    increase_size(const std::string& key, size_t size, bool append);
+    off_t
+    increase_size(const std::string& key, size_t io_size, off_t offset,
+                  bool append);
 
     /**
      * @brief Decreases only the size part of the metadata entry via a RocksDB

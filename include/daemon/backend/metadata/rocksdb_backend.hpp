@@ -130,12 +130,13 @@ public:
      * Updates the size on the metadata
      * Operation. E.g., called before a write() call
      * @param key
-     * @param size
+     * @param io_size
      * @param append
      * @throws DBException on failure
      */
-    void
-    increase_size_impl(const std::string& key, size_t size, bool append);
+    off_t
+    increase_size_impl(const std::string& key, size_t io_size, off_t offset,
+                       bool append);
 
     /**
      * Decreases the size on the metadata

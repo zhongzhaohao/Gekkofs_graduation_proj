@@ -30,8 +30,9 @@
 #define GEKKOFS_DAEMON_METADATA_LOGGING_HPP
 
 #include <spdlog/spdlog.h>
+#include <map>
 
-namespace gkfs::data {
+namespace gkfs::metadata {
 
 class MetadataModule {
 
@@ -39,6 +40,8 @@ private:
     MetadataModule() = default;
 
     std::shared_ptr<spdlog::logger> log_;
+    std::map<uint16_t, size_t> append_offset_reserve_{};
+    std::mutex append_offset_reserve_mutex_{};
 
 public:
     static constexpr const char* LOGGER_NAME = "MetadataModule";
@@ -59,12 +62,21 @@ public:
 
     void
     log(const std::shared_ptr<spdlog::logger>& log);
+
+    const std::map<uint16_t, size_t>&
+    append_offset_reserve() const;
+
+    void
+    append_offset_reserve_put(uint16_t merge_id, size_t offset);
+
+    size_t
+    append_offset_reserve_get_and_erase(uint16_t merge_id);
 };
 
 #define GKFS_METADATA_MOD                                                      \
-    (static_cast<gkfs::data::MetadataModule*>(                                 \
-            gkfs::data::MetadataModule::getInstance()))
+    (static_cast<gkfs::metadata::MetadataModule*>(                             \
+            gkfs::metadata::MetadataModule::getInstance()))
 
-} // namespace gkfs::data
+} // namespace gkfs::metadata
 
 #endif // GEKKOFS_DAEMON_METADATA_LOGGING_HPP

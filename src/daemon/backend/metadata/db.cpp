@@ -33,7 +33,6 @@
 
 #include <common/metadata.hpp>
 #include <common/path_util.hpp>
-#include <iostream>
 #include <filesystem>
 
 extern "C" {
@@ -124,26 +123,22 @@ MetadataDB::put(const std::string& key, const std::string& val) {
  */
 void
 MetadataDB::put_no_exist(const std::string& key, const std::string& val) {
-
     backend_->put_no_exist(key, val);
 }
 
 void
 MetadataDB::remove(const std::string& key) {
-
     backend_->remove(key);
 }
 
 bool
 MetadataDB::exists(const std::string& key) {
-
     return backend_->exists(key);
 }
 
 void
 MetadataDB::update(const std::string& old_key, const std::string& new_key,
                    const std::string& val) {
-
     backend_->update(old_key, new_key, val);
 }
 
@@ -152,10 +147,10 @@ MetadataDB::update(const std::string& old_key, const std::string& new_key,
  * E.g., called before a write() call
  * @endinternal
  */
-void
-MetadataDB::increase_size(const std::string& key, size_t size, bool append) {
-
-    backend_->increase_size(key, size, append);
+off_t
+MetadataDB::increase_size(const std::string& key, size_t io_size, off_t offset,
+                          bool append) {
+    return backend_->increase_size(key, io_size, offset, append);
 }
 
 /**
@@ -165,7 +160,6 @@ MetadataDB::increase_size(const std::string& key, size_t size, bool append) {
  */
 void
 MetadataDB::decrease_size(const std::string& key, size_t size) {
-
     backend_->decrease_size(key, size);
 }
 

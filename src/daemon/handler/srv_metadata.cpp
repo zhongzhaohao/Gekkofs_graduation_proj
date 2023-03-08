@@ -411,7 +411,6 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
     rpc_update_metadentry_size_in_t in{};
     rpc_update_metadentry_size_out_t out{};
 
-
     auto ret = margo_get_input(handle, &in);
     if(ret != HG_SUCCESS)
         GKFS_DATA->spdlogger()->error(
@@ -422,13 +421,10 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
-        gkfs::metadata::update_size(in.path, in.size, in.offset,
-                                    (in.append == HG_TRUE));
+        auto append = in.append == HG_TRUE;
+        out.ret_offset = gkfs::metadata::update_size(in.path, in.size,
+                                                     in.offset, append);
         out.err = 0;
-        // TODO the actual size of the file could be different after the size
-        // update
-        // do to concurrency on size
-        out.ret_size = in.size + in.offset;
     } catch(const gkfs::metadata::NotFoundException& e) {
         GKFS_DATA->spdlogger()->debug("{}() Entry not found: '{}'", __func__,
                                       in.path);

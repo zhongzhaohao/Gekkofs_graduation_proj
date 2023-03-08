@@ -129,15 +129,20 @@ update(const string& path, Metadata& md) {
 }
 
 /**
- * Updates a metadentry's size atomically and returns the corresponding size
- * after update
+ * Updates a metadentry's size atomically and returns the starting offset for
+ * the I/O operation. This is primarily necessary for parallel write operations,
+ * e.g., with O_APPEND, where the EOF might have changed since opening the file.
+ * Therefore, we use update_size to assign a safe write interval to each
+ * parallel write operation.
  * @param path
  * @param io_size
- * @return the updated size
+ * @param offset
+ * @param append
+ * @return starting offset for I/O operation
  */
-void
+off_t
 update_size(const string& path, size_t io_size, off64_t offset, bool append) {
-    GKFS_DATA->mdb()->increase_size(path, io_size + offset, append);
+    return GKFS_DATA->mdb()->increase_size(path, io_size, offset, append);
 }
 
 /**
