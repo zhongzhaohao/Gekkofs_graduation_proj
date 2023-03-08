@@ -331,18 +331,21 @@ ParallaxBackend::update_impl(const std::string& old_key,
  * @param append
  * @throws DBException on failure
  */
-void
-ParallaxBackend::increase_size_impl(const std::string& key, size_t size,
-                                    bool append) {
+off_t
+ParallaxBackend::increase_size_impl(const std::string& key, size_t io_size,
+                                    off_t offset, bool append) {
     lock_guard<recursive_mutex> lock_guard(parallax_mutex_);
-
+    off_t out_offset = -1;
     auto value = get(key);
     // Decompress string
     Metadata md(value);
-    if(append)
-        size += md.size();
-    md.size(size);
+    if(append) {
+        out_offset = md.size();
+        md.size(md.size() + io_size);
+    } else
+        md.size(offset + io_size);
     update(key, key, md.serialize());
+    return out_offset;
 }
 
 /**

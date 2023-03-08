@@ -214,13 +214,9 @@ RocksDBBackend::update_impl(const std::string& old_key,
 off_t
 RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
                                    off_t offset, bool append) {
-    off_t res_offset = -1;
+    off_t out_offset = -1;
     if(append) {
         auto merge_id = gkfs::metadata::gen_unique_id(key);
-        //        GKFS_METADATA_MOD->log()->info("{}() writing to file {} with
-        //        merge_id {} io_size {} offset {} append {}",
-        //                                       __func__, key, merge_id,
-        //                                       io_size, offset, append);
         // no offset needed because new size is current file size + io_size
         auto uop = IncreaseSizeOperand(io_size, merge_id, append);
         auto s = db_->Merge(write_opts_, key, uop.serialize());
@@ -231,7 +227,7 @@ RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
             get_impl(key);
             try {
                 // the offset was added during FullMergeV2() call
-                res_offset =
+                out_offset =
                         GKFS_METADATA_MOD->append_offset_reserve_get_and_erase(
                                 merge_id);
             } catch(std::out_of_range& e) {
@@ -249,7 +245,7 @@ RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
             throw_status_excpt(s);
         }
     }
-    return res_offset;
+    return out_offset;
 }
 
 /**
