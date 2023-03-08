@@ -97,12 +97,6 @@ MetadataDB::~MetadataDB() {
     backend_.reset();
 }
 
-/**
- * Gets a KV store value for a key
- * @param key
- * @return value
- * @throws DBException on failure, NotFoundException if entry doesn't exist
- */
 std::string
 MetadataDB::get(const std::string& key) const {
     return backend_->get(key);
@@ -142,22 +136,12 @@ MetadataDB::update(const std::string& old_key, const std::string& new_key,
     backend_->update(old_key, new_key, val);
 }
 
-/**
- * @internal
- * E.g., called before a write() call
- * @endinternal
- */
 off_t
 MetadataDB::increase_size(const std::string& key, size_t io_size, off_t offset,
                           bool append) {
     return backend_->increase_size(key, io_size, offset, append);
 }
 
-/**
- * @internal
- * E.g., called before a truncate() call
- * @endinternal
- */
 void
 MetadataDB::decrease_size(const std::string& key, size_t size) {
     backend_->decrease_size(key, size);

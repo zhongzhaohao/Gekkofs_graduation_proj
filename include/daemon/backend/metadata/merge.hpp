@@ -37,12 +37,18 @@ namespace rdb = rocksdb;
 
 namespace gkfs::metadata {
 
+/**
+ * @brief Merge operator classifiers
+ */
 enum class OperandID : char {
     increase_size = 'i',
     decrease_size = 'd',
     create = 'c'
 };
 
+/**
+ * @brief Base class for merge operands
+ */
 class MergeOperand {
 public:
     constexpr static char operand_id_suffix = ':';
@@ -66,7 +72,9 @@ protected:
     virtual OperandID
     id() const = 0;
 };
-
+/**
+ * @brief Increase size operand
+ */
 class IncreaseSizeOperand : public MergeOperand {
 private:
     constexpr const static char serialize_sep = ',';
@@ -104,7 +112,9 @@ public:
         return append_;
     }
 };
-
+/**
+ * @brief Decrease size operand
+ */
 class DecreaseSizeOperand : public MergeOperand {
 private:
     size_t size_;
@@ -125,7 +135,9 @@ public:
         return size_;
     }
 };
-
+/**
+ * @brief Create operand
+ */
 class CreateOperand : public MergeOperand {
 public:
     std::string metadata;
@@ -138,24 +150,49 @@ public:
     std::string
     serialize_params() const override;
 };
-
+/**
+ * @brief Merge operator class passed to RocksDB, used during merge operations
+ */
 class MetadataMergeOperator : public rocksdb::MergeOperator {
 public:
     ~MetadataMergeOperator() override = default;
 
+    /**
+     * @brief Merges all operands in chronological order for the same key
+     * @param op1 Input operand
+     * @param op2 Output operand
+     * @return Result of the merge operation
+     */
     bool
     FullMergeV2(const MergeOperationInput& merge_in,
                 MergeOperationOutput* merge_out) const override;
 
+    /**
+     * @brief TODO functionality unclear. Currently unused.
+     * @param key
+     * @param operand_list
+     * @param new_value
+     * @param logger
+     * @return
+     */
     bool
     PartialMergeMulti(const rdb::Slice& key,
                       const std::deque<rdb::Slice>& operand_list,
                       std::string* new_value,
                       rdb::Logger* logger) const override;
 
+    /**
+     * @brief Returns the name of this Merge operator
+     * @return
+     */
     const char*
     Name() const override;
 
+    /**
+     * @brief Merge Operator configuration which allows merges with just a
+     * single operand.
+     * @return
+     */
     bool
     AllowSingleOperand() const override;
 };

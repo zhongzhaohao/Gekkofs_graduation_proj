@@ -118,7 +118,7 @@ public:
 
     /**
      * @brief Increases only the size part of the metadata entry via a RocksDB
-     * Operand.
+     * Operand as part of a write operation.
      * @param key KV store key
      * @param io_size new size for entry
      * @param append
@@ -130,7 +130,7 @@ public:
 
     /**
      * @brief Decreases only the size part of the metadata entry via a RocksDB
-     * Operand/
+     * Operand. This is used for truncate, e.g..
      * @param key KV store key
      * @param size new size for entry
      * @throws DBException on failure, NotFoundException if entry doesn't exist

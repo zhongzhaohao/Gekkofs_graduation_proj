@@ -421,9 +421,8 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
-        auto append = in.append == HG_TRUE;
-        out.ret_offset = gkfs::metadata::update_size(in.path, in.size,
-                                                     in.offset, append);
+        out.ret_offset = gkfs::metadata::update_size(
+                in.path, in.size, in.offset, (in.append == HG_TRUE));
         out.err = 0;
     } catch(const gkfs::metadata::NotFoundException& e) {
         GKFS_DATA->spdlogger()->debug("{}() Entry not found: '{}'", __func__,

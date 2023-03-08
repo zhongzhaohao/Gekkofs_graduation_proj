@@ -35,66 +35,31 @@ using namespace std;
 
 namespace gkfs::metadata {
 
-/**
- * Returns the metadata of an object at a specific path. The metadata can be of
- * dummy values if configured
- * @param path
- * @param attr
- * @return
- */
 Metadata
 get(const std::string& path) {
     return Metadata(get_str(path));
 }
 
-/**
- * Get metadentry string only for path
- * @param path
- * @return
- */
 std::string
 get_str(const std::string& path) {
     return GKFS_DATA->mdb()->get(path);
 }
 
-/**
- * Gets the size of a metadentry
- * @param path
- * @param ret_size (return val)
- * @return err
- */
 size_t
 get_size(const string& path) {
     return get(path).size();
 }
 
-/**
- * Returns a vector of directory entries for given directory
- * @param dir
- * @return
- */
 std::vector<std::pair<std::string, bool>>
 get_dirents(const std::string& dir) {
     return GKFS_DATA->mdb()->get_dirents(dir);
 }
 
-/**
- * Returns a vector of directory entries for given directory (extended version)
- * @param dir
- * @return
- */
 std::vector<std::tuple<std::string, bool, size_t, time_t>>
 get_dirents_extended(const std::string& dir) {
     return GKFS_DATA->mdb()->get_dirents_extended(dir);
 }
 
-
-/**
- * Creates metadata (if required) and dentry at the same time
- * @param path
- * @param mode
- * @throws DBException
- */
 void
 create(const std::string& path, Metadata& md) {
 
@@ -118,39 +83,26 @@ create(const std::string& path, Metadata& md) {
     }
 }
 
-/**
- * Update metadentry by given Metadata object and path
- * @param path
- * @param md
- */
 void
 update(const string& path, Metadata& md) {
     GKFS_DATA->mdb()->update(path, path, md.serialize());
 }
 
 /**
- * Updates a metadentry's size atomically and returns the starting offset for
- * the I/O operation. This is primarily necessary for parallel write operations,
+ * @internal
+ * Updates a metadentry's size atomically and returns the starting offset
+ * for the I/O operation.
+ * This is primarily necessary for parallel write operations,
  * e.g., with O_APPEND, where the EOF might have changed since opening the file.
  * Therefore, we use update_size to assign a safe write interval to each
  * parallel write operation.
- * @param path
- * @param io_size
- * @param offset
- * @param append
- * @return starting offset for I/O operation
+ * @endinternal
  */
 off_t
 update_size(const string& path, size_t io_size, off64_t offset, bool append) {
     return GKFS_DATA->mdb()->increase_size(path, io_size, offset, append);
 }
 
-/**
- * Remove metadentry if exists
- * @param path
- * @return
- * @throws gkfs::metadata::DBException
- */
 void
 remove(const string& path) {
     /*

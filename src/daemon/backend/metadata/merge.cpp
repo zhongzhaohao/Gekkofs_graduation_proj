@@ -137,7 +137,22 @@ CreateOperand::serialize_params() const {
     return metadata;
 }
 
-
+/**
+ * @internal
+ * Merges all operands in chronological order for the same key.
+ *
+ * This is called before each Get() operation, among others. Therefore, it is
+ * not possible to return a result for a specific merge operand. The return as
+ * well as merge_out->new_value is for RocksDB internals The new value is the
+ * merged value of multiple value that is written to one key.
+ *
+ * Append operations receive special treatment here as the corresponding write
+ * function that triggered the size update needs the starting offset. In
+ * parallel append operations this is crucial. This is done by accessing a mutex
+ * protected std::map which may incur performance overheads for append
+ * operations.
+ * @endinternal
+ */
 bool
 MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
                                    MergeOperationOutput* merge_out) const {

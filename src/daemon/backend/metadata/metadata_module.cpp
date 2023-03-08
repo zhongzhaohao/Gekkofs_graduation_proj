@@ -39,15 +39,18 @@ void
 MetadataModule::log(const std::shared_ptr<spdlog::logger>& log) {
     MetadataModule::log_ = log;
 }
+
 const std::map<uint16_t, size_t>&
 MetadataModule::append_offset_reserve() const {
     return append_offset_reserve_;
 }
+
 void
 MetadataModule::append_offset_reserve_put(uint16_t merge_id, size_t offset) {
     std::lock_guard<std::mutex> lock(append_offset_reserve_mutex_);
     append_offset_reserve_[merge_id] = offset;
 }
+
 size_t
 MetadataModule::append_offset_reserve_get_and_erase(uint16_t merge_id) {
     std::lock_guard<std::mutex> lock(append_offset_reserve_mutex_);
