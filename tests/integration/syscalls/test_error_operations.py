@@ -47,7 +47,7 @@ def test_open_error(gkfs_daemon, gkfs_client):
     file2 = gkfs_daemon.mountdir / "file2"
     file3 = gkfs_daemon.mountdir / "file3"
     
-    flags = [os.O_PATH, os.O_APPEND, os.O_CREAT | os.O_DIRECTORY]
+    flags = [os.O_PATH, os.O_CREAT | os.O_DIRECTORY]
     # create a file in gekkofs
 
     for flag in flags:

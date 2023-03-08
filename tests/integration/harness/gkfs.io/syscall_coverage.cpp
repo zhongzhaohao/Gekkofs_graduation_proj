@@ -150,7 +150,7 @@ syscall_coverage_exec(const syscall_coverage_options& opts) {
         return;
     }
 
-    // lssek external
+    // lseek external
     rv = ::lseek(fdext, 0, SEEK_SET);
     if(rv < 0) {
         output("lseek", rv, opts);
@@ -187,7 +187,7 @@ syscall_coverage_exec(const syscall_coverage_options& opts) {
         return;
     }
 
-    
+
     // fchmod internal
     rv = ::fchmod(fd, 0777);
     if(errno != ENOTSUP) {
@@ -381,12 +381,26 @@ syscall_coverage_exec(const syscall_coverage_options& opts) {
         return;
     }
 
-    rv = ::renameat(AT_FDCWD, path1.c_str(), AT_FDCWD,
-                    path2.c_str());
+    rv = ::renameat(AT_FDCWD, path1.c_str(), AT_FDCWD, path2.c_str());
     if(rv < 0) {
         output("renameat_ext_to_ext", rv, opts);
         return;
     }
+
+    // open with O_APPEND
+    std::string path_append = "/tmp/" + pid + "test_append";
+    auto fd_append = ::open(path1.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0644);
+    if(fd_append < 0) {
+        output("open with O_APPEND", fd_append, opts);
+        return;
+    }
+    rv = ::write(fd_append, "testappend", 10);
+    if(rv < 0) {
+        output("open with O_APPEND", rv, opts);
+        return;
+    }
+    ::close(fd_append);
+
     // sys_open
     rv = ::syscall(SYS_open, opts.pathname.c_str(), O_RDONLY, 0);
     if(rv < 0) {

@@ -49,6 +49,7 @@ struct write_options {
     std::string pathname;
     std::string data;
     ::size_t count;
+    bool append{false};
 
     REFL_DECL_STRUCT(write_options, REFL_DECL_MEMBER(bool, verbose),
                      REFL_DECL_MEMBER(std::string, pathname),
@@ -71,8 +72,10 @@ to_json(json& record, const write_output& out) {
 
 void
 write_exec(const write_options& opts) {
-
-    auto fd = ::open(opts.pathname.c_str(), O_WRONLY);
+    auto flags = O_WRONLY;
+    if(opts.append)
+        flags |= O_APPEND;
+    auto fd = ::open(opts.pathname.c_str(), flags);
 
     if(fd == -1) {
         if(opts.verbose) {
@@ -123,6 +126,10 @@ write_init(CLI::App& app) {
 
     cmd->add_option("count", opts->count, "Number of bytes to write")
             ->required()
+            ->type_name("");
+
+    cmd->add_option("append", opts->append, "Append file")
+            ->default_val(false)
             ->type_name("");
 
     cmd->callback([opts]() { write_exec(*opts); });

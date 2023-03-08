@@ -53,10 +53,40 @@ def test_write(gkfs_daemon, gkfs_client):
     buf = b'42'
     ret = gkfs_client.write(file, buf, len(buf))
 
-    assert ret.retval == len(buf) # Return the number of written bytes
+    assert ret.retval == len(buf)  # Return the number of written bytes
+
+    file_append = gkfs_daemon.mountdir / "file_append"
+
+    ret = gkfs_client.open(file_append,
+                           os.O_CREAT | os.O_WRONLY | os.O_APPEND,
+                           stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+    assert ret.retval == 10000
+
+    str1 = b'Hello'
+    str2 = b', World!'
+    str3 = b' This is a test.\n'
+
+    ret = gkfs_client.write(file_append, str1, len(str1), True)
+    assert ret.retval == len(str1)
+    ret = gkfs_client.stat(file_append)
+    assert ret.retval == 0
+    assert ret.statbuf.st_size == len(str1)
+
+    ret = gkfs_client.write(file_append, str2, len(str2), True)
+    assert ret.retval == len(str2)
+    ret = gkfs_client.stat(file_append)
+    assert ret.retval == 0
+    assert ret.statbuf.st_size == (len(str1) + len(str2))
+
+    ret = gkfs_client.write(file_append, str3, len(str3), True)
+    assert ret.retval == len(str3)
+    ret = gkfs_client.stat(file_append)
+    assert ret.retval == 0
+    assert ret.statbuf.st_size == (len(str1) + len(str2) + len(str3))
+
 
 def test_pwrite(gkfs_daemon, gkfs_client):
-
     file = gkfs_daemon.mountdir / "file"
 
     ret = gkfs_client.open(file,
@@ -69,10 +99,10 @@ def test_pwrite(gkfs_daemon, gkfs_client):
     # write at the offset 1024
     ret = gkfs_client.pwrite(file, buf, len(buf), 1024)
 
-    assert ret.retval == len(buf) # Return the number of written bytes
+    assert ret.retval == len(buf)  # Return the number of written bytes
+
 
 def test_writev(gkfs_daemon, gkfs_client):
-
     file = gkfs_daemon.mountdir / "file"
 
     ret = gkfs_client.open(file,
@@ -85,10 +115,10 @@ def test_writev(gkfs_daemon, gkfs_client):
     buf_1 = b'24'
     ret = gkfs_client.writev(file, buf_0, buf_1, 2)
 
-    assert ret.retval == len(buf_0) + len(buf_1) # Return the number of written bytes
+    assert ret.retval == len(buf_0) + len(buf_1)  # Return the number of written bytes
+
 
 def test_pwritev(gkfs_daemon, gkfs_client):
-
     file = gkfs_daemon.mountdir / "file"
 
     ret = gkfs_client.open(file,
@@ -101,4 +131,4 @@ def test_pwritev(gkfs_daemon, gkfs_client):
     buf_1 = b'24'
     ret = gkfs_client.pwritev(file, buf_0, buf_1, 2, 1024)
 
-    assert ret.retval == len(buf_0) + len(buf_1) # Return the number of written bytes
+    assert ret.retval == len(buf_0) + len(buf_1)  # Return the number of written bytes
