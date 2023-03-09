@@ -227,6 +227,7 @@ Install Spack
 First, install Spack. You can find the instructions here: https://spack.readthedocs.io/en/latest/getting_started.html
 
     .. code-block:: console
+
         git clone https://github.com/spack/spack.git
         . spack/share/spack/setup-env.sh
 
@@ -241,16 +242,19 @@ To install GekkoFS with Spack, the GekkoFS repository needs to be added to Spack
 repository.
 
     .. code-block:: console
+
         spack repo add gekkofs/scripts/spack
 
 When added, the GekkoFS package is available. Its installation variants and options can be checked via:
 
     .. code-block:: console
+
         spack info gekkofs
 
 Then install GekkoFS with Spack:
 
     .. code-block:: console
+
         spack install gekkofs
         # for installing tests dependencies and running tests
         spack install -v --test=root gekkofs
@@ -258,6 +262,7 @@ Then install GekkoFS with Spack:
 Finally, GekkoFS is loaded into the currently used environment:
 
     .. code-block:: console
+
         spack load gekkofs
 
 This installs the latest release version including its required Git submodules. The installation directory is
@@ -271,6 +276,7 @@ variable pointing to the interception library.
 Therefore, the following commands can be run to use GekkoFS:
 
         .. code-block:: console
+
             # Consult `-h` or the Readme for further options
             gkfs_daemon -r /tmp/gkfs_rootdir -m /tmp/gkfs_mountdir &
             LD_PRELOAD=$GKFS_CLIENT ls -l /tmp/gkfs_mountdir
@@ -280,6 +286,7 @@ Therefore, the following commands can be run to use GekkoFS:
 When done using GekkoFS, unload it from the environment:
 
     .. code-block:: console
+
         spack unload gekkofs
 
 Miscellaneous
@@ -288,9 +295,11 @@ Miscellaneous
 Use GekkoFS's latest version (master branch) with Spack:
 
         .. code-block:: console
+
             spack install gekkofs@latest
 
 Use a specific compiler on your system, e.g., gcc-11.2.0:
 
         .. code-block:: console
+
             spack install gekkofs@latest%gcc@11.2.0
