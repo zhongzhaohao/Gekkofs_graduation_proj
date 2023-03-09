@@ -6,7 +6,7 @@ Spack is another method to install GekkoFS where Spack handles all the dependenc
 
 ### Install Spack
 
-First, install Spack. You can find the instructions here: https://spack.readthedocs.io/en/latest/getting_started.html
+First, install Spack. You can find the instructions [here](https://spack.readthedocs.io/en/latest/getting_started.html)
 
 ```bash
 git clone https://github.com/spack/spack.git
