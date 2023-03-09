@@ -1,55 +1,89 @@
+## Spack
 
-### Spack
+Spack is a package manager for supercomputers and Linux. It makes it easy to install scientific software for regular
+users.
+Spack is another method to install GekkoFS where Spack handles all the dependencies and setting up the environment.
 
-You can use Spack to install GekkoFS and let it handle all the dependencies. First, you will need to install Spack:
+### Install Spack
 
-```
+First, install Spack. You can find the instructions here: https://spack.readthedocs.io/en/latest/getting_started.html
+
+```bash
 git clone https://github.com/spack/spack.git
 . spack/share/spack/setup-env.sh
 ```
 
-Once Spack is installed and available in your path, add gekkofs to the Spack namespace.
+Note that the second line needs to be executed every time you open a new terminal. It sets up the environment for Spack
+and the corresponding environment variables, e.g., $PATH.
 
-```
+### Install GekkoFS with Spack
+
+To install GekkoFS with Spack, the GekkoFS repository needs to be added to Spack as it is not part of the official Spack
+repository.
+
+```bash
 spack repo add gekkofs/scripts/spack
 ```
 
-You can then check that Spack can find GekkoFS by typing:
+When added, the GekkoFS package is available. Its installation variants and options can be checked via:
 
-```
+```bash
 spack info gekkofs
 ```
 
-Finally, just install GekkoFS. You can also install variants (tests, forwarding mode, AGIOS scheduling).
+Then install GekkoFS with Spack:
 
 ```bash
 spack install gekkofs
 # for installing tests dependencies and running tests
-spack install -v --test=root gekkofs +tests
+spack install -v --test=root gekkofs
 ```
 
-Remember to load GekkoFS to run:
+Finally, GekkoFS is loaded into the currently used environment:
 
-```
+```bash
 spack load gekkofs
 ```
 
-If you want to enable the forwarding mode:
+This installs the latest release version including its required Git submodules. The installation directory is
+`$SPACK_ROOT/opt/spack/linux-<arch>/<compiler>/<version>/gekkofs-<version>`. The GekkoFS daemon (`gkfs_daemon`) is
+located in the `bin` directory and the GekkoFS client (`libgkfs_intercept.so`) is located in the `lib` directory.
 
-```
-spack install gekkofs +forwarding
+Note that loading the environment adds the GekkoFS daemon to the `$PATH` environment variable. Therefore, the GekkoFS
+daemon is started by running `gkfs_daemon`. Loading GekkoFS in Spack further provides the `$GKFS_CLIENT` environment
+variable pointing to the interception library.
+
+Therefore, the following commands can be run to use GekkoFS:
+
+```bash
+# Consult `-h` or the Readme for further options
+gkfs_daemon -r /tmp/gkfs_rootdir -m /tmp/gkfs_mountdir &
+LD_PRELOAD=$GKFS_CLIENT ls -l /tmp/gkfs_mountdir
+LD_PRELOAD=$GKFS_CLIENT touch /tmp/gkfs_mountdir/foo
+LD_PRELOAD=$GKFS_CLIENT ls -l /tmp/gkfs_mountdir
 ```
 
-If you want to enable the AGIOS scheduling library for the forwarding mode:
+When done using GekkoFS, unload it from the environment:
 
-```
-spack install gekkofs +forwarding +agios
+```bash
+spack unload gekkofs
 ```
 
-If you want to use the latest developer branch of GekkoFS:
+### Alternative deployment (on many nodes)
+
+`gekkofs/scripts/run/gkfs` provides a script to deploy GekkoFS in a single command on several nodes by using `srun`.
+Consult the main [README](../../README.md) or GekkoFS documentation for details.
+
+### Miscellaneous
+
+Use GekkoFS's latest version (master branch) with Spack:
 
 ```
 spack install gekkofs@latest
 ```
 
-The default is using version 0.9.1 the last stable release.
+Use a specific compiler on your system, e.g., gcc-11.2.0:
+
+```bash
+spack install gekkofs@latest%gcc@11.2.0
+```
