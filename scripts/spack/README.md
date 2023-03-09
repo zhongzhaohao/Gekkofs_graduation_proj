@@ -87,3 +87,31 @@ Use a specific compiler on your system, e.g., gcc-11.2.0:
 ```bash
 spack install gekkofs@latest%gcc@11.2.0
 ```
+
+#### FAQ
+
+I cannot run the tests because Python is missing? For Spack and GCC, we rely on the system installed versions. If you
+are working on a supercomputer, you may need to load the corresponding Python module first:
+
+```bash
+# GekkoFS tests require at least Python version 3.6.
+module load python/3.9.10
+```
+
+Everything is failing during the compilation process? See question above, either a GCC is not loaded or it is too old
+and does not support C++17 which we require. In any case, when using Spack it is good practice to use the system
+compiler if possible:
+
+```bash
+# GekkoFS requires at least GCC version 8
+module load gcc/11.2.0
+```
+
+This may not be enough for Spack to recognize it (depending on what time Spack is installed). Therefore, you need to add
+the compiler to spack via:
+
+```bash
+spack compiler find
+```
+
+`spack compiler list` should then list the loaded compiler.
