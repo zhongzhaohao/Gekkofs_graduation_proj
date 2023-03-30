@@ -348,8 +348,9 @@ const struct syscall_info syscall_table[] = {
 #ifdef SYS_get_kernel_syms
     SYSCALL(get_kernel_syms,         1,  S_RET(rdec),    S_NARG(ptr, "table")),
 #endif
-#indef SYS_query_module
+#ifdef SYS_query_module
     SYSCALL(query_module,            5,  S_RET(rdec),    S_NARG(cstr, "name"),          S_NARG(arg, "which"),            S_NARG(ptr, "buf"),               S_NARG(arg, "bufsize"),      S_NARG(ptr, "ret")),
+#endif
 #ifdef
     SYSCALL(quotactl,                4,  S_RET(rdec),    S_NARG(arg, "cmd"),            S_NARG(cstr, "special"),         S_NARG(arg, "id"),                S_NARG(ptr, "addr")),
     SYSCALL(nfsservctl,              3,  S_RET(rdec),    S_NARG(arg, "cmd"),            S_NARG(ptr, "argp"),             S_NARG(ptr, "resp")),
