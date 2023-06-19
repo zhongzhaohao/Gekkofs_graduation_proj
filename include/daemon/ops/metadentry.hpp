@@ -34,30 +34,85 @@
 
 namespace gkfs::metadata {
 
+/**
+ * @brief Returns the metadata of an object at a specific path. The metadata can
+ * be of dummy values if configured
+ * @param path
+ * @param attr
+ * @return
+ */
 Metadata
 get(const std::string& path);
 
+/**
+ * @brief Get metadentry string only for path
+ * @param path
+ * @return
+ */
 std::string
 get_str(const std::string& path);
 
+/**
+ * @brief Gets the size of a metadentry
+ * @param path
+ * @param ret_size (return val)
+ * @return err
+ */
 size_t
 get_size(const std::string& path);
 
+/**
+ * @brief Returns a vector of directory entries for given directory
+ * @param dir
+ * @return
+ */
 std::vector<std::pair<std::string, bool>>
 get_dirents(const std::string& dir);
 
+/**
+ * @brief Returns a vector of directory entries for given directory (extended
+ * version)
+ * @param dir
+ * @return
+ */
 std::vector<std::tuple<std::string, bool, size_t, time_t>>
 get_dirents_extended(const std::string& dir);
 
+/**
+ * @brief Creates metadata (if required) and dentry at the same time
+ * @param path
+ * @param mode
+ * @throws DBException
+ */
 void
 create(const std::string& path, Metadata& md);
 
+/**
+ * @brief Update metadentry by given Metadata object and path
+ * @param path
+ * @param md
+ */
 void
 update(const std::string& path, Metadata& md);
 
-void
+/**
+ * @brief Updates a metadentry's size atomically and returns the starting offset
+ * for the I/O operation.
+ * @param path
+ * @param io_size
+ * @param offset
+ * @param append
+ * @return starting offset for I/O operation
+ */
+off_t
 update_size(const std::string& path, size_t io_size, off_t offset, bool append);
 
+/**
+ * @brief Remove metadentry if exists
+ * @param path
+ * @return
+ * @throws gkfs::metadata::DBException
+ */
 void
 remove(const std::string& path);
 

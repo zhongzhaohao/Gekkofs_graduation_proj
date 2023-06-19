@@ -30,19 +30,33 @@
 #define GEKKOFS_DAEMON_METADATA_LOGGING_HPP
 
 #include <spdlog/spdlog.h>
+#include <map>
 
-namespace gkfs::data {
+namespace gkfs::metadata {
 
+/**
+ * @brief MetadataModule is a singleton class that holds global data structures
+ * for all metadata operations.
+ */
 class MetadataModule {
 
 private:
     MetadataModule() = default;
 
-    std::shared_ptr<spdlog::logger> log_;
+    std::shared_ptr<spdlog::logger> log_; ///< Metadata logger
+    ///< Map to remember and assign offsets to write append operations
+    std::map<uint16_t, size_t> append_offset_reserve_{};
+    std::mutex append_offset_reserve_mutex_{}; ///< Mutex to protect
+                                               ///< append_offset_reserve_
 
 public:
+    ///< Logger name
     static constexpr const char* LOGGER_NAME = "MetadataModule";
 
+    /**
+     * @brief Get the MetadataModule singleton instance
+     * @return MetadataModule instance
+     */
     static MetadataModule*
     getInstance() {
         static MetadataModule instance;
@@ -59,12 +73,32 @@ public:
 
     void
     log(const std::shared_ptr<spdlog::logger>& log);
+
+    const std::map<uint16_t, size_t>&
+    append_offset_reserve() const;
+
+    /**
+     * @brief Inserts entry into append_offset_reserve_
+     * @param merge_id Merge ID
+     * @param offset Offset to reserve
+     */
+    void
+    append_offset_reserve_put(uint16_t merge_id, size_t offset);
+
+    /**
+     * @brief Gets and erases entry from append_offset_reserve_
+     * @param merge_id Merge ID
+     * @return Offset reserved for merge_id
+     * @throws std::out_of_range if merge_id is not in append_offset_reserve_
+     */
+    size_t
+    append_offset_reserve_get_and_erase(uint16_t merge_id);
 };
 
 #define GKFS_METADATA_MOD                                                      \
-    (static_cast<gkfs::data::MetadataModule*>(                                 \
-            gkfs::data::MetadataModule::getInstance()))
+    (static_cast<gkfs::metadata::MetadataModule*>(                             \
+            gkfs::metadata::MetadataModule::getInstance()))
 
-} // namespace gkfs::data
+} // namespace gkfs::metadata
 
 #endif // GEKKOFS_DAEMON_METADATA_LOGGING_HPP

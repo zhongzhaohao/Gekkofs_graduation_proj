@@ -33,6 +33,7 @@
 #include <spdlog/spdlog.h>
 #include <daemon/backend/exceptions.hpp>
 #include <tuple>
+#include <cstdio>
 extern "C" {
 #include <parallax.h>
 }
@@ -145,12 +146,15 @@ public:
      * Updates the size on the metadata
      * Operation. E.g., called before a write() call
      * @param key
-     * @param size
+     * @param io_size
+     * @param offset
      * @param append
-     * @throws DBException on failure
+     * @return offset where the write operation should start. This is only used
+     * when append is set
      */
-    void
-    increase_size_impl(const std::string& key, size_t size, bool append);
+    off_t
+    increase_size_impl(const std::string& key, size_t io_size, off_t offset,
+                       bool append);
 
     /**
      * Decreases the size on the metadata

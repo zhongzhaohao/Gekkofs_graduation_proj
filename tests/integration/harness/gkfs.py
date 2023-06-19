@@ -45,6 +45,7 @@ gkfs_daemon_log_file = 'gkfs_daemon.log'
 gkfs_daemon_log_level = '100'
 gkfs_client_log_file = 'gkfs_client.log'
 gkfs_client_log_level = 'all'
+gkfs_client_log_syscall_filter = 'epoll_wait,epoll_create'
 gkfs_daemon_active_log_pattern = r'Startup successful. Daemon is ready.'
 
 gkfwd_daemon_cmd = 'gkfwd_daemon'
@@ -414,11 +415,12 @@ class Client:
         self._preload_library = preloads[0]
 
         self._patched_env = {
-            'LD_LIBRARY_PATH'      : libdirs,
-            'LD_PRELOAD'           : self._preload_library,
-            'LIBGKFS_HOSTS_FILE'   : self.cwd / gkfs_hosts_file,
-            'LIBGKFS_LOG'          : gkfs_client_log_level,
-            'LIBGKFS_LOG_OUTPUT'   : self._workspace.logdir / gkfs_client_log_file
+            'LD_LIBRARY_PATH': libdirs,
+            'LD_PRELOAD': self._preload_library,
+            'LIBGKFS_HOSTS_FILE': self.cwd / gkfs_hosts_file,
+            'LIBGKFS_LOG': gkfs_client_log_level,
+            'LIBGKFS_LOG_OUTPUT': self._workspace.logdir / gkfs_client_log_file,
+            'LIBGKFS_LOG_SYSCALL_FILTER': gkfs_client_log_syscall_filter
         }
 
         self._env.update(self._patched_env)

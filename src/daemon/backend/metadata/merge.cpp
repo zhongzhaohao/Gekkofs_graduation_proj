@@ -60,24 +60,29 @@ MergeOperand::get_params(const rdb::Slice& serialized_op) {
     return {serialized_op.data() + 2, serialized_op.size() - 2};
 }
 
-IncreaseSizeOperand::IncreaseSizeOperand(const size_t size, const bool append)
-    : size(size), append(append) {}
+IncreaseSizeOperand::IncreaseSizeOperand(const size_t size)
+    : size_(size), merge_id_(0), append_(false) {}
+
+IncreaseSizeOperand::IncreaseSizeOperand(const size_t size,
+                                         const uint16_t merge_id,
+                                         const bool append)
+    : size_(size), merge_id_(merge_id), append_(append) {}
 
 IncreaseSizeOperand::IncreaseSizeOperand(const rdb::Slice& serialized_op) {
-    size_t chrs_parsed = 0;
     size_t read = 0;
-
     // Parse size
-    size = ::stoul(serialized_op.data() + chrs_parsed, &read);
-    chrs_parsed += read + 1;
-    assert(serialized_op[chrs_parsed - 1] == separator);
-
-    // Parse append flag
-    assert(serialized_op[chrs_parsed] == false_char ||
-           serialized_op[chrs_parsed] == true_char);
-    append = serialized_op[chrs_parsed] != false_char;
-    // check that we consumed all the input string
-    assert(chrs_parsed + 1 == serialized_op.size());
+    size_ = std::stoul(serialized_op.data(), &read);
+    if(read + 1 == serialized_op.size() ||
+       serialized_op[read] == serialize_end) {
+        merge_id_ = 0;
+        append_ = false;
+        return;
+    }
+    assert(serialized_op[read] == serialize_sep);
+    // Parse merge id
+    merge_id_ = static_cast<uint16_t>(
+            std::stoul(serialized_op.data() + read + 1, nullptr));
+    append_ = true;
 }
 
 OperandID
@@ -87,23 +92,24 @@ IncreaseSizeOperand::id() const {
 
 string
 IncreaseSizeOperand::serialize_params() const {
-    string s;
-    s.reserve(3);
-    s += ::to_string(size);
-    s += this->separator;
-    s += !append ? false_char : true_char;
-    return s;
+    // serialize_end avoids rogue characters in the serialized string
+    if(append_)
+        return fmt::format("{}{}{}{}", size_, serialize_sep, merge_id_,
+                           serialize_end);
+    else {
+        return fmt::format("{}{}", size_, serialize_end);
+    }
 }
 
 
-DecreaseSizeOperand::DecreaseSizeOperand(const size_t size) : size(size) {}
+DecreaseSizeOperand::DecreaseSizeOperand(const size_t size) : size_(size) {}
 
 DecreaseSizeOperand::DecreaseSizeOperand(const rdb::Slice& serialized_op) {
     // Parse size
     size_t read = 0;
     // we need to convert serialized_op to a string because it doesn't contain
     // the leading slash needed by stoul
-    size = ::stoul(serialized_op.ToString(), &read);
+    size_ = ::stoul(serialized_op.ToString(), &read);
     // check that we consumed all the input string
     assert(read == serialized_op.size());
 }
@@ -115,7 +121,7 @@ DecreaseSizeOperand::id() const {
 
 string
 DecreaseSizeOperand::serialize_params() const {
-    return ::to_string(size);
+    return ::to_string(size_);
 }
 
 
@@ -131,22 +137,33 @@ CreateOperand::serialize_params() const {
     return metadata;
 }
 
-
+/**
+ * @internal
+ * Merges all operands in chronological order for the same key.
+ *
+ * This is called before each Get() operation, among others. Therefore, it is
+ * not possible to return a result for a specific merge operand. The return as
+ * well as merge_out->new_value is for RocksDB internals The new value is the
+ * merged value of multiple value that is written to one key.
+ *
+ * Append operations receive special treatment here as the corresponding write
+ * function that triggered the size update needs the starting offset. In
+ * parallel append operations this is crucial. This is done by accessing a mutex
+ * protected std::map which may incur performance overheads for append
+ * operations.
+ * @endinternal
+ */
 bool
 MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
                                    MergeOperationOutput* merge_out) const {
 
     string prev_md_value;
     auto ops_it = merge_in.operand_list.cbegin();
-
     if(merge_in.existing_value == nullptr) {
         // The key to operate on doesn't exists in DB
         if(MergeOperand::get_id(ops_it[0]) != OperandID::create) {
             throw ::runtime_error(
                     "Merge operation failed: key do not exists and first operand is not a creation");
-            // TODO use logger to print err info;
-            // Log(logger, "Key %s do not exists",
-            // existing_value->ToString().c_str()); return false;
         }
         prev_md_value = MergeOperand::get_params(ops_it[0]).ToString();
         ops_it++;
@@ -166,16 +183,21 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
 
         if(operand_id == OperandID::increase_size) {
             auto op = IncreaseSizeOperand(parameters);
-            if(op.append) {
-                // append mode, just increment file
-                fsize += op.size;
+            if(op.append()) {
+                auto curr_offset = fsize;
+                // append mode, just increment file size
+                fsize += op.size();
+                // save the offset where this append operation should start
+                // it is retrieved later in RocksDBBackend::increase_size_impl()
+                GKFS_METADATA_MOD->append_offset_reserve_put(op.merge_id(),
+                                                             curr_offset);
             } else {
-                fsize = ::max(op.size, fsize);
+                fsize = ::max(op.size(), fsize);
             }
         } else if(operand_id == OperandID::decrease_size) {
             auto op = DecreaseSizeOperand(parameters);
-            assert(op.size < fsize); // we assume no concurrency here
-            fsize = op.size;
+            assert(op.size() < fsize); // we assume no concurrency here
+            fsize = op.size();
         } else if(operand_id == OperandID::create) {
             continue;
         } else {

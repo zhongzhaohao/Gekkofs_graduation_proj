@@ -1158,10 +1158,10 @@ struct update_metadentry_size {
         hermes::detail::post_to_mercury(ExecutionContext*);
 
     public:
-        output() : m_err(), m_ret_size() {}
+        output() : m_err(), m_ret_offset() {}
 
         output(int32_t err, int64_t ret_size)
-            : m_err(err), m_ret_size(ret_size) {}
+            : m_err(err), m_ret_offset(ret_size) {}
 
         output(output&& rhs) = default;
 
@@ -1175,7 +1175,7 @@ struct update_metadentry_size {
 
         explicit output(const rpc_update_metadentry_size_out_t& out) {
             m_err = out.err;
-            m_ret_size = out.ret_size;
+            m_ret_offset = out.ret_offset;
         }
 
         int32_t
@@ -1185,12 +1185,12 @@ struct update_metadentry_size {
 
         int64_t
         ret_size() const {
-            return m_ret_size;
+            return m_ret_offset;
         }
 
     private:
         int32_t m_err;
-        int64_t m_ret_size;
+        int64_t m_ret_offset;
     };
 };
 

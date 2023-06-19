@@ -38,10 +38,36 @@ extern "C" {
 
 #include <ctime>
 #include <cassert>
+#include <random>
 
 namespace gkfs::metadata {
 
 static const char MSP = '|'; // metadata separator
+
+/**
+ * Generate a unique ID for a given path
+ * @param path
+ * @return unique ID
+ */
+uint16_t
+gen_unique_id(const std::string& path) {
+    // Generate a random salt value using a pseudo-random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0,
+                                        std::numeric_limits<uint16_t>::max());
+    auto salt = static_cast<uint16_t>(dis(gen));
+
+    // Concatenate the identifier and salt values into a single string
+    auto input_str = fmt::format("{}{}", path, salt);
+
+    // Use std::hash function to generate a hash value from the input string
+    std::hash<std::string> const hasher;
+    auto hash_value = hasher(input_str);
+
+    // Use the lower 16 bits of the hash value as the unique ID
+    return static_cast<uint16_t>(hash_value & 0xFFFF);
+}
 
 Metadata::Metadata(const mode_t mode)
     : atime_(), mtime_(), ctime_(), mode_(mode), link_count_(0), size_(0),

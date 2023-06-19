@@ -17,8 +17,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Support for increasing file size via `truncate()`
   added ([!159](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/159)
 - Added PowerPC support ([!151](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/151)).
-- GKFS_RENAME_SUPPORT adds support for renaming files. It includes the use case of renaming opened files using the fd
-- FLOCK and fcntl functions for locks, are not supported, but they are available.
+- GKFS_RENAME_SUPPORT added to support renaming files. This specifically targets the use case for opened files using an
+  existing file descriptor ([!133](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/133)).
+- Added `FLOCK` and `fcntl` functions for locks to interception albeit not supported by GekkoFS and returning the
+  corresponding error code ([!133](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/133)).
 - Added support for [CMake presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) to simplify build 
   configurations ([!163](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/163#note_8179)).
 - Several improvements to CMake scripts ([!143](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/143))):
@@ -33,6 +35,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - Adds the `gkfs_feature_summary()` to allow printing a summary of all
     GekkoFS configuration options and their values. This should help users
     when building to precisely see how a GekkoFS instance has been configured.
+- Added (parallel) append support for consecutive writes with file descriptor opened
+  with `O_APPEND` ([!164](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/164)).
 
 ### Changed
 
@@ -72,6 +76,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   version ([!162](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/162))
 - Fixed an issue where nlohmann json failed to download in
   CMake ([!167](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/167)).
+- Refactored update file size during write
+  operations ([!164](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/164)).
 
 ## [0.9.1] - 2022-04-29
 

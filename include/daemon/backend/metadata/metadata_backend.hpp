@@ -60,8 +60,9 @@ public:
     update(const std::string& old_key, const std::string& new_key,
            const std::string& val) = 0;
 
-    virtual void
-    increase_size(const std::string& key, size_t size, bool append) = 0;
+    virtual off_t
+    increase_size(const std::string& key, size_t size, off_t offset,
+                  bool append) = 0;
 
     virtual void
     decrease_size(const std::string& key, size_t size) = 0;
@@ -114,9 +115,11 @@ public:
         static_cast<T&>(*this).update_impl(old_key, new_key, val);
     }
 
-    void
-    increase_size(const std::string& key, size_t size, bool append) {
-        static_cast<T&>(*this).increase_size_impl(key, size, append);
+    off_t
+    increase_size(const std::string& key, size_t size, off_t offset,
+                  bool append) {
+        return static_cast<T&>(*this).increase_size_impl(key, size, offset,
+                                                         append);
     }
 
     void

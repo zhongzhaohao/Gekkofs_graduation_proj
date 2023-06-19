@@ -138,12 +138,6 @@ gkfs_open(const std::string& path, mode_t mode, int flags) {
         return -1;
     }
 
-    if(flags & O_APPEND) {
-        LOG(ERROR, "`O_APPEND` flag is not supported");
-        errno = ENOTSUP;
-        return -1;
-    }
-
     // metadata object filled during create or stat
     gkfs::metadata::Metadata md{};
     if(flags & O_CREAT) {
@@ -855,37 +849,60 @@ gkfs_dup2(const int oldfd, const int newfd) {
  * @param buf
  * @param count
  * @param offset
+ * @param update_pos pos should only be updated for some write operations (see
+ * man 2 pwrite)
  * @return written size or -1 on error
  */
 ssize_t
 gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
-            size_t count, off64_t offset) {
+            size_t count, off64_t offset, bool update_pos) {
     if(file->type() != gkfs::filemap::FileType::regular) {
         assert(file->type() == gkfs::filemap::FileType::directory);
-        LOG(WARNING, "Cannot read from directory");
+        LOG(WARNING, "Cannot write to directory");
         errno = EISDIR;
         return -1;
     }
-    auto path = make_shared<string>(file->path());
-    auto append_flag = file->get_flag(gkfs::filemap::OpenFile_flags::append);
+    auto path = make_unique<string>(file->path());
+    auto is_append = file->get_flag(gkfs::filemap::OpenFile_flags::append);
 
-    auto ret_update_size = gkfs::rpc::forward_update_metadentry_size(
-            *path, count, offset, append_flag);
-    auto err = ret_update_size.first;
+    auto ret_offset = gkfs::rpc::forward_update_metadentry_size(
+            *path, count, offset, is_append);
+    auto err = ret_offset.first;
     if(err) {
         LOG(ERROR, "update_metadentry_size() failed with err '{}'", err);
         errno = err;
         return -1;
     }
-    auto updated_size = ret_update_size.second;
+    if(is_append) {
+        // When append is set the EOF is set to the offset
+        // forward_update_metadentry_size returns. This is because it is an
+        // atomic operation on the server and reserves the space for this append
+        if(ret_offset.second == -1) {
+            LOG(ERROR,
+                "update_metadentry_size() received -1 as starting offset. "
+                "This occurs when the staring offset could not be extracted "
+                "from RocksDB's merge operations. Inform GekkoFS devs.");
+            errno = EIO;
+            return -1;
+        }
+        offset = ret_offset.second;
+    }
 
-    auto ret_write = gkfs::rpc::forward_write(*path, buf, append_flag, offset,
-                                              count, updated_size);
+    auto ret_write = gkfs::rpc::forward_write(*path, buf, offset, count);
     err = ret_write.first;
     if(err) {
         LOG(WARNING, "gkfs::rpc::forward_write() failed with err '{}'", err);
         errno = err;
         return -1;
+    }
+    if(update_pos) {
+        // Update offset in file descriptor in the file map
+        file->pos(offset + ret_write.second);
+    }
+    if(static_cast<size_t>(ret_write.second) != count) {
+        LOG(WARNING,
+            "gkfs::rpc::forward_write() wrote '{}' bytes instead of '{}'",
+            ret_write.second, count);
     }
     return ret_write.second; // return written size
 }
@@ -916,17 +933,9 @@ gkfs_pwrite_ws(int fd, const void* buf, size_t count, off64_t offset) {
 ssize_t
 gkfs_write(int fd, const void* buf, size_t count) {
     auto gkfs_fd = CTX->file_map()->get(fd);
-    auto pos = gkfs_fd->pos(); // retrieve the current offset
-    if(gkfs_fd->get_flag(gkfs::filemap::OpenFile_flags::append)) {
-        gkfs_lseek(gkfs_fd, 0, SEEK_END);
-        pos = gkfs_fd->pos(); // Pos should be updated with append
-    }
+    // call pwrite and update pos
     auto ret = gkfs_pwrite(gkfs_fd, reinterpret_cast<const char*>(buf), count,
-                           pos);
-    // Update offset in file descriptor in the file map
-    if(ret > 0) {
-        gkfs_fd->pos(pos + count);
-    }
+                           gkfs_fd->pos(), true);
     return ret;
 }
 

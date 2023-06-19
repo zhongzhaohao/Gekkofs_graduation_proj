@@ -197,20 +197,55 @@ RocksDBBackend::update_impl(const std::string& old_key,
 /**
  * Updates the size on the metadata
  * Operation. E.g., called before a write() call
+ *
+ * A special case represents the append operation. Since multiple processes
+ * could want to append a file in parallel, the corresponding offsets where the
+ * write operation starts, needs to be reserved. This is an expensive operation
+ * as we need to force a RocksDB Merge operation to receive the starting offset
+ * for this write request.
+ *
  * @param key
- * @param size
+ * @param io_size
+ * @param offset
  * @param append
- * @throws DBException on failure
+ * @return offset where the write operation should start. This is only used when
+ * append is set
  */
-void
-RocksDBBackend::increase_size_impl(const std::string& key, size_t size,
-                                   bool append) {
-
-    auto uop = IncreaseSizeOperand(size, append);
-    auto s = db_->Merge(write_opts_, key, uop.serialize());
-    if(!s.ok()) {
-        throw_status_excpt(s);
+off_t
+RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
+                                   off_t offset, bool append) {
+    off_t out_offset = -1;
+    if(append) {
+        auto merge_id = gkfs::metadata::gen_unique_id(key);
+        // no offset needed because new size is current file size + io_size
+        auto uop = IncreaseSizeOperand(io_size, merge_id, append);
+        auto s = db_->Merge(write_opts_, key, uop.serialize());
+        if(!s.ok()) {
+            throw_status_excpt(s);
+        } else {
+            // force merge operation to run
+            get_impl(key);
+            try {
+                // the offset was added during FullMergeV2() call
+                out_offset =
+                        GKFS_METADATA_MOD->append_offset_reserve_get_and_erase(
+                                merge_id);
+            } catch(std::out_of_range& e) {
+                GKFS_METADATA_MOD->log()->warn(
+                        "{}() - out_of_range exception: {} when attempting to get offset for key {}",
+                        __func__, e.what(), key);
+            }
+        }
+    } else {
+        // In the standard case we simply add the I/O request size to the
+        // offset.
+        auto uop = IncreaseSizeOperand(offset + io_size);
+        auto s = db_->Merge(write_opts_, key, uop.serialize());
+        if(!s.ok()) {
+            throw_status_excpt(s);
+        }
     }
+    return out_offset;
 }
 
 /**

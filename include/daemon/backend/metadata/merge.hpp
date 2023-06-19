@@ -29,7 +29,7 @@
 #ifndef DB_MERGE_HPP
 #define DB_MERGE_HPP
 
-
+#include <daemon/backend/metadata/metadata_module.hpp>
 #include <rocksdb/merge_operator.h>
 #include <common/metadata.hpp>
 
@@ -37,12 +37,18 @@ namespace rdb = rocksdb;
 
 namespace gkfs::metadata {
 
+/**
+ * @brief Merge operator classifiers
+ */
 enum class OperandID : char {
     increase_size = 'i',
     decrease_size = 'd',
     create = 'c'
 };
 
+/**
+ * @brief Base class for merge operands
+ */
 class MergeOperand {
 public:
     constexpr static char operand_id_suffix = ':';
@@ -66,17 +72,28 @@ protected:
     virtual OperandID
     id() const = 0;
 };
-
+/**
+ * @brief Increase size operand
+ */
 class IncreaseSizeOperand : public MergeOperand {
+private:
+    constexpr const static char serialize_sep = ',';
+    constexpr const static char serialize_end = '\0';
+
+    size_t size_;
+    /*
+     * ID of the merge operation that this operand belongs to.
+     * This ID is used only in append operations to communicate the starting
+     * write offset from the asynchronous Merge operation back to the caller in
+     * `increase_size_impl()`.
+     */
+    uint16_t merge_id_;
+    bool append_;
+
 public:
-    constexpr const static char separator = ',';
-    constexpr const static char true_char = 't';
-    constexpr const static char false_char = 'f';
+    IncreaseSizeOperand(size_t size);
 
-    size_t size;
-    bool append;
-
-    IncreaseSizeOperand(size_t size, bool append);
+    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append);
 
     explicit IncreaseSizeOperand(const rdb::Slice& serialized_op);
 
@@ -85,12 +102,30 @@ public:
 
     std::string
     serialize_params() const override;
+
+    size_t
+    size() const {
+        return size_;
+    }
+
+    uint16_t
+    merge_id() const {
+        return merge_id_;
+    }
+
+    bool
+    append() const {
+        return append_;
+    }
 };
-
+/**
+ * @brief Decrease size operand
+ */
 class DecreaseSizeOperand : public MergeOperand {
-public:
-    size_t size;
+private:
+    size_t size_;
 
+public:
     explicit DecreaseSizeOperand(size_t size);
 
     explicit DecreaseSizeOperand(const rdb::Slice& serialized_op);
@@ -100,8 +135,15 @@ public:
 
     std::string
     serialize_params() const override;
-};
 
+    size_t
+    size() const {
+        return size_;
+    }
+};
+/**
+ * @brief Create operand
+ */
 class CreateOperand : public MergeOperand {
 public:
     std::string metadata;
@@ -114,24 +156,49 @@ public:
     std::string
     serialize_params() const override;
 };
-
+/**
+ * @brief Merge operator class passed to RocksDB, used during merge operations
+ */
 class MetadataMergeOperator : public rocksdb::MergeOperator {
 public:
     ~MetadataMergeOperator() override = default;
 
+    /**
+     * @brief Merges all operands in chronological order for the same key
+     * @param op1 Input operand
+     * @param op2 Output operand
+     * @return Result of the merge operation
+     */
     bool
     FullMergeV2(const MergeOperationInput& merge_in,
                 MergeOperationOutput* merge_out) const override;
 
+    /**
+     * @brief TODO functionality unclear. Currently unused.
+     * @param key
+     * @param operand_list
+     * @param new_value
+     * @param logger
+     * @return
+     */
     bool
     PartialMergeMulti(const rdb::Slice& key,
                       const std::deque<rdb::Slice>& operand_list,
                       std::string* new_value,
                       rdb::Logger* logger) const override;
 
+    /**
+     * @brief Returns the name of this Merge operator
+     * @return
+     */
     const char*
     Name() const override;
 
+    /**
+     * @brief Merge Operator configuration which allows merges with just a
+     * single operand.
+     * @return
+     */
     bool
     AllowSingleOperand() const override;
 };
