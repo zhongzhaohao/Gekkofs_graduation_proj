@@ -21,6 +21,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   existing file descriptor ([!133](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/133)).
 - Added `FLOCK` and `fcntl` functions for locks to interception albeit not supported by GekkoFS and returning the
   corresponding error code ([!133](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/133)).
+- Added ARM64 support ([!160](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/160)).
 - Added support for [CMake presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) to simplify build 
   configurations ([!163](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/163#note_8179)).
 - Several improvements to CMake scripts ([!143](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/143))):

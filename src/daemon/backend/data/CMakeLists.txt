@@ -27,15 +27,15 @@
 ################################################################################
 
 add_library(data_module
-  STATIC
-)
+    STATIC
+    )
 
 target_sources(data_module
-  PUBLIC
+    PUBLIC
     ${INCLUDE_DIR}/daemon/backend/data/data_module.hpp
-  PRIVATE
+    PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/data_module.cpp
-)
+    )
 
 target_link_libraries(data_module
   PRIVATE

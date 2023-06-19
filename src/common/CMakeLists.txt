@@ -100,18 +100,18 @@ target_sources(metadata
     ${CMAKE_CURRENT_LIST_DIR}/metadata.cpp
     )
 target_link_libraries(metadata
-  PRIVATE
+    PRIVATE
     fmt::fmt
     )
 
 add_library(path_util
-  STATIC
-  )
+    STATIC
+    )
 set_property(TARGET path_util PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_sources(path_util
-  PRIVATE
+    PRIVATE
     path_util.cpp
-  PUBLIC
+    PUBLIC
     ${INCLUDE_DIR}/common/path_util.hpp
-  )
+    )
