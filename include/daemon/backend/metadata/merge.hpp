@@ -81,6 +81,12 @@ private:
     constexpr const static char serialize_end = '\0';
 
     size_t size_;
+    /*
+     * ID of the merge operation that this operand belongs to.
+     * This ID is used only in append operations to communicate the starting
+     * write offset from the asynchronous Merge operation back to the caller in
+     * `increase_size_impl()`.
+     */
     uint16_t merge_id_;
     bool append_;
 
