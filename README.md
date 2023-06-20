@@ -13,15 +13,18 @@ to I/O, which reduces interferences and improves performance.
 
 - \>gcc-8 (including g++) for C++11 support
 - General build tools: Git, Curl, CMake >3.6 (>3.11 for GekkoFS testing), Autoconf, Automake
-- Miscellaneous: Libtool, Libconfig 
+- Miscellaneous: Libtool, Libconfig
 
 ### Debian/Ubuntu
+
 GekkoFS base dependencies: `apt install git curl cmake autoconf automake libtool libconfig-dev`
 
 GekkoFS testing support: `apt install python3-dev python3 python3-venv`
 
 With testing
+
 ### CentOS/Red Hat
+
 GekkoFS base dependencies: `yum install gcc-c++ git curl cmake autoconf automake libtool libconfig`
 
 GekkoFS testing support: `python38-devel` (**>Python-3.6 required**)
@@ -30,26 +33,33 @@ GekkoFS testing support: `python38-devel` (**>Python-3.6 required**)
 
 1. Make sure the above listed dependencies are available on your machine
 2. Clone GekkoFS: `git clone --recurse-submodules https://storage.bsc.es/gitlab/hpc/gekkofs.git`
-   - (Optional) (Optional) If you checked out the sources using `git` without the `--recursive` option, you need to
-     execute the following command from the root of the source directory: `git submodule update --init`
+    - (Optional) (Optional) If you checked out the sources using `git` without the `--recursive` option, you need to
+      execute the following command from the root of the source directory: `git submodule update --init`
 3. Set up the necessary environment variables where the compiled direct GekkoFS dependencies will be installed at (we
    assume the path `/home/foo/gekkofs_deps/install` in the following)
-   - `export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/foo/gekkofs_deps/install/lib:/home/foo/gekkofs_deps/install/lib64`
+    - `export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/foo/gekkofs_deps/install/lib:/home/foo/gekkofs_deps/install/lib64`
 4. Download and compile the direct dependencies, e.g.,
-   - Download example: `gekkofs/scripts/dl_dep.sh /home/foo/gekkofs_deps/git`
-   - Compilation example: `gekkofs/scripts/compile_dep.sh /home/foo/gekkofs_deps/git /home/foo/gekkofs_deps/install`
-   - Consult `-h` for additional arguments for each script
+    - Download example: `gekkofs/scripts/dl_dep.sh /home/foo/gekkofs_deps/git`
+    - Compilation example: `gekkofs/scripts/compile_dep.sh /home/foo/gekkofs_deps/git /home/foo/gekkofs_deps/install`
+    - Consult `-h` for additional arguments for each script
 5. Compile GekkoFS and run optional tests
-   - Create build directory: `mkdir gekkofs/build && cd gekkofs/build`
-   - Configure GekkoFS: `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/home/foo/gekkofs_deps/install ..`
-       - add `-DCMAKE_INSTALL_PREFIX=<install_path>` where the GekkoFS client library and server executable should be available 
-       - add `-DGKFS_BUILD_TESTS=ON` if tests should be build
-   - Build and install GekkoFS: `make -j8 install`
-   - Run tests: `make test`
+    - Create build directory: `mkdir gekkofs/build && cd gekkofs/build`
+    - Configure GekkoFS: `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/home/foo/gekkofs_deps/install ..`
+        - add `-DCMAKE_INSTALL_PREFIX=<install_path>` where the GekkoFS client library and server executable should be
+          available
+        - add `-DGKFS_BUILD_TESTS=ON` if tests should be build
+    - Build and install GekkoFS: `make -j8 install`
+    - Run tests: `make test`
 
 GekkoFS is now available at:
+
 - GekkoFS daemon (server): `<install_path>/bin/gkfs_daemon`
 - GekkoFS client interception library: `<install_path>/lib64/libgkfs_intercept.so`
+
+## Use Spack to install GekkoFS (alternative)
+
+The Spack tool can be used to easily install GekkoFS and its dependencies. Refer to the
+following [README](scripts/spack/README.md) for details.
 
 # Run GekkoFS
 
@@ -70,9 +80,11 @@ The `-P` argument is used for setting another RPC protocol. See below.
 
 ## The GekkoFS hostsfile
 
-Each GekkoFS daemon needs to register itself in a shared file (*hostsfile*) which needs to be accessible to _all_ GekkoFS clients and daemons.
+Each GekkoFS daemon needs to register itself in a shared file (*hostsfile*) which needs to be accessible to _all_
+GekkoFS clients and daemons.
 Therefore, the hostsfile describes a file system and which node is part of that specific GekkoFS file system instance.
-In a typical cluster environment this hostsfile should be placed within a POSIX-compliant parallel file system, such as GPFS or Lustre.
+In a typical cluster environment this hostsfile should be placed within a POSIX-compliant parallel file system, such as
+GPFS or Lustre.
 
 *Note: NFS is not strongly consistent and cannot be used for the hosts file!*
 
@@ -80,7 +92,9 @@ In a typical cluster environment this hostsfile should be placed within a POSIX-
 
 tl;dr example: `<install_path>/bin/gkfs_daemon -r <fs_data_path> -m <pseudo_gkfs_mount_dir_path> -H <hostsfile_path>`
 
-Run the GekkoFS daemon on each node specifying its locally used directory where the file system data and metadata is stored (`-r/--rootdir <fs_data_path>`), e.g., the node-local SSD;
+Run the GekkoFS daemon on each node specifying its locally used directory where the file system data and metadata is
+stored (`-r/--rootdir <fs_data_path>`), e.g., the node-local SSD;
+
 2. the pseudo mount directory used by clients to access GekkoFS (`-m/--mountdir <pseudo_gkfs_mount_dir_path>`); and
 3. the hostsfile path (`-H/--hostsfile <hostfile_path>`).
 
@@ -191,28 +205,28 @@ to `/tmp/gkfs_client.log`.
 The following modules are available:
 
 - `none`: don't print any messages
- - `syscalls`: Trace system calls: print the name of each system call, its
-   arguments, and its return value. All system calls are printed after being
-   executed save for those that may not return, such as `execve()`,
-   `execve_at()`, `exit()`, and `exit_group()`. This module will only be
-   available if the client library is built in `Debug` mode.
- - `syscalls_at_entry`: Trace system calls: print the name of each system call
-   and its arguments. All system calls are printed before being executed and
-   therefore their return values are not available in the log. This module will
-   only be available if the client library is built in `Debug` mode.
- - `info`: Print information messages.
- - `critical`: Print critical errors.
- - `errors`: Print errors.
- - `warnings`: Print warnings.
- - `mercury`: Print Mercury messages.
- - `debug`: Print debug messages.  This module will only be available if the
-   client library is built in `Debug` mode.
- - `most`: All previous options combined except `syscalls_at_entry`. This
-   module will only be available if the client library is built in `Debug`
-   mode.
- - `all`: All previous options combined.
- - `trace_reads`: Generate log line with extra information in read operations for guided distributor
- - `help`: Print a help message and exit.
+- `syscalls`: Trace system calls: print the name of each system call, its
+  arguments, and its return value. All system calls are printed after being
+  executed save for those that may not return, such as `execve()`,
+  `execve_at()`, `exit()`, and `exit_group()`. This module will only be
+  available if the client library is built in `Debug` mode.
+- `syscalls_at_entry`: Trace system calls: print the name of each system call
+  and its arguments. All system calls are printed before being executed and
+  therefore their return values are not available in the log. This module will
+  only be available if the client library is built in `Debug` mode.
+- `info`: Print information messages.
+- `critical`: Print critical errors.
+- `errors`: Print errors.
+- `warnings`: Print warnings.
+- `mercury`: Print Mercury messages.
+- `debug`: Print debug messages. This module will only be available if the
+  client library is built in `Debug` mode.
+- `most`: All previous options combined except `syscalls_at_entry`. This
+  module will only be available if the client library is built in `Debug`
+  mode.
+- `all`: All previous options combined.
+- `trace_reads`: Generate log line with extra information in read operations for guided distributor
+- `help`: Print a help message and exit.
 
 When tracing sytem calls, specific syscalls can be removed from log messages by
 setting the `LIBGKFS_LOG_SYSCALL_FILTER` environment variable. For instance,
@@ -230,28 +244,33 @@ environment variable.
 
 ## External functions
 
-GekkoFS allows to use external functions on your client code, via LD_PRELOAD. 
+GekkoFS allows to use external functions on your client code, via LD_PRELOAD.
 Source code needs to be compiled with -fPIC. We include a pfind io500 substitution,
- `examples/gfind/gfind.cpp` and a non-mpi version `examples/gfind/sfind.cpp`
+`examples/gfind/gfind.cpp` and a non-mpi version `examples/gfind/sfind.cpp`
 
 ## Data distributors
+
 The data distribution can be selected at compilation time, we have 2 distributors available:
 
 ### Simple Hash (Default)
+
 Chunks are distributed randomly to the different GekkoFS servers.
 
 ### Guided Distributor
 
-The guided distributor allows defining a specific distribution of data on a per directory or file basis. 
-The distribution configurations are defined within a shared file (called `guided_config.txt` henceforth) with the following format:
+The guided distributor allows defining a specific distribution of data on a per directory or file basis.
+The distribution configurations are defined within a shared file (called `guided_config.txt` henceforth) with the
+following format:
 `<path> <chunk_number> <host>`
 
 To enable the distributor, the following CMake compilation flags are required:
+
 * `GKFS_USE_GUIDED_DISTRIBUTION` ON
 * `GKFS_USE_GUIDED_DISTRIBUTION_PATH` `<path_guided_config.txt>`
 
-To use a custom distribution, a path needs to have the prefix `#` (e.g., `#/mdt-hard 0 0`), in which all the data of all files in that directory goes to the same place as the metadata.
-Note, that a chunk/host configuration is inherited to all children files automatically even if not using the prefix. 
+To use a custom distribution, a path needs to have the prefix `#` (e.g., `#/mdt-hard 0 0`), in which all the data of all
+files in that directory goes to the same place as the metadata.
+Note, that a chunk/host configuration is inherited to all children files automatically even if not using the prefix.
 In this example, `/mdt-hard/file1` is therefore also using the same distribution as the `/mdt-hard` directory.
 If no prefix is used, the Simple Hash distributor is used.
 
@@ -260,12 +279,15 @@ If no prefix is used, the Simple Hash distributor is used.
 Creating a guided configuration file is based on an I/O trace file of a previous execution of the application.
 For this the `trace_reads` tracing module is used (see above).
 
-The `trace_reads` module enables a `TRACE_READS` level log at the clients writing the I/O information of the client which is used as the input for a script that creates the guided distributor setting.
+The `trace_reads` module enables a `TRACE_READS` level log at the clients writing the I/O information of the client
+which is used as the input for a script that creates the guided distributor setting.
 Note that capturing the necessary trace records can involve performance degradation.
-To capture the I/O of each client within a SLURM environment, i.e., enabling the `trace_reads` module and print its output to a user-defined path, the following example can be used:
+To capture the I/O of each client within a SLURM environment, i.e., enabling the `trace_reads` module and print its
+output to a user-defined path, the following example can be used:
 `srun -N 10 -n 320 --export="ALL" /bin/bash -c "export LIBGKFS_LOG=trace_reads;LIBGKFS_LOG_OUTPUT=${HOME}/test/GLOBAL.txt;LD_PRELOAD=${GKFS_PRLD} <app>"`
 
 Then, the `examples/distributors/guided/generate.py` scrpt is used to create the guided distributor configuration file:
+
 * `python examples/distributors/guided/generate.py ~/test/GLOBAL.txt >> guided_config.txt`
 
 Finally, modify `guided_config.txt` to your distribution requirements.

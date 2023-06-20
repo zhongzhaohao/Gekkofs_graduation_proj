@@ -38,6 +38,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     when building to precisely see how a GekkoFS instance has been configured.
 - Added (parallel) append support for consecutive writes with file descriptor opened
   with `O_APPEND` ([!164](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/164)).
+- Added support for Spack so that it can be used to install
+  GekkoFS ([!137](https://storage.bsc.es/gitlab/hpc/gekkofs/-/merge_requests/137)).
 
 ### Changed
 

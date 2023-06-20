@@ -108,9 +108,10 @@ dependencies:
 - `AGIOS <https://github.com/francielizanon/agios>`_ (commit c26a654 or
   newer) to enable the :code:`GekkoFWD` I/O forwarding mode.
 
-- `PARALLAX` There are two different metadata backends in GekkoFS. The default one uses `rocksdb`, however an alternative based on `PARALLAX` from `FORTH` 
-is available. To enable it, use the `-DGKFS_ENABLE_PARALLAX:BOOL=ON` option, you can also disable `rocksdb` with `-DGKFS_ENABLE_ROCKSDB:BOOL=OFF`.
-  Once it is enabled, `--dbbackend` option will be functional.
+- :code:`PARALLAX` There are two different metadata backends in GekkoFS. The default one uses :code:`rocksdb`, however
+an alternative based on :code:`PARALLAX` from :code:`FORTH` is available. To enable it, use the
+:code:`-DGKFS_ENABLE_PARALLAX:BOOL=ON` option, you can also disable :code:`rocksdb` with
+:code:`-DGKFS_ENABLE_ROCKSDB:BOOL=OFF`. Once it is enabled, :code:`--dbbackend` option will be functional.
 
 
 .. _step_by_step_installation:
@@ -213,3 +214,92 @@ appropriate subdirectories of :code:`GKFS_INSTALL_PATH`:
 
 - GekkoFS daemon (server): :code:`${GKFS_INSTALL_PATH}/bin/gkfs_daemon`
 - GekkoFS client interception library: :code:`${GKFS_INSTALL_PATH}/lib/libgkfs_intercept.so`
+
+Install GekkoFS via Spack (alternative)
+---------------------
+
+Spack is a package manager for supercomputers and Linux. It makes it easy to install scientific software for regular
+users. Spack is another method to install GekkoFS where Spack handles all the dependencies and setting up the environment.
+
+Install Spack
+=========================
+
+First, install Spack. You can find the instructions here: https://spack.readthedocs.io/en/latest/getting_started.html
+
+    .. code-block:: console
+
+        git clone https://github.com/spack/spack.git
+        . spack/share/spack/setup-env.sh
+
+.. attention::
+    Note that the second line needs to be executed every time you open a new terminal. It sets up the environment for Spack
+and the corresponding environment variables, e.g., $PATH.
+
+Install GekkoFS with Spack
+=========================
+
+To install GekkoFS with Spack, the GekkoFS repository needs to be added to Spack as it is not part of the official Spack
+repository.
+
+    .. code-block:: console
+
+        spack repo add gekkofs/scripts/spack
+
+When added, the GekkoFS package is available. Its installation variants and options can be checked via:
+
+    .. code-block:: console
+
+        spack info gekkofs
+
+Then install GekkoFS with Spack:
+
+    .. code-block:: console
+
+        spack install gekkofs
+        # for installing tests dependencies and running tests
+        spack install -v --test=root gekkofs
+
+Finally, GekkoFS is loaded into the currently used environment:
+
+    .. code-block:: console
+
+        spack load gekkofs
+
+This installs the latest release version including its required Git submodules. The installation directory is
+:code:`$SPACK_ROOT/opt/spack/linux-<arch>/<compiler>/<version>/gekkofs-<version>`. The GekkoFS daemon (:code:`gkfs_daemon`) is
+located in the :code:`bin` directory and the GekkoFS client (:code:`libgkfs_intercept.so`) is located in the :code:`lib` directory.
+
+Note that loading the environment adds the GekkoFS daemon to the `$PATH` environment variable. Therefore, the GekkoFS
+daemon is started by running :code:`gkfs_daemon`. Loading GekkoFS in Spack further provides the :code:`$GKFS_CLIENT` environment
+variable pointing to the interception library.
+
+Therefore, the following commands can be run to use GekkoFS:
+
+        .. code-block:: console
+
+            # Consult `-h` or the Readme for further options
+            gkfs_daemon -r /tmp/gkfs_rootdir -m /tmp/gkfs_mountdir &
+            LD_PRELOAD=$GKFS_CLIENT ls -l /tmp/gkfs_mountdir
+            LD_PRELOAD=$GKFS_CLIENT touch /tmp/gkfs_mountdir/foo
+            LD_PRELOAD=$GKFS_CLIENT ls -l /tmp/gkfs_mountdir
+
+When done using GekkoFS, unload it from the environment:
+
+    .. code-block:: console
+
+        spack unload gekkofs
+
+Miscellaneous
+=========================
+
+Use GekkoFS's latest version (master branch) with Spack:
+
+        .. code-block:: console
+
+            spack install gekkofs@latest
+
+Use a specific compiler on your system, e.g., gcc-11.2.0:
+
+        .. code-block:: console
+
+            spack install gekkofs@latest%gcc@11.2.0
