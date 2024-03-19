@@ -146,7 +146,11 @@ forward_write(const string& path, const void* buf, const off64_t offset,
         }
 
         auto endp = CTX->hosts().at(target);
-
+        unsigned int diff = 0;
+        for(unsigned int server = 0; server<CTX->distributor()->locate_fs(path); server++){
+            diff += CTX->hostsconfig().at(server);
+        }
+        diff = diff > target? target:diff;
         try {
 
             LOG(DEBUG, "Sending RPC ...");
@@ -155,8 +159,8 @@ forward_write(const string& path, const void* buf, const off64_t offset,
                     path,
                     // first offset in targets is the chunk with
                     // a potential offset
-                    block_overrun(offset, gkfs::config::rpc::chunksize), target,
-                    CTX->hosts().size(),
+                    block_overrun(offset, gkfs::config::rpc::chunksize), target - diff,
+                    CTX->hostsconfig().at(CTX->distributor()->locate_fs(path)),
                     // number of chunks handled by that destination
                     target_chnks[target].size(),
                     // chunk start id of this write
@@ -323,7 +327,11 @@ forward_read(const string& path, void* buf, const off64_t offset,
         }
 
         auto endp = CTX->hosts().at(target);
-
+        unsigned int diff = 0;
+        for(unsigned int server = 0; server<CTX->distributor()->locate_fs(path); server++){
+            diff += CTX->hostsconfig().at(server);
+        }
+        diff = diff > target? target:diff;
         try {
 
             LOG(DEBUG, "Sending RPC ...");
@@ -332,8 +340,8 @@ forward_read(const string& path, void* buf, const off64_t offset,
                     path,
                     // first offset in targets is the chunk with
                     // a potential offset
-                    block_overrun(offset, gkfs::config::rpc::chunksize), target,
-                    CTX->hosts().size(),
+                    block_overrun(offset, gkfs::config::rpc::chunksize), target - diff,
+                    CTX->hostsconfig().at(CTX->distributor()->locate_fs(path)),
                     // number of chunks handled by that destination
                     target_chnks[target].size(),
                     // chunk start id of this write

@@ -47,6 +47,16 @@ namespace gkfs::rpc {
  * NOTE: No errno is defined here!
  */
 
+struct forward_statfs_args{
+    int fsId;
+    int hostsize_single;
+    int prefix_num;
+    int result;
+    string err;
+    string path;
+    string attr;
+};
+
 /**
  * Send an RPC for a create request
  * @param path
@@ -57,7 +67,7 @@ int
 forward_create(const std::string& path, const mode_t mode) {
 
     auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
-
+    
     try {
         LOG(DEBUG, "Sending RPC ...");
         // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
@@ -77,6 +87,39 @@ forward_create(const std::string& path, const mode_t mode) {
     }
 }
 
+void *
+forward_getSuccessResponseThread(void* data){
+
+    //cout<<"--into-forward_getSuccessResponseThread()--"<<endl;
+    struct forward_statfs_args *statfs_args;
+    statfs_args = (struct forward_statfs_args *) data;
+
+    int prefix_num = statfs_args->prefix_num;
+    int hostsize_single = statfs_args->hostsize_single;
+    
+    int hostid = prefix_num + (CTX->distributor()->locate(statfs_args->path,hostsize_single));
+    //std::cout<<"trying to find the target at prefix = "<< prefix_num << " with pos= "<< hostid - prefix_num<<std::endl;
+
+    auto endp = CTX->hosts().at(hostid);
+  
+    try {
+            //cout<<"--forward_getResponseThread() -Sending RPC--"<<endl;
+            auto out = ld_network_service->post<gkfs::rpc::stat>(endp, statfs_args->path)
+                            .get()
+                            .at(0);
+            LOG(DEBUG, "Got response success: {}", out.err());
+            if(!out.err()){
+                statfs_args->attr = out.db_val();
+            }
+            statfs_args->result = out.err();
+        } catch(const std::exception& ex) {
+            LOG(ERROR, "while getting rpc output");
+            statfs_args->err = EBUSY;
+        }
+   pthread_exit(NULL);
+
+}
+
 /**
  * Send an RPC for a stat request
  * @param path
@@ -86,27 +129,84 @@ forward_create(const std::string& path, const mode_t mode) {
 int
 forward_stat(const std::string& path, string& attr) {
 
-    auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
+    auto hostsconfig_array = CTX->hostsconfig();  //文件系统配置文件数组
+    int hostsconfig_array_length = hostsconfig_array.size();
+    LOG(DEBUG, "{}(), path: {}", __func__, path);
+    //std::cout<<"hostconfig_length"<<hostsconfig_array_length<<std::endl;
+    if(hostsconfig_array_length>1){ 
+        //cout<<"--forward_stat()->NEW -start--\n"<<endl;
+        std::vector<int> prefix_num_array;
+        for(int i=0;i<hostsconfig_array_length;i++){
+            if(i>0){
+                prefix_num_array.push_back(prefix_num_array[i-1]+hostsconfig_array[i-1]);
+            }else{
+                prefix_num_array.push_back(0);
+            }
+        }
 
-    try {
-        LOG(DEBUG, "Sending RPC ...");
-        // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
-        // can retry for RPC_TRIES (see old commits with margo)
-        // TODO(amiranda): hermes will eventually provide a post(endpoint)
-        // returning one result and a broadcast(endpoint_set) returning a
-        // result_set. When that happens we can remove the .at(0) :/
-        auto out = ld_network_service->post<gkfs::rpc::stat>(endp, path)
-                           .get()
-                           .at(0);
-        LOG(DEBUG, "Got response success: {}", out.err());
+        pthread_t threads[hostsconfig_array_length];
+        forward_statfs_args statfs_args[hostsconfig_array_length];
 
-        if(out.err())
-            return out.err();
+        for(int i = 0; i < hostsconfig_array_length; i++){
+            statfs_args[i].fsId =i;
+            statfs_args[i].hostsize_single=hostsconfig_array[i];
+            statfs_args[i].prefix_num=prefix_num_array[i];
+            statfs_args[i].path =path;
+            statfs_args[i].attr =attr;
+            //std::cout<< "now pthread : "<<i<< " size " <<hostsconfig_array[i]<<" prefix "<<prefix_num_array[i] <<std::endl;
+            //参数依次是：创建的线程id，线程参数，调用的函数，传入的函数参数
+            pthread_create(&threads[i], NULL, forward_getSuccessResponseThread, &statfs_args[i]);
+        }
+        int failedCount=0;
+        for(int i = 0; i < hostsconfig_array_length; i++){
+            if (pthread_join(threads[i], NULL) != 0) {
+                std::cerr << "Error joining thread " << i << std::endl;
+            }else{
+                //cout<<"--pthread :"<<i<<endl;
+            }
+            if(statfs_args[i].result==0){
+                //cout<<"---statfs_args[i].attr=="<<statfs_args[i].attr<<endl;
+                attr=statfs_args[i].attr;
+                //cout<<"succeed in finding path "<<path<<" at server"<<i << "with total "<< hostsconfig_array_length<<"servers"<<endl;
+                CTX->pathfs()[path] = i;
+                //cout<<"map size in it "<<CTX->pathfs().size()<<endl;
+            }
+            if(statfs_args[i].result) {
+                failedCount++;
+                if(hostsconfig_array_length==failedCount){
+                    return statfs_args[i].result;
+                }
+            }
+        }
+        //cout<<"thread end---------"<<endl;
+    }else{
 
-        attr = out.db_val();
-    } catch(const std::exception& ex) {
-        LOG(ERROR, "while getting rpc output");
-        return EBUSY;
+        //cout<<"--forward_stat()->OLD -start--"<<endl;
+
+        auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
+
+        try {
+            //cout<<"--forward_stat() -Sending RPC--"<<endl;
+            LOG(DEBUG, "Sending RPC ...");
+            // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
+            // can retry for RPC_TRIES (see old commits with margo)
+            // TODO(amiranda): hermes will eventually provide a post(endpoint)
+            // returning one result and a broadcast(endpoint_set) returning a
+            // result_set. When that happens we can remove the .at(0) :/
+            auto out = ld_network_service->post<gkfs::rpc::stat>(endp, path)
+                            .get()
+                            .at(0);
+            // cout<<"--Got response success:" <<out.err()<<"--"<<endl;
+            LOG(DEBUG, "Got response success: {}", out.err());
+
+            if(out.err()){
+                return out.err();
+            }
+            attr = out.db_val();
+        } catch(const std::exception& ex) {
+            LOG(ERROR, "while getting rpc output");
+            return EBUSY;
+        }
     }
     return 0;
 }

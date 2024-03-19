@@ -48,6 +48,13 @@ public:
     localhost() const = 0;
 
     virtual host_t
+    locate_fs(const std::string& path) const = 0;
+
+
+    virtual host_t
+    locate(const std::string& path, unsigned int hostnum) const = 0;
+
+    virtual host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id) const = 0;
     // TODO: We need to pass hosts_size in the server side, because the number
     // of servers are not defined (in startup)
@@ -66,14 +73,21 @@ public:
 class SimpleHashDistributor : public Distributor {
 private:
     host_t localhost_;
-    unsigned int hosts_size_{0};
+    std::vector<unsigned int> hosts_size_{0};
     std::vector<host_t> all_hosts_;
     std::hash<std::string> str_hash;
+    std::map<std::string, unsigned int> * pathfs_{nullptr};
 
 public:
     SimpleHashDistributor();
 
-    SimpleHashDistributor(host_t localhost, unsigned int hosts_size);
+    SimpleHashDistributor(host_t localhost, std::vector<unsigned int> hosts_size, std::map<std::string, unsigned int> * pathfs);
+
+    host_t
+    locate_fs(const std::string& path) const override;
+
+    host_t
+    locate(const std::string& path, unsigned int hostnum) const override;
 
     host_t
     localhost() const override;
@@ -85,6 +99,7 @@ public:
     host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id,
                 unsigned int host_size);
+    
 
     host_t
     locate_file_metadata(const std::string& path) const override;

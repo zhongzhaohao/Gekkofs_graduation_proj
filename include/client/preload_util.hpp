@@ -86,6 +86,9 @@ load_forwarding_map();
 std::vector<std::pair<std::string, std::string>>
 read_hosts_file();
 
+std::vector<unsigned int>
+read_hosts_config_file();
+
 void
 connect_to_hosts(const std::vector<std::pair<std::string, std::string>>& hosts);
 

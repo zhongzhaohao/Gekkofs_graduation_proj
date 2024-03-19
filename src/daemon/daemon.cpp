@@ -70,7 +70,7 @@ namespace fs = std::filesystem;
 
 static condition_variable shutdown_please; // handler for shutdown signaling
 static mutex mtx; // mutex to wait on shutdown conditional variable
-static bool keep_rootdir = true;
+static bool keep_rootdir = false;
 
 struct cli_options {
     string mountdir;
@@ -84,6 +84,7 @@ struct cli_options {
     string parallax_size;
     string stats_file;
     string prometheus_gateway;
+    string record_path;
 };
 
 /**
@@ -532,7 +533,7 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
 
     GKFS_DATA->rpc_protocol(rpc_protocol);
     GKFS_DATA->bind_addr(fmt::format("{}://{}", rpc_protocol, addr));
-
+    //std::cout<<"bind_addr: "<<GKFS_DATA->bind_addr()<<std::endl;
     string hosts_file;
     if(desc.count("--hosts-file")) {
         hosts_file = opts.hosts_file;
@@ -541,6 +542,11 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
                                         gkfs::config::hostfile_path);
     }
     GKFS_DATA->hosts_file(hosts_file);
+    
+    assert(desc.count("--files-record"));
+    string record_path;
+    record_path = opts.record_path;
+    GKFS_DATA->record_path(record_path);
 
     assert(desc.count("--mountdir"));
     auto mountdir = opts.mountdir;
@@ -787,6 +793,9 @@ main(int argc, const char* argv[]) {
     desc.add_option(
                 "--output-stats", opts.stats_file,
                 "Creates a thread that outputs the server stats each 10s to the specified file.");
+    desc.add_option("--files-record,-f", opts.record_path,
+                    "Where host config file exists.");
+                    
     #ifdef GKFS_ENABLE_PROMETHEUS
     desc.add_flag(
                 "--enable-prometheus",
@@ -828,7 +837,7 @@ main(int argc, const char* argv[]) {
 
     // parse all input parameters and populate singleton structures
     try {
-        parse_input(opts, desc);
+        parse_input(opts, desc);//save all the paras to GKFS_DATA
     } catch(const std::exception& e) {
         cerr << fmt::format("Parsing arguments failed: '{}'. Exiting.",
                             e.what());

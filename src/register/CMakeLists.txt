@@ -1,6 +1,6 @@
 ################################################################################
-# Copyright 2018-2023, Barcelona Supercomputing Center (BSC), Spain            #
-# Copyright 2015-2023, Johannes Gutenberg Universitaet Mainz, Germany          #
+# Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany          #
 #                                                                              #
 # This software was partially supported by the                                 #
 # EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).    #
@@ -26,15 +26,30 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# Common components
-add_subdirectory(common)
-# Daemon
-add_subdirectory(daemon)
-# Client library
-add_subdirectory(client)
-add_subdirectory(register)
-target_sources(gkfs_daemon PUBLIC config.hpp version.hpp.in)
 
-if(GKFS_ENABLE_FORWARDING)
-  target_sources(gkfwd_daemon PUBLIC config.hpp version.hpp.in)
-endif()
+# ##############################################################################
+# This builds the `gkfs_daemon` executable: the primary GekkoFS daemon.
+# ##############################################################################
+add_executable(gkfs_register)
+
+# We need to add here any files that may have different compile definitions
+target_sources(
+  gkfs_register
+  PRIVATE server.cpp
+          my-rpc.cpp
+  PUBLIC ${CMAKE_SOURCE_DIR}/include/config.hpp
+         ${CMAKE_SOURCE_DIR}/include/version.hpp.in
+)
+target_link_libraries(
+  gkfs_register
+  	 env_util
+         # external libs
+         CLI11::CLI11
+         fmt::fmt
+         Mercury::Mercury
+         Argobots::Argobots
+         Margo::Margo
+         # others
+         Threads::Threads
+)
+

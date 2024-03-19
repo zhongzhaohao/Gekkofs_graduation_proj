@@ -92,6 +92,8 @@ private:
     std::string mountdir_;
 
     std::vector<hermes::endpoint> hosts_;
+    std::vector<unsigned int> hostsconfig_;
+    std::map<std::string, unsigned int> pathfs_;
     uint64_t local_host_id_;
     uint64_t fwd_host_id_;
     std::string rpc_protocol_;
@@ -140,6 +142,15 @@ public:
 
     void
     hosts(const std::vector<hermes::endpoint>& addrs);
+
+    const std::vector<unsigned int>&
+    hostsconfig() const;
+
+    void
+    hostsconfig(const std::vector<unsigned int>& hostsconfig);
+
+    std::map<std::string, unsigned int>&
+    pathfs() ; 
 
     void
     clear_hosts();

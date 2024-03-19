@@ -176,29 +176,38 @@ namespace gkfs::preload {
 
 /**
  * This function is only called in the preload constructor and initializes
- * the file system client
+ * the file system client，包括读取hostfile，设置守护进程通信方式，
  */
 void
 init_environment() {
 
     vector<pair<string, string>> hosts{};
+    vector<unsigned int> hosts_config{};
     try {
         LOG(INFO, "Loading peer addresses...");
-        hosts = gkfs::utils::read_hosts_file();
+        hosts = gkfs::utils::read_hosts_file();//name , proto://url，此时已经把上下文rpc通信协议变量设置好了
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to load hosts addresses: "s + e.what());
+    }   
+    try {
+        LOG(INFO, "Loading system config...");
+        //first para is env host file path ,second is ./hosts.txt, return a path
+        hosts_config = gkfs::utils::read_hosts_config_file();
+    } catch(const std::exception& e) {
+        exit_error_msg(EXIT_FAILURE,
+                       "Failed to load system config: "s + e.what());
     }
-
+    CTX->hostsconfig(hosts_config);
     // initialize Hermes interface to Mercury
     LOG(INFO, "Initializing RPC subsystem...");
 
-    if(!init_hermes_client()) {
+    if(!init_hermes_client()) { //指定通讯方式，打开mercury异步事件处理引擎
         exit_error_msg(EXIT_FAILURE, "Unable to initialize RPC subsystem");
     }
 
     try {
-        gkfs::utils::connect_to_hosts(hosts);
+        gkfs::utils::connect_to_hosts(hosts);//find hosts addr and save them to ctx
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to connect to hosts: "s + e.what());
@@ -225,12 +234,12 @@ init_environment() {
             CTX->local_host_id(), CTX->hosts().size());
 #else
     auto distributor = std::make_shared<gkfs::rpc::SimpleHashDistributor>(
-            CTX->local_host_id(), CTX->hosts().size());
+            CTX->local_host_id(), CTX->hostsconfig(),&(CTX->pathfs()));
 #endif
     CTX->distributor(distributor);
 #endif
 
-
+    //printf("%ld",(unsigned int)(&(CTX->pathfs())));
     LOG(INFO, "Retrieving file system configuration...");
 
     if(!gkfs::rpc::forward_get_fs_config()) {
@@ -269,13 +278,13 @@ init_preload() {
     // [MAX_USER_FDS, MAX_OPEN_FDS) range. To prevent this for our internal
     // initialization code, we forcefully occupy the user fd range to force
     // such modules to create fds in our private range.
-    CTX->protect_user_fds();
+    CTX->protect_user_fds();//把所有0-max user fds中的文件描述符全部占用，这样新生成的文件描述符只能在私有范围内产生
 
     log_prog_name();
-    gkfs::path::init_cwd();
+    gkfs::path::init_cwd();//修正上下文工作目录为当前进程的环境目录
 
     LOG(DEBUG, "Current working directory: '{}'", CTX->cwd());
-    gkfs::preload::init_environment();
+    gkfs::preload::init_environment();//读了hostfile，并
     CTX->enable_interception();
 
     CTX->unprotect_user_fds();
@@ -286,8 +295,17 @@ init_preload() {
 
     gkfs::preload::start_interception();
     errno = oerrno;
-}
 
+}
+void cpy_from_daemons(){
+    if(!gkfs::rpc::forward_get_daemons_config()) {
+        exit_error_msg(
+                EXIT_FAILURE,
+                "Unable to fetch file system configurations from daemon process through RPC.");
+    }
+
+    LOG(INFO, "Daemons configurations got.");
+}
 /**
  * Called last when preload library is used with the LD_PRELOAD environment
  * variable

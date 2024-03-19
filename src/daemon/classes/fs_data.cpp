@@ -150,6 +150,16 @@ FsData::hosts_file(const std::string& lookup_file) {
     hosts_file_ = lookup_file;
 }
 
+const std::string&
+FsData::record_path() const {
+    return record_path_;
+}
+
+void
+FsData::record_path(const std::string& record_path) {
+    record_path_ = record_path;
+}
+
 bool
 FsData::use_auto_sm() const {
     return use_auto_sm_;

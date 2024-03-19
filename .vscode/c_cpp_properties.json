@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/changqin/gekkofs/include",
+                "/home/changqin/gekkofs/external/hermes/include",
+                "/home/changqin/gekkofs/external/CLI11/include",
+                "/home/changqin/gekkofs/external/fmt/include",
+                "/home/changqin/gekkofs/external/spdlog/include",
+                "/home/changqin/gekkofs_deps/install/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

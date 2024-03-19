@@ -165,17 +165,17 @@ load_hostfile(const std::string& path) {
             throw runtime_error(
                     fmt::format("unrecognized line format: '{}'", line));
         }
-        host = match[1];
-        uri = match[2];
+        host = match[1];//changqin...
+        uri = match[2];//ofi+sockets://192.....
         hosts.emplace_back(host, uri);
     }
     if(hosts.empty()) {
         throw runtime_error(
                 "Hosts file found but no suitable addresses could be extracted");
     }
-    extract_protocol(hosts[0].second);
+    extract_protocol(hosts[0].second);//protocol at 0 -- 
     // sort hosts so that data always hashes to the same place during restart
-    std::sort(hosts.begin(), hosts.end());
+    //std::sort(hosts.begin(), hosts.end());
     // remove rootdir suffix from host after sorting as no longer required
     for(auto& h : hosts) {
         auto idx = h.first.rfind("#");
@@ -200,6 +200,7 @@ namespace gkfs::utils {
 optional<gkfs::metadata::Metadata>
 get_metadata(const string& path, bool follow_links) {
     std::string attr;
+    //std::cout<<"get_metatdata here"<<std::endl;
     auto err = gkfs::rpc::forward_stat(path, attr);
     if(err) {
         errno = err;
@@ -353,11 +354,11 @@ load_forwarding_map() {
 vector<pair<string, string>>
 read_hosts_file() {
     string hostfile;
-
+    //first para is env host file path ,second is ./hosts.txt, return a path
     hostfile = gkfs::env::get_var(gkfs::env::HOSTS_FILE,
                                   gkfs::config::hostfile_path);
-
-    vector<pair<string, string>> hosts;
+    
+    vector<pair<string, string>> hosts;// name , protoc://socket
     try {
         hosts = load_hostfile(hostfile);
     } catch(const exception& e) {
@@ -372,7 +373,29 @@ read_hosts_file() {
     LOG(INFO, "Hosts pool size: {}", hosts.size());
     return hosts;
 }
+vector<unsigned int>
+read_hosts_config_file() {
+    string hostconfigfile;
+    //first para is env host file path ,second is ./hosts.txt, return a path
+    hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
+                                  gkfs::config::hostfile_config_path);
+    ifstream lf(hostconfigfile);
+    string line;
+    vector<unsigned int> hcfile;
+    while (getline(lf, line)){
+        if(line.length()>0){
+            hcfile.push_back(stoi(line));
+        }  
+    }
+    
+    if(hcfile.empty()) {
+        throw runtime_error(fmt::format("HostConfigfile empty: '{}'", hostconfigfile));
+    }
 
+    LOG(INFO, "Hosts config pool size: {}", hcfile.size());
+    //std::cout<<"succeed in reading "<<hostconfigfile<<" hostfonfig "<<hcfile.size()<<std::endl;
+    return hcfile;
+}
 /**
  * Connects to daemons and lookup Mercury URI addresses via Hermes
  * @param hosts vector<pair<hostname, Mercury URI address>>
@@ -403,7 +426,7 @@ connect_to_hosts(const vector<pair<string, string>>& hosts) {
     for(const auto& id : host_ids) {
         const auto& hostname = hosts.at(id).first;
         const auto& uri = hosts.at(id).second;
-
+       //std::cout<< "id:"<< id<<" hostname + uri" << hostname<<" " << uri<<std::endl;
         addrs[id] = lookup_endpoint(uri);
 
         if(!local_host_found && hostname == local_hostname) {

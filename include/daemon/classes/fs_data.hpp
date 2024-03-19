@@ -66,6 +66,7 @@ private:
     std::string rootdir_suffix_{};
     std::string mountdir_{};
     std::string metadir_{};
+    std::string record_path_{};
 
     // RPC management
     std::string rpc_protocol_{};
@@ -137,6 +138,12 @@ public:
 
     void
     mountdir(const std::string& mountdir_);
+    
+    const std::string&
+    record_path() const;
+
+    void
+    record_path(const std::string& record_path);
 
     const std::string&
     metadir() const;

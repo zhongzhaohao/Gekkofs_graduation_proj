@@ -138,6 +138,21 @@ PreloadContext::hosts(const std::vector<hermes::endpoint>& endpoints) {
     hosts_ = endpoints;
 }
 
+const std::vector<unsigned int>&
+PreloadContext::hostsconfig() const {
+    return hostsconfig_;
+}
+
+void
+PreloadContext::hostsconfig(const std::vector<unsigned int>& hconfig) {
+    hostsconfig_ = hconfig;
+}
+
+std::map<std::string, unsigned int>&
+PreloadContext::pathfs() {
+    return pathfs_;
+}
+
 void
 PreloadContext::clear_hosts() {
     hosts_.clear();
@@ -391,7 +406,7 @@ PreloadContext::is_internal_fd(int fd) const {
     std::lock_guard<std::mutex> lock(internal_fds_mutex_);
     return !internal_fds_.test(pos);
 }
-
+//把所有0-max user fds中的文件描述符全部占用
 void
 PreloadContext::protect_user_fds() {
 

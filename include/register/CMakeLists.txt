@@ -26,15 +26,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# Common components
-add_subdirectory(common)
-# Daemon
-add_subdirectory(daemon)
-# Client library
-add_subdirectory(client)
-add_subdirectory(register)
-target_sources(gkfs_daemon PUBLIC config.hpp version.hpp.in)
-
-if(GKFS_ENABLE_FORWARDING)
-  target_sources(gkfwd_daemon PUBLIC config.hpp version.hpp.in)
-endif()
+target_sources(
+  gkfs_register
+  PUBLIC my-rpc.hpp
+  	 env.hpp
+)

@@ -75,4 +75,9 @@ forward_get_fs_config() {
     return true;
 }
 
+bool
+forward_get_daemons_config(){
+    ;
+}
+
 } // namespace gkfs::rpc
