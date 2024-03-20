@@ -21,8 +21,8 @@
 #include <common/statistics/stats.hpp>
 #include <common/common_defs.hpp>
 
-#include <register/my-rpc.hpp>
-#include <register/env.hpp>
+#include <registry/my-rpc.hpp>
+#include <registry/env.hpp>
 
 using namespace std;
 /* example server program.  Starts HG engine, registers the example RPC type,
@@ -36,8 +36,8 @@ struct cli_options {
 
 int main(int argc, char** argv)
 {
-    string register_file  = gkfs::env::get_var(gkfs::env::REGISTER_FILE,
-                                        gkfs::config::registerfile_path);
+    string registry_file  = gkfs::env::get_var(gkfs::env::REGISTRY_FILE,
+                                        gkfs::config::registryfile_path);
     
     auto rpc_protocol = string(gkfs::rpc::protocol::ofi_sockets);
 
@@ -79,16 +79,16 @@ int main(int argc, char** argv)
     }
     margo_addr_free(mid, addr_self);
 
-    ofstream lf(register_file, ios::out);
+    ofstream lf(registry_file, ios::out);
     if(!lf) {
         throw runtime_error(fmt::format("Failed to open hosts file '{}': {}",
-                                        register_file, strerror(errno)));
+                                        registry_file, strerror(errno)));
     }
     lf << addr_self_string << endl;
     if(!lf) {
         throw runtime_error(
                 fmt::format("Failed to write on hosts file '{}': {}",
-                            register_file, strerror(errno)));
+                            registry_file, strerror(errno)));
     }
     lf.close();
 

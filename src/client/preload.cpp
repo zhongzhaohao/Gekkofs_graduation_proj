@@ -175,14 +175,48 @@ log_prog_name() {
 namespace gkfs::preload {
 
 /**
+ * This function is only called in init_envrionment before reading hostfile and hostconfigfile 
+ * and request registry to generate merge hostfile and hostconfigfile
+ */
+void request_registry(){
+    return ;
+    string mergeflows,hostfile,hostconfigfile;
+    if(!gkfs::utils::CheckMerge(mergeflows,hostfile,hostconfigfile))
+        return ;
+    //to do request register to merge fs
+}
+
+
+/**
  * This function is only called in the preload constructor and initializes
  * the file system client，包括读取hostfile，设置守护进程通信方式，
  */
 void
 init_environment() {
 
+    string registry_addr = "";
+    try {
+        LOG(INFO, "Loading registry address...");
+        registry_addr = gkfs::utils::read_registry_file();//name , proto://url，此时已经把上下文rpc通信协议变量设置好了
+    } catch(const std::exception& e) {
+        exit_error_msg(EXIT_FAILURE,
+                       "Failed to load hosts addresses: "s + e.what());
+    }   
+    // initialize Hermes interface to Mercury
+    LOG(INFO, "Initializing RPC subsystem...");
+    if(!init_hermes_client()) { //指定通讯方式，打开mercury异步事件处理引擎
+        exit_error_msg(EXIT_FAILURE, "Unable to initialize RPC subsystem");
+    }
+    try {
+        gkfs::utils::connect_to_registry(registry_addr);//find hosts addr and save them to ctx
+    } catch(const std::exception& e) {
+        exit_error_msg(EXIT_FAILURE,
+                       "Failed to connect to hosts: "s + e.what());
+    }
+    request_registry();
+
     vector<pair<string, string>> hosts{};
-    vector<unsigned int> hosts_config{};
+    pair<vector<unsigned int>,vector<unsigned int>> hosts_config{};
     try {
         LOG(INFO, "Loading peer addresses...");
         hosts = gkfs::utils::read_hosts_file();//name , proto://url，此时已经把上下文rpc通信协议变量设置好了
@@ -192,20 +226,14 @@ init_environment() {
     }   
     try {
         LOG(INFO, "Loading system config...");
-        //first para is env host file path ,second is ./hosts.txt, return a path
         hosts_config = gkfs::utils::read_hosts_config_file();
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to load system config: "s + e.what());
     }
-    CTX->hostsconfig(hosts_config);
-    // initialize Hermes interface to Mercury
-    LOG(INFO, "Initializing RPC subsystem...");
-
-    if(!init_hermes_client()) { //指定通讯方式，打开mercury异步事件处理引擎
-        exit_error_msg(EXIT_FAILURE, "Unable to initialize RPC subsystem");
-    }
-
+    CTX->hostsconfig(hosts_config.first);
+    CTX->fspriority(hosts_config.second);
+    
     try {
         gkfs::utils::connect_to_hosts(hosts);//find hosts addr and save them to ctx
     } catch(const std::exception& e) {
@@ -234,7 +262,7 @@ init_environment() {
             CTX->local_host_id(), CTX->hosts().size());
 #else
     auto distributor = std::make_shared<gkfs::rpc::SimpleHashDistributor>(
-            CTX->local_host_id(), CTX->hostsconfig(),&(CTX->pathfs()));
+            CTX->local_host_id(), CTX->hostsconfig(),&(CTX->pathfs()), CTX->local_fs_id());
 #endif
     CTX->distributor(distributor);
 #endif
@@ -250,6 +278,7 @@ init_environment() {
 
     LOG(INFO, "Environment initialization successful.");
 }
+
 
 } // namespace gkfs::preload
 
@@ -297,15 +326,6 @@ init_preload() {
     errno = oerrno;
 
 }
-void cpy_from_daemons(){
-    if(!gkfs::rpc::forward_get_daemons_config()) {
-        exit_error_msg(
-                EXIT_FAILURE,
-                "Unable to fetch file system configurations from daemon process through RPC.");
-    }
-
-    LOG(INFO, "Daemons configurations got.");
-}
 /**
  * Called last when preload library is used with the LD_PRELOAD environment
  * variable
@@ -318,6 +338,7 @@ destroy_preload() {
 
     CTX->clear_hosts();
     LOG(DEBUG, "Peer information deleted");
+    //todo making job flow to register
 
     ld_network_service.reset();
     LOG(DEBUG, "RPC subsystem shut down");

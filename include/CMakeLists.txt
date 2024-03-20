@@ -32,7 +32,7 @@ add_subdirectory(common)
 add_subdirectory(daemon)
 # Client library
 add_subdirectory(client)
-add_subdirectory(register)
+add_subdirectory(registry)
 target_sources(gkfs_daemon PUBLIC config.hpp version.hpp.in)
 
 if(GKFS_ENABLE_FORWARDING)

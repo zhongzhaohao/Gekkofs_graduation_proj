@@ -30,18 +30,18 @@
 # ##############################################################################
 # This builds the `gkfs_daemon` executable: the primary GekkoFS daemon.
 # ##############################################################################
-add_executable(gkfs_register)
+add_executable(gkfs_registry)
 
 # We need to add here any files that may have different compile definitions
 target_sources(
-  gkfs_register
+  gkfs_registry
   PRIVATE server.cpp
           my-rpc.cpp
   PUBLIC ${CMAKE_SOURCE_DIR}/include/config.hpp
          ${CMAKE_SOURCE_DIR}/include/version.hpp.in
 )
 target_link_libraries(
-  gkfs_register
+  gkfs_registry
   	 env_util
          # external libs
          CLI11::CLI11

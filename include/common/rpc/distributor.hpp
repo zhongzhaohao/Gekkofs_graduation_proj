@@ -73,6 +73,7 @@ public:
 class SimpleHashDistributor : public Distributor {
 private:
     host_t localhost_;
+    host_t localfs_ = 0;
     std::vector<unsigned int> hosts_size_{0};
     std::vector<host_t> all_hosts_;
     std::hash<std::string> str_hash;
@@ -81,7 +82,8 @@ private:
 public:
     SimpleHashDistributor();
 
-    SimpleHashDistributor(host_t localhost, std::vector<unsigned int> hosts_size, std::map<std::string, unsigned int> * pathfs);
+    SimpleHashDistributor(host_t localhost, std::vector<unsigned int> hosts_size, std::map<std::string, unsigned int> * pathfs,
+                         host_t localfs);
 
     host_t
     locate_fs(const std::string& path) const override;

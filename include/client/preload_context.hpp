@@ -92,9 +92,12 @@ private:
     std::string mountdir_;
 
     std::vector<hermes::endpoint> hosts_;
+    hermes::endpoint registry_;
     std::vector<unsigned int> hostsconfig_;
+    std::vector<unsigned int> fspriority_;
     std::map<std::string, unsigned int> pathfs_;
     uint64_t local_host_id_;
+    uint64_t local_fs_id_;
     uint64_t fwd_host_id_;
     std::string rpc_protocol_;
     bool auto_sm_{false};
@@ -143,11 +146,24 @@ public:
     void
     hosts(const std::vector<hermes::endpoint>& addrs);
 
+    const hermes::endpoint
+    registry() const;
+
+    void
+    registry(const hermes::endpoint &registry);
+
     const std::vector<unsigned int>&
     hostsconfig() const;
 
     void
     hostsconfig(const std::vector<unsigned int>& hostsconfig);
+
+    const std::vector<unsigned int>&
+    fspriority() const;
+
+    void
+    fspriority(const std::vector<unsigned int>& hostsconfig);
+
 
     std::map<std::string, unsigned int>&
     pathfs() ; 
@@ -160,6 +176,12 @@ public:
 
     void
     local_host_id(uint64_t id);
+
+    uint64_t
+    local_fs_id() const;
+
+    void
+    local_fs_id(uint64_t id);
 
     uint64_t
     fwd_host_id() const;

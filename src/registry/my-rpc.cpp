@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
-#include <register/my-rpc.hpp>
+#include <registry/my-rpc.hpp>
 
 /* my-rpc:
  * This is an example RPC operation.  It includes a small bulk transfer,

@@ -35,8 +35,10 @@ namespace gkfs {
 namespace rpc {
 
 SimpleHashDistributor::SimpleHashDistributor(host_t localhost,
-                                             std::vector<unsigned int> hosts_size,std::map<std::string, unsigned int>* pathfs)
-    : localhost_(localhost), hosts_size_(hosts_size), pathfs_(pathfs),
+                                             std::vector<unsigned int> hosts_size,
+                                             std::map<std::string, unsigned int>* pathfs,
+                                             host_t localfs)
+    : localhost_(localhost), hosts_size_(hosts_size), pathfs_(pathfs), localfs_(localfs),
     all_hosts_(
         std::accumulate(hosts_size.begin(), hosts_size.end(), 0, [](unsigned int x, unsigned int y) {
         return x+y;})
@@ -54,27 +56,27 @@ SimpleHashDistributor::localhost() const {
 host_t
 SimpleHashDistributor::locate_fs(const std::string& path) const{
     
-    unsigned int fs = str_hash(path) % hosts_size_.size();
+    unsigned int fs = localfs_;
     if(pathfs_ && pathfs_->count(path)) fs= (*pathfs_)[path];
-    //std::cout<< "locate_fs hash path:"<<path<< " gives: "<< fs << std::endl;
+    std::cout<< "locate_fs hash path:"<<path<< " gives: "<< fs << std::endl;
     return fs;
 }
 
 host_t
 SimpleHashDistributor::locate(const std::string& path, unsigned int hostnum) const{
-    //std::cout<< "locate hash path:"<<path<< " gives: "<< str_hash(path) % hostnum << std::endl;
+    std::cout<< "locate hash path:"<<path<< " gives: "<< str_hash(path) % hostnum << std::endl;
     return str_hash(path) % hostnum;
 }
 
 host_t
 SimpleHashDistributor::locate_data(const string& path,
                                    const chunkid_t& chnk_id) const {
-    unsigned int server_id = str_hash(path) % hosts_size_.size();
+    unsigned int server_id = localfs_;
     if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<< "locate_data hash path:"<<path<<" givers server id:"<<server_id<<std::endl;
+    std::cout<< "locate_data hash path:"<<path<<" givers server id:"<<server_id<<std::endl;
     return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
 }
 
@@ -86,12 +88,12 @@ SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
         all_hosts_ = std::vector<unsigned int>(hosts_size);
         ::iota(all_hosts_.begin(), all_hosts_.end(), 0);
     }
-    unsigned int server_id = str_hash(path) % hosts_size_.size();
+    unsigned int server_id = localfs_;
     if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<< "locate_data hash path:"<<path<<" gives severid:"<<server_id<< " gives: "<<  std::endl;
+    std::cout<< "locate_data hash path:"<<path<<" gives severid:"<<server_id<< " gives: "<<  std::endl;
     return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
 }
 
@@ -99,18 +101,29 @@ SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
 
 host_t
 SimpleHashDistributor::locate_file_metadata(const string& path) const {
-    unsigned int server_id = str_hash(path) % hosts_size_.size();
+    unsigned int server_id = localfs_;
     if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
-    //std::cout<<"path "<<path<<" locate_file_meatadata: gives serverid"<<server_id<<" ";
+    std::cout<<"path "<<path<<" locate_file_meatadata: gives serverid"<<server_id<<" ";
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<<"final pos" << str_hash(path) % hosts_size_.at(server_id) + all_daemons << std::endl;
+    std::cout<<"final pos" << str_hash(path) % hosts_size_.at(server_id) + all_daemons << std::endl;
     return str_hash(path) % hosts_size_.at(server_id) + all_daemons;
 }
 
 ::vector<host_t>
 SimpleHashDistributor::locate_directory_metadata(const string& path) const {
+    //if(path == "/")
+    //    return all_hosts_;
+    if(pathfs_ && pathfs_->count(path)){
+        unsigned int server_id = (*pathfs_)[path];
+        unsigned int all_daemons = 0;
+        for(unsigned int server = 0 ;server < server_id ; server++)
+            all_daemons += hosts_size_[server];
+        vector<host_t> target_hosts(all_hosts_.begin() + all_daemons, 
+                                    all_hosts_.begin() + all_daemons + hosts_size_[server_id]);
+        return target_hosts;   
+    } 
     return all_hosts_;
 }
 

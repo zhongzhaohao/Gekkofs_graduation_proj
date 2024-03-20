@@ -34,8 +34,7 @@ namespace gkfs::rpc {
 
 bool
 forward_get_fs_config();
-bool
-forward_get_daemons_config();
+
 } // namespace gkfs::rpc
 
 #endif // GEKKOFS_CLIENT_FORWARD_MNGMNT_HPP

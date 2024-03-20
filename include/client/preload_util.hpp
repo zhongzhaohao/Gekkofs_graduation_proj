@@ -86,11 +86,21 @@ load_forwarding_map();
 std::vector<std::pair<std::string, std::string>>
 read_hosts_file();
 
-std::vector<unsigned int>
+std::pair<std::vector<unsigned int>, std::vector<unsigned int>>
 read_hosts_config_file();
+
+std::string
+read_registry_file();
+
+bool
+CheckMerge(std::string &workflows,std::string &hostfile,
+           std::string &hostconfigfile);
 
 void
 connect_to_hosts(const std::vector<std::pair<std::string, std::string>>& hosts);
+
+void
+connect_to_registry(const std::string addr);
 
 } // namespace gkfs::utils
 

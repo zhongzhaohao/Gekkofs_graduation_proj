@@ -33,5 +33,5 @@ add_subdirectory(daemon)
 # Client library
 add_subdirectory(client)
 # Register
-add_subdirectory(register)
+add_subdirectory(registry)
 

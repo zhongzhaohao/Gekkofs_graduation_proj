@@ -27,7 +27,7 @@
 ################################################################################
 
 target_sources(
-  gkfs_register
+  gkfs_registry
   PUBLIC my-rpc.hpp
   	 env.hpp
 )

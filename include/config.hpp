@@ -41,7 +41,8 @@ namespace gkfs::config {
 constexpr auto hostfile_path = "./gkfs_hosts.txt";
 constexpr auto hostfile_config_path = "./gkfs_hosts_config.txt";
 constexpr auto forwarding_file_path = "./gkfs_forwarding.map";
-constexpr auto registerfile_path = "./gkfs_register.txt";
+constexpr auto registryfile_path = "./gkfs_registry.txt";
+constexpr auto merge_default = "off";
 
 namespace io {
 /*
@@ -65,9 +66,9 @@ constexpr auto dir = "metadata";
 
 // which metadata should be considered apart from size and mode
 // Blocks are used to store the rename status (-1 is a renamed file)
-constexpr auto use_atime = false;
-constexpr auto use_ctime = false;
-constexpr auto use_mtime = false;
+constexpr auto use_atime = true;
+constexpr auto use_ctime = true;
+constexpr auto use_mtime = true;
 constexpr auto use_link_cnt = false;
 #ifdef HAS_RENAME
 constexpr auto use_blocks = true;

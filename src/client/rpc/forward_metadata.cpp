@@ -67,7 +67,7 @@ int
 forward_create(const std::string& path, const mode_t mode) {
 
     auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
-    
+    std::cout<<"create "<<CTX->distributor()->locate_file_metadata(path)<<std::endl;
     try {
         LOG(DEBUG, "Sending RPC ...");
         // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
@@ -130,9 +130,9 @@ int
 forward_stat(const std::string& path, string& attr) {
 
     auto hostsconfig_array = CTX->hostsconfig();  //文件系统配置文件数组
+    auto priority_array = CTX->fspriority();
     int hostsconfig_array_length = hostsconfig_array.size();
     LOG(DEBUG, "{}(), path: {}", __func__, path);
-    //std::cout<<"hostconfig_length"<<hostsconfig_array_length<<std::endl;
     if(hostsconfig_array_length>1){ 
         //cout<<"--forward_stat()->NEW -start--\n"<<endl;
         std::vector<int> prefix_num_array;
@@ -146,6 +146,7 @@ forward_stat(const std::string& path, string& attr) {
 
         pthread_t threads[hostsconfig_array_length];
         forward_statfs_args statfs_args[hostsconfig_array_length];
+        vector<pair<unsigned int, string>> founds;
 
         for(int i = 0; i < hostsconfig_array_length; i++){
             statfs_args[i].fsId =i;
@@ -165,6 +166,7 @@ forward_stat(const std::string& path, string& attr) {
                 //cout<<"--pthread :"<<i<<endl;
             }
             if(statfs_args[i].result==0){
+                founds.push_back({i,statfs_args[i].attr});
                 //cout<<"---statfs_args[i].attr=="<<statfs_args[i].attr<<endl;
                 attr=statfs_args[i].attr;
                 //cout<<"succeed in finding path "<<path<<" at server"<<i << "with total "<< hostsconfig_array_length<<"servers"<<endl;
@@ -178,6 +180,14 @@ forward_stat(const std::string& path, string& attr) {
                 }
             }
         }
+        if(true)
+        for(auto find : founds) {
+            if(priority_array[find.first] < priority_array[ CTX->pathfs()[path] ]){
+                CTX->pathfs()[path] = find.first;
+                attr = find.second;
+            }
+        }
+        //cout<<"succeed in finding path "<<path<<" at server"<< CTX->pathfs()[path]<< "with total "<< hostsconfig_array_length<<"servers"<<endl;
         //cout<<"thread end---------"<<endl;
     }else{
 

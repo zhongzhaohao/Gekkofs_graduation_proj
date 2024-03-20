@@ -90,7 +90,6 @@ struct dirent_extended {
 namespace {
 /**
  * make sure pathfs will not be too large
- * CREATE_CHECK_PARENTS). errno may be set
  * @param path
  */
 static void clear_one_pathfs(std::string path){

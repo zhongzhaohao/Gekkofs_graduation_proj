@@ -138,6 +138,16 @@ PreloadContext::hosts(const std::vector<hermes::endpoint>& endpoints) {
     hosts_ = endpoints;
 }
 
+const hermes::endpoint
+PreloadContext::registry() const {
+    return registry_;
+}
+
+void
+PreloadContext::registry(const hermes::endpoint& registry) {
+    registry_ = registry;
+}
+
 const std::vector<unsigned int>&
 PreloadContext::hostsconfig() const {
     return hostsconfig_;
@@ -146,6 +156,16 @@ PreloadContext::hostsconfig() const {
 void
 PreloadContext::hostsconfig(const std::vector<unsigned int>& hconfig) {
     hostsconfig_ = hconfig;
+}
+
+const std::vector<unsigned int>&
+PreloadContext::fspriority() const {
+    return fspriority_;
+}
+
+void
+PreloadContext::fspriority(const std::vector<unsigned int>& hconfig) {
+    fspriority_ = hconfig;
 }
 
 std::map<std::string, unsigned int>&
@@ -166,6 +186,16 @@ PreloadContext::local_host_id() const {
 void
 PreloadContext::local_host_id(uint64_t id) {
     local_host_id_ = id;
+}
+
+uint64_t
+PreloadContext::local_fs_id() const {
+    return local_fs_id_;
+}
+
+void
+PreloadContext::local_fs_id(uint64_t id) {
+    local_fs_id_ = id;
 }
 
 uint64_t

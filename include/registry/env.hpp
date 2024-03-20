@@ -40,7 +40,7 @@
 /* Environment variables for the GekkoFS daemon */
 namespace gkfs::env {
 
-static constexpr auto REGISTER_FILE = ADD_PREFIX("REGISTER_FILE");
+static constexpr auto REGISTRY_FILE = ADD_PREFIX("REGISTER_FILE");
 
 } // namespace gkfs::env
 
