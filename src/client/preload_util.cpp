@@ -71,6 +71,7 @@ lookup_endpoint(const std::string& uri, std::size_t max_retries = 3) {
 
     do {
         try {
+            std::cout<< "looking up " << uri << std::endl;
             return ld_network_service->lookup(uri);
         } catch(const exception& ex) {
             error_msg = ex.what();
@@ -364,6 +365,7 @@ bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile){
     bool hfexist = !access(hostfile.c_str(),F_OK);
     bool hcexist = !access(hostconfigfile.c_str(),F_OK);
     if(merge == "on"){
+        return true;
         if(hfexist && hcexist) return false;
         if(!hfexist && !hcexist) {
             if(!mergeflows.length())

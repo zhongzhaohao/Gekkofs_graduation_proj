@@ -75,5 +75,32 @@ forward_get_fs_config() {
     return true;
 }
 
+int
+forward_request_registry(std::string flows, std::string hcfile, std::string hfile) {
+
+    auto endp = CTX->registry();
+    gkfs::rpc::registry_request::output out;
+    gkfs::rpc::registry_request::input in(flows, hcfile, hfile);
+   
+    try {
+        LOG(DEBUG, "Retrieving merge files from registry");
+        // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
+        // can retry for RPC_TRIES (see old commits with margo)
+        // TODO(amiranda): hermes will eventually provide a post(endpoint)
+        // returning one result and a broadcast(endpoint_set) returning a
+        // result_set. When that happens we can remove the .at(0) :/
+         std::cout<< "now is requesting " << endp.to_string() <<std::endl;
+        out = ld_network_service->post<gkfs::rpc::registry_request>(endp,in).get().at(0);
+         std::cout<< "finish requesting " <<std::endl;
+        LOG(DEBUG, "Got response success: {}", out.err());
+
+        return out.err() ? out.err() : 0;
+    } catch(const std::exception& ex) {
+        LOG(ERROR, "while getting rpc output");
+        return EBUSY;
+    }
+
+}
+
 
 } // namespace gkfs::rpc

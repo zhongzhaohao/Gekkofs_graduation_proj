@@ -96,7 +96,7 @@ int main(int argc, char** argv)
     fprintf(stderr, "# connect to this server with \"./margo-example-client %s\"\n", addr_self_string);
 
     /* register RPC */
-    MARGO_REGISTER(mid, "my_rpc", my_rpc_in_t, my_rpc_out_t, my_rpc_ult);
+    MARGO_REGISTER(mid, gkfs::rpc::tag::registry_request, rpc_registry_request_in_t, rpc_registry_request_out_t, rpc_srv_registry_request);
     MARGO_REGISTER(mid, "my_shutdown_rpc", void, void, my_rpc_shutdown_ult);
 
 #if 0

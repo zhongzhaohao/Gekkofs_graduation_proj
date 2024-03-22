@@ -118,6 +118,13 @@ MERCURY_GEN_PROC(
                 (hg_bool_t) (blocks_state))((hg_uint32_t) (uid))(
                 (hg_uint32_t) (gid)))
 
+MERCURY_GEN_PROC(
+        rpc_registry_request_out_t,
+        ((hg_int32_t) (err)))
+
+MERCURY_GEN_PROC(
+        rpc_registry_request_in_t,
+        ((hg_const_string_t) (merge_flows))((hg_const_string_t) (merge_hcfile))((hg_const_string_t) (merge_hfile)))
 
 MERCURY_GEN_PROC(rpc_chunk_stat_in_t, ((hg_int32_t) (dummy)))
 

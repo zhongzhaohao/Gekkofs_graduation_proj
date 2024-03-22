@@ -178,12 +178,18 @@ namespace gkfs::preload {
  * This function is only called in init_envrionment before reading hostfile and hostconfigfile 
  * and request registry to generate merge hostfile and hostconfigfile
  */
-void request_registry(){
-    return ;
+int request_registry(){
     string mergeflows,hostfile,hostconfigfile;
     if(!gkfs::utils::CheckMerge(mergeflows,hostfile,hostconfigfile))
-        return ;
+        return 0;
     //to do request register to merge fs
+    std::cout<< " now is requesting registry "<<std::endl;
+    auto err = gkfs::rpc::forward_request_registry(mergeflows,hostconfigfile,hostfile);
+    if(err) {
+        errno = err;
+        return -1;
+    }
+    return 0;
 }
 
 

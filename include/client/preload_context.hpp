@@ -96,6 +96,7 @@ private:
     std::vector<unsigned int> hostsconfig_;
     std::vector<unsigned int> fspriority_;
     std::map<std::string, unsigned int> pathfs_;
+
     uint64_t local_host_id_;
     uint64_t local_fs_id_;
     uint64_t fwd_host_id_;
