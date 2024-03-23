@@ -29,7 +29,7 @@ variables:
     export GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
     export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt 
-    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config.txt 
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config1.txt 
     export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
     export LIBGKFS__WORK_FLOW=workname
     
@@ -43,8 +43,8 @@ variables:
 # 启动一个融合GekkoFS:
     export GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
-    export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt 
-    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config.txt 
+    export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host2.txt 
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config2.txt 
     export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
     export LIBGKFS__WORK_FLOW=workname
     
