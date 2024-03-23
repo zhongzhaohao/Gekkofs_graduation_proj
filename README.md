@@ -68,7 +68,7 @@ variables:
     LIBGKFS_HOSTS_FILE        所指代的文件应不存在，由registry自动生成
     LIBGKFS_HOSTS_CONFIG_FILE 所指代的文件应不存在，由registry自动生成
     LIBGKFS_MERGE             必须为on
-    LIBGKFS_MERGE_FLOWS       多个工作流名称，由;分隔，是用户想要查询的工作流，并想合并工作流所在系统。
+    LIBGKFS_MERGE_FLOWS       多个工作流名称，由;分隔，是用户想要查询的工作流，并想合并工作流所在系统，工作流顺序代表了系统优先级。
     启动示例:
     client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
     
