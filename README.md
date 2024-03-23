@@ -31,12 +31,12 @@ variables:
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
     export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt 
     export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config1.txt 
-    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS_REGISTRY_FILE=/home/foo/gekkofs/build/src/registry/gkfs_registry.txt
     export LIBGKFS__WORK_FLOW=workname
     
     注：LIBGKFS_HOSTS_CONFIG_FILE 只有一行，两个正整数，第一个代表此文件系统deamons数量，第二个代表此文件系统的数据一致性优先级，可为1
     启动示例：
-    daemon： /home/foo/gekkofs/build/src/daemon/gkfs_daemon -r /home/changqin/gkfs/fs/fs1 -m /home/foo/gkfs/mount -l ens33 -H /home/foo/gkfs/hostfile/host1.txt  &
+    daemon： /home/foo/gekkofs/build/src/daemon/gkfs_daemon -r /home/foo/gkfs/fs/fs1 -m /home/foo/gkfs/mount -l ens33 -H /home/foo/gkfs/hostfile/host1.txt  &
     registry: /home/foo/gekkofs/build/src/registry/gkfs_registry 
     client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
     
@@ -46,7 +46,7 @@ variables:
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
     export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host2.txt 
     export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config2.txt 
-    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS_REGISTRY_FILE=/home/foo/gekkofs/build/src/registry/gkfs_registry.txt
     export LIBGKFS__WORK_FLOW=workname
     
     LIBGKFS_HOSTS_FILE所指代的文件内容为多个独立GekkoFS的hosts_file内容的直接拼接，每行代表一个daemon地址，同一个独立GekkoFS的daemon地址紧邻。
@@ -56,11 +56,11 @@ variables:
     client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
     
 # 通registry，启动一个融合GekkoFS:
-    export GKFS_INSTALL_PATH=/home/changqin/gekkofs_deps/install                             
+    export GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install                             
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
-    export LIBGKFS_HOSTS_FILE=/home/changqin/gkfs/hostfile/host4.txt
-    export LIBGKFS_HOSTS_CONFIG_FILE=/home/changqin/gkfs/hostconfigfile/hcfile4.txt
-    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host4.txt
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/hcfile4.txt
+    export LIBGKFS_REGISTRY_FILE=/home/foo/gekkofs/build/src/registry/gkfs_registry.txt
     export LIBGKFS_WORK_FLOW=workname4
     export LIBGKFS_MERGE=on
     export LIBGKFS_MERGE_FLOWS="workname1;workname3;workname2"
