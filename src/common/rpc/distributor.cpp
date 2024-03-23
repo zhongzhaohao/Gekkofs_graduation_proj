@@ -113,8 +113,8 @@ SimpleHashDistributor::locate_file_metadata(const string& path) const {
 
 ::vector<host_t>
 SimpleHashDistributor::locate_directory_metadata(const string& path) const {
-    //if(path == "/")
-    //    return all_hosts_;
+    if(path == "/")
+        return all_hosts_;
     if(pathfs_ && pathfs_->count(path)){
         unsigned int server_id = (*pathfs_)[path];
         unsigned int all_daemons = 0;

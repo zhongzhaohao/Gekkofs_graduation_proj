@@ -126,6 +126,10 @@ MERCURY_GEN_PROC(
         rpc_registry_request_in_t,
         ((hg_const_string_t) (merge_flows))((hg_const_string_t) (merge_hcfile))((hg_const_string_t) (merge_hfile)))
 
+MERCURY_GEN_PROC(
+        rpc_registry_register_in_t,
+        ((hg_const_string_t) (work_flow))((hg_const_string_t) (hcfile))((hg_const_string_t) (hfile)))
+
 MERCURY_GEN_PROC(rpc_chunk_stat_in_t, ((hg_int32_t) (dummy)))
 
 MERCURY_GEN_PROC(

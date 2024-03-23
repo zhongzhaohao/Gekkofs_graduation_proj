@@ -256,7 +256,7 @@ struct registry_request {
     // RPC public identifier
     // (N.B: we reuse the same IDs assigned by Margo so that the daemon
     // understands Hermes RPCs)
-    constexpr static const uint64_t public_id = 1776579856;
+    constexpr static const uint64_t public_id = 286982144;
 
     // RPC internal Mercury identifier
     constexpr static const hg_id_t mercury_id = public_id;
@@ -348,6 +348,129 @@ struct registry_request {
         operator=(const output& other) = default;
 
         explicit output(const rpc_registry_request_out_t& out) {
+            m_err = out.err;
+        }
+
+        int32_t
+        err() const {
+            return m_err;
+        }
+
+    private:
+        int32_t m_err;
+    };
+};
+
+struct registry_register {
+
+    // forward declarations of public input/output types for this RPC
+    class input;
+
+    class output;
+
+    // traits used so that the engine knows what to do with the RPC
+    using self_type = registry_register;
+    using handle_type = hermes::rpc_handle<self_type>;
+    using input_type = input;
+    using output_type = output;
+    using mercury_input_type = rpc_registry_register_in_t;
+    using mercury_output_type =  rpc_err_out_t;
+
+    // RPC public identifier
+    // (N.B: we reuse the same IDs assigned by Margo so that the daemon
+    // understands Hermes RPCs)
+    constexpr static const uint64_t public_id = 2425487360;
+
+    // RPC internal Mercury identifier
+    constexpr static const hg_id_t mercury_id = public_id;
+
+    // RPC name
+    constexpr static const auto name = gkfs::rpc::tag::registry_register;
+
+    // requires response?
+    constexpr static const auto requires_response = true;
+
+    // Mercury callback to serialize input arguments
+    constexpr static const auto mercury_in_proc_cb =
+            HG_GEN_PROC_NAME(rpc_registry_register_in_t);
+
+    // Mercury callback to serialize output arguments
+    constexpr static const auto mercury_out_proc_cb =
+            HG_GEN_PROC_NAME(rpc_err_out_t);
+
+    class input {
+
+        template <typename ExecutionContext>
+        friend hg_return_t
+        hermes::detail::post_to_mercury(ExecutionContext*);
+
+    public:
+        input(const std::string& work_flow, const std::string& hcfile, const std::string& hfile)
+            : m_work_flow(work_flow), m_hcfile(hcfile), m_hfile(hfile){}
+
+        input(input&& rhs) = default;
+
+        input(const input& other) = default;
+
+        input&
+        operator=(input&& rhs) = default;
+
+        input&
+        operator=(const input& other) = default;
+
+        explicit input(const rpc_registry_register_in_t& other)
+            : m_work_flow(other.work_flow), m_hcfile(other.hcfile), m_hfile(other.hfile){}
+
+
+        explicit operator rpc_registry_register_in_t() {
+            return { m_work_flow.c_str(),m_hcfile.c_str(),m_hfile.c_str()};
+        }
+
+        std::string
+        merge_flows() const {
+            return m_work_flow;
+        }
+
+        std::string
+        mountdir() const {
+            return m_hcfile;
+        }
+
+        std::string
+        rootdir() const {
+            return m_hfile;
+        }
+
+    private:
+        std::string m_work_flow;
+        std::string m_hcfile;
+        std::string m_hfile;
+    };
+
+    class output {
+
+        template <typename ExecutionContext>
+        friend hg_return_t
+        hermes::detail::post_to_mercury(ExecutionContext*);
+
+    public:
+        output()
+            : m_err(){}
+
+        output(int32_t err)
+            : m_err(err) {}
+
+        output(output&& rhs) = default;
+
+        output(const output& other) = default;
+
+        output&
+        operator=(output&& rhs) = default;
+
+        output&
+        operator=(const output& other) = default;
+
+        explicit output(const rpc_err_out_t& out) {
             m_err = out.err;
         }
 

@@ -92,6 +92,9 @@ read_hosts_config_file();
 std::string
 read_registry_file();
 
+void read_env(std::string &workflow,std::string &hostfile,
+              std::string &hostconfigfile);
+
 bool
 CheckMerge(std::string &workflows,std::string &hostfile,
            std::string &hostconfigfile);

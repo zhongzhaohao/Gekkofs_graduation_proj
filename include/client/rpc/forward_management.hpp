@@ -36,10 +36,13 @@ namespace gkfs::rpc {
 
 bool
 forward_get_fs_config();
+
 int
 forward_request_registry(std::string flows, std::string hcfile, std::string hfile);
-//bool
-//forward_register_registry();
+
+int
+forward_register_registry(std::string work_flow, std::string hcfile, std::string hfile);
+
 } // namespace gkfs::rpc
 
 #endif // GEKKOFS_CLIENT_FORWARD_MNGMNT_HPP

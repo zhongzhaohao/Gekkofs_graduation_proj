@@ -238,6 +238,11 @@ init_environment() {
                        "Failed to load system config: "s + e.what());
     }
     CTX->hostsconfig(hosts_config.first);
+    std::cout<< "here to print hc" <<std::endl;
+    for(auto hc : hosts_config.first){
+        std::cout << hc << " " ;
+    }
+    std:: cout <<std::endl;
     CTX->fspriority(hosts_config.second);
     
     try {
@@ -285,6 +290,18 @@ init_environment() {
     LOG(INFO, "Environment initialization successful.");
 }
 
+int register_registry(){
+    string workflow,hostfile,hostconfigfile;
+    gkfs::utils::read_env(workflow,hostfile,hostconfigfile);
+    //to do request register to merge fs
+    std::cout<< " now is requesting registry "<<std::endl;
+    auto err = gkfs::rpc::forward_register_registry(workflow,hostconfigfile,hostfile);
+    if(err) {
+        errno = err;
+        return -1;
+    }
+    return 0;
+}
 
 } // namespace gkfs::preload
 
@@ -344,7 +361,8 @@ destroy_preload() {
 
     CTX->clear_hosts();
     LOG(DEBUG, "Peer information deleted");
-    //todo making job flow to register
+    //register job flow to registry
+    gkfs::preload::register_registry();
 
     ld_network_service.reset();
     LOG(DEBUG, "RPC subsystem shut down");

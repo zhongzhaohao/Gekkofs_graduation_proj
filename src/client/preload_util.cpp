@@ -71,7 +71,6 @@ lookup_endpoint(const std::string& uri, std::size_t max_retries = 3) {
 
     do {
         try {
-            std::cout<< "looking up " << uri << std::endl;
             return ld_network_service->lookup(uri);
         } catch(const exception& ex) {
             error_msg = ex.what();
@@ -352,6 +351,15 @@ load_forwarding_map() {
 }
 #endif
 
+void read_env(string &workflow,string &hostfile,string &hostconfigfile){
+    hostfile = gkfs::env::get_var(gkfs::env::HOSTS_FILE,
+                                  gkfs::config::hostfile_path);  
+    hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
+                                  gkfs::config::hostfile_config_path);
+    workflow = gkfs::env::get_var(gkfs::env::WORK_FLOW,
+                                  "default_job");//todo default name of work flow
+}
+
 bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile){
     auto merge = gkfs::env::get_var(gkfs::env::MERGE,
                                   gkfs::config::merge_default);
@@ -365,7 +373,6 @@ bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile){
     bool hfexist = !access(hostfile.c_str(),F_OK);
     bool hcexist = !access(hostconfigfile.c_str(),F_OK);
     if(merge == "on"){
-        return true;
         if(hfexist && hcexist) return false;
         if(!hfexist && !hcexist) {
             if(!mergeflows.length())
@@ -426,11 +433,13 @@ read_hosts_config_file() {
     //first para is env host file path ,second is ./hosts.txt, return a path
     hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
                                   gkfs::config::hostfile_config_path);
+    std::cout<< "hcfile path " << hostconfigfile <<std::endl;
     ifstream lf(hostconfigfile);
     string line;
     vector<unsigned int> hcfile,fspriority;
     while (getline(lf, line)){
         std::istringstream iss(line);
+        std::cout<<"line in hcfile" << line <<std::endl;
         unsigned int x,y;
         if(!(iss >> x >> y)){
             throw runtime_error(fmt::format("Invalid file format: '{}'", hostconfigfile));

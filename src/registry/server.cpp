@@ -50,7 +50,6 @@ int main(int argc, char** argv)
     char*                  starter_json        = "{\"output_dir\":\"/tmp\"}";
 
 
-    //margo_set_global_log_level(MARGO_LOG_TRACE);
     struct margo_init_info args = {nullptr};
     args.json_config = starter_json;
     mid               = margo_init_ext(rpc_protocol.c_str(), MARGO_SERVER_MODE, &args);
@@ -96,8 +95,11 @@ int main(int argc, char** argv)
     fprintf(stderr, "# connect to this server with \"./margo-example-client %s\"\n", addr_self_string);
 
     /* register RPC */
-    MARGO_REGISTER(mid, gkfs::rpc::tag::registry_request, rpc_registry_request_in_t, rpc_registry_request_out_t, rpc_srv_registry_request);
-    MARGO_REGISTER(mid, "my_shutdown_rpc", void, void, my_rpc_shutdown_ult);
+    MARGO_REGISTER(mid, gkfs::rpc::tag::registry_request, rpc_registry_request_in_t, rpc_registry_request_out_t, 
+                    rpc_srv_registry_request);
+    MARGO_REGISTER(mid, gkfs::rpc::tag::registry_register, rpc_registry_register_in_t, rpc_err_out_t, 
+                    rpc_srv_registry_register);
+    
 
 #if 0
     /* this could be used to display json configuration at run time */
