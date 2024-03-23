@@ -238,11 +238,11 @@ init_environment() {
                        "Failed to load system config: "s + e.what());
     }
     CTX->hostsconfig(hosts_config.first);
-    std::cout<< "here to print hc" <<std::endl;
-    for(auto hc : hosts_config.first){
-        std::cout << hc << " " ;
-    }
-    std:: cout <<std::endl;
+    //std::cout<< "here to print hc" <<std::endl;
+    //for(auto hc : hosts_config.first){
+    //     std::cout << hc << " " ;
+    // }
+    //std:: cout <<std::endl;
     CTX->fspriority(hosts_config.second);
     
     try {

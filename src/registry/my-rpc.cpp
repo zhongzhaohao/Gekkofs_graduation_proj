@@ -34,7 +34,7 @@ static int merge_files(){
 hg_return_t
 rpc_srv_registry_request(hg_handle_t handle)
 {   
-    std::cout<< "succeed in getting flows hfile hcfile\n" <<std::endl;
+    //std::cout<< "succeed in getting flows hfile hcfile\n" <<std::endl;
     rpc_registry_request_in_t in;
     rpc_registry_request_out_t out;
     std::vector<std::string> flow_arr = {};
@@ -45,8 +45,8 @@ rpc_srv_registry_request(hg_handle_t handle)
     auto flows = in.merge_flows;
     auto hfile = in.merge_hfile;
     auto hcfile = in.merge_hcfile;
-    std::cout<< "succeed in getting flows hfile hcfile\n" << flows << "\n" 
-                 << hfile << "\n" << hcfile << std::endl;
+    //std::cout<< "succeed in getting flows hfile hcfile\n" << flows << "\n" 
+     //            << hfile << "\n" << hcfile << std::endl;
     try {
             std::stringstream ss(flows);
             std::string flow;
@@ -140,10 +140,10 @@ rpc_srv_registry_register(hg_handle_t handle)
     try {
         // create metadentry
         job_flows[flow] = {hcfile,hfile} ;
-        std::cout<< "succeed in getting flows hcfile hfile\n" << flow << "\n" 
-                 << job_flows[flow].first << "\n" << job_flows[flow].second << std::endl;
+        //std::cout<< "succeed in getting flows hcfile hfile\n" << flow << "\n" 
+        //         << job_flows[flow].first << "\n" << job_flows[flow].second << std::endl;
     } catch(const std::exception& e) {
-        std::cout<< "Failed to respond my rpc ult\n" << e.what();
+        //std::cout<< "Failed to respond my rpc ult\n" << e.what();
         out.err = -1;
     }
 
@@ -152,12 +152,12 @@ rpc_srv_registry_register(hg_handle_t handle)
     if(hret != HG_SUCCESS) {
         std::cout<< "Failed to respond my rpc ult\n";
     }
-
+    /*
     std::cout<< "here gives the contents of our map" <<std::endl;
      for (const auto& pair : job_flows) {
         std::cout << pair.first << " => " << pair.second.first << " "<< pair.second.second << std::endl;
-    } 
-    std::cout<< std::endl;
+    } */
+    //std::cout<< std::endl;
     margo_free_input(handle, &in);
     margo_destroy(handle);
     return HG_SUCCESS;

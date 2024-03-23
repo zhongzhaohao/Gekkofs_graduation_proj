@@ -84,7 +84,6 @@ struct cli_options {
     string parallax_size;
     string stats_file;
     string prometheus_gateway;
-    string record_path;
 };
 
 /**
@@ -542,11 +541,6 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
                                         gkfs::config::hostfile_path);
     }
     GKFS_DATA->hosts_file(hosts_file);
-    
-    assert(desc.count("--files-record"));
-    string record_path;
-    record_path = opts.record_path;
-    GKFS_DATA->record_path(record_path);
 
     assert(desc.count("--mountdir"));
     auto mountdir = opts.mountdir;
@@ -793,8 +787,6 @@ main(int argc, const char* argv[]) {
     desc.add_option(
                 "--output-stats", opts.stats_file,
                 "Creates a thread that outputs the server stats each 10s to the specified file.");
-    desc.add_option("--files-record,-f", opts.record_path,
-                    "Where host config file exists.");
                     
     #ifdef GKFS_ENABLE_PROMETHEUS
     desc.add_flag(

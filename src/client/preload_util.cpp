@@ -400,7 +400,7 @@ read_registry_file() {
     }
     extract_protocol(addr);
     LOG(INFO, "Getting registry addr: {}",addr);
-    std::cout<<"Getting registry addr: "<<addr<<std::endl;
+    //std::cout<<"Getting registry addr: "<<addr<<std::endl;
     return addr;
 }
 
@@ -433,13 +433,13 @@ read_hosts_config_file() {
     //first para is env host file path ,second is ./hosts.txt, return a path
     hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
                                   gkfs::config::hostfile_config_path);
-    std::cout<< "hcfile path " << hostconfigfile <<std::endl;
+    //std::cout<< "hcfile path " << hostconfigfile <<std::endl;
     ifstream lf(hostconfigfile);
     string line;
     vector<unsigned int> hcfile,fspriority;
     while (getline(lf, line)){
         std::istringstream iss(line);
-        std::cout<<"line in hcfile" << line <<std::endl;
+        //std::cout<<"line in hcfile" << line <<std::endl;
         unsigned int x,y;
         if(!(iss >> x >> y)){
             throw runtime_error(fmt::format("Invalid file format: '{}'", hostconfigfile));
@@ -525,7 +525,7 @@ connect_to_registry(std::string addr) {
     hermes::endpoint endp = lookup_endpoint(addr);
     LOG(DEBUG, "Found registry: {}", endp.to_string());
     CTX->registry(endp);
-    std::cout<<"now is endp of registry" << endp.to_string()<<endl;
+    //std::cout<<"now is endp of registry" << endp.to_string()<<endl;
 }
 
 } // namespace gkfs::utils

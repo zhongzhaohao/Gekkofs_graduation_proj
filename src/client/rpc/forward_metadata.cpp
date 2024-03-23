@@ -67,7 +67,7 @@ int
 forward_create(const std::string& path, const mode_t mode) {
 
     auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
-    std::cout<<"create "<<CTX->distributor()->locate_file_metadata(path)<<std::endl;
+    //std::cout<<"create "<<CTX->distributor()->locate_file_metadata(path)<<std::endl;
     try {
         LOG(DEBUG, "Sending RPC ...");
         // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
