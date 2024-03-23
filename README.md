@@ -1,3 +1,77 @@
+# Environment variables
+
+```bash
+Usage: export [env variable] = 
+
+variables:
+    GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              Neccessary for client daemon registry
+               
+    LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib   Neccessary for client daemon registry  
+        :${GKFS_INSTALL_PATH}/lib64
+
+    LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt          Neccessary for client daemon registry, default: ./gkfs_hosts.txt
+
+    LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/                     Denote the number of daemons and priority of FS, neccessary for client daemon registry, 
+        hostconfigfilegkfs_hosts_config.txt                       default: ./gkfs_hosts_config.txt
+
+    LIBGKFS_REGISTRY_FILE=/home/foo/gekkofs/gkfs_registry.txt     Address of registry, neccessary for client registry, default: ./gkfs_registry.txt
+
+    LIBGKFS_WORK_FLOW=work1                                       Name of your current client job flow to be regsitered to registry, neccessary for client,                                                                   default: default_job
+
+    LIBGKFS_MERGE=on                                              Tell registry to merge option is on, if LIBGKFS_HOSTS_FILE,LIBGKFS_HOSTS_CONFIG_FILE                                                                        represent empty files, registry will merge filesystems according to LIBGKFS_MERGE_FLOWS,
+                                                                  default: off
+  
+    LIBGKFS_MERGE_FLOWS="work1;work3"                             Tell registry the jobs of filesystems which will be merged soon, default: ""
+    
+```
+
+# 启动一个独立GekkoFS:
+    export GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
+    export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt 
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config.txt 
+    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS__WORK_FLOW=workname
+    
+    注：LIBGKFS_HOSTS_CONFIG_FILE 只有一行，两个正整数，第一个代表此文件系统deamons数量，第二个代表此文件系统的数据一致性优先级，可为1
+    启动示例：
+    daemon： /home/foo/gekkofs/build/src/daemon/gkfs_daemon -r /home/changqin/gkfs/fs/fs1 -m /home/foo/gkfs/mount -l ens33 -H /home/foo/gkfs/hostfile/host1.txt  &
+    registry: /home/foo/gekkofs/build/src/registry/gkfs_registry 
+    client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
+    
+
+# 启动一个融合GekkoFS:
+    export GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
+    export LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt 
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/hostconfigfile/gkfs_hosts_config.txt 
+    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS__WORK_FLOW=workname
+    
+    LIBGKFS_HOSTS_FILE所指代的文件内容为多个独立GekkoFS的hosts_file内容的直接拼接，每行代表一个daemon地址，同一个独立GekkoFS的daemon地址紧邻。
+    LIBGKFS_HOSTS_CONFIG_FILE 有多行，每行代表一个独立GekkoFS的配置，两个正整数，第一个代表此GekkoFS的deamons数量，第二个代表此文件系统的数据一致性优先级，数字较小者优先级较高
+    注意：这两个文件非系统自动生成。
+    启动示例：
+    client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
+    
+# 通registry，启动一个融合GekkoFS:
+    export GKFS_INSTALL_PATH=/home/changqin/gekkofs_deps/install                             
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib:${GKFS_INSTALL_PATH}/lib64
+    export LIBGKFS_HOSTS_FILE=/home/changqin/gkfs/hostfile/host4.txt
+    export LIBGKFS_HOSTS_CONFIG_FILE=/home/changqin/gkfs/hostconfigfile/hcfile4.txt
+    export LIBGKFS_REGISTRY_FILE=/home/changqin/gekkofs/build/src/registry/gkfs_registry.txt
+    export LIBGKFS_WORK_FLOW=workname4
+    export LIBGKFS_MERGE=on
+    export LIBGKFS_MERGE_FLOWS="workname1;workname3;workname2"
+
+    注意：
+    LIBGKFS_HOSTS_FILE        所指代的文件应不存在，由registry自动生成
+    LIBGKFS_HOSTS_CONFIG_FILE 所指代的文件应不存在，由registry自动生成
+    LIBGKFS_MERGE             必须为on
+    LIBGKFS_MERGE_FLOWS       多个工作流名称，由;分隔，是用户想要查询的工作流，并想合并工作流所在系统。
+    启动示例:
+    client： LD_PRELOAD=/home/foo/gekkofs/build/src/client/libgkfs_intercept.so ls /home/foo/gkfs/mount/
+    
 # GekkoFS
 
 [![License: GPL3](https://img.shields.io/badge/License-GPL3-blue.svg)](https://opensource.org/licenses/GPL-3.0)
