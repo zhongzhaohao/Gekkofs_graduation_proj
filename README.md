@@ -4,24 +4,25 @@
 Usage: export [env variable] = 
 
 variables:
-    GKFS_INSTALL_PATH=/home/foo/gekkofs_deps/install              Neccessary for client daemon registry
+    GKFS_INSTALL_PATH              Neccessary for client daemon registry
                
-    LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GKFS_INSTALL_PATH}/lib   Neccessary for client daemon registry  
-        :${GKFS_INSTALL_PATH}/lib64
+    LD_LIBRARY_PATH                Neccessary for client daemon registry  
+       
+    LIBGKFS_HOSTS_FILE             Neccessary for client daemon registry, default: ./gkfs_hosts.txt
 
-    LIBGKFS_HOSTS_FILE=/home/foo/gkfs/hostfile/host1.txt          Neccessary for client daemon registry, default: ./gkfs_hosts.txt
+    LIBGKFS_HOSTS_CONFIG_FILE      Denote the number of daemons and priority of FS, neccessary for client daemon registry, 
+                                   default: ./gkfs_hosts_config.txt
 
-    LIBGKFS_HOSTS_CONFIG_FILE=/home/foo/gkfs/                     Denote the number of daemons and priority of FS, neccessary for client daemon registry, 
-        hostconfigfilegkfs_hosts_config.txt                       default: ./gkfs_hosts_config.txt
+    LIBGKFS_REGISTRY_FILE          Address of registry, neccessary for client registry, default: ./gkfs_registry.txt
 
-    LIBGKFS_REGISTRY_FILE=/home/foo/gekkofs/gkfs_registry.txt     Address of registry, neccessary for client registry, default: ./gkfs_registry.txt
+    LIBGKFS_WORK_FLOW              Name of your current client job flow to be regsitered to registry, neccessary for client,
+                                   default: default_job
 
-    LIBGKFS_WORK_FLOW=work1                                       Name of your current client job flow to be regsitered to registry, neccessary for client,                                                                   default: default_job
-
-    LIBGKFS_MERGE=on                                              Tell registry to merge option is on, if LIBGKFS_HOSTS_FILE,LIBGKFS_HOSTS_CONFIG_FILE                                                                        represent empty files, registry will merge filesystems according to LIBGKFS_MERGE_FLOWS,
-                                                                  default: off
+    LIBGKFS_MERGE                  Tell registry to merge option is on, if LIBGKFS_HOSTS_FILE,LIBGKFS_HOSTS_CONFIG_FILE                                                                                                                         represent empty files, registry will merge filesystems according to LIBGKFS_MERGE_FLOWS,
+                                   default: off
   
-    LIBGKFS_MERGE_FLOWS="work1;work3"                             Tell registry the jobs of filesystems which will be merged soon, default: ""
+    LIBGKFS_MERGE_FLOWS            Tell registry the jobs of filesystems which will be merged soon,
+                                   default: ""
     
 ```
 
