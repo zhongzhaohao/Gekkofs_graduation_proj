@@ -203,7 +203,7 @@ init_environment() {
     string registry_addr = "";
     try {
         LOG(INFO, "Loading registry address...");
-        registry_addr = gkfs::utils::read_registry_file();//name , proto://url，此时已经把上下文rpc通信协议变量设置好了
+        registry_addr = gkfs::utils::read_registry_file();// proto://url，此时已经把上下文rpc通信协议变量设置好了
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to load hosts addresses: "s + e.what());
@@ -219,6 +219,7 @@ init_environment() {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to connect to hosts: "s + e.what());
     }
+    //向registry请求融合后
     request_registry();
 
     vector<pair<string, string>> hosts{};
@@ -293,8 +294,7 @@ init_environment() {
 int register_registry(){
     string workflow,hostfile,hostconfigfile;
     gkfs::utils::read_env(workflow,hostfile,hostconfigfile);
-    //to do request register to merge fs
-    std::cout<< " now is requesting registry "<<std::endl;
+    //makring register request to registry
     auto err = gkfs::rpc::forward_register_registry(workflow,hostconfigfile,hostfile);
     if(err) {
         errno = err;
@@ -361,7 +361,7 @@ destroy_preload() {
 
     CTX->clear_hosts();
     LOG(DEBUG, "Peer information deleted");
-    //register job flow to registry
+    //register work flow to registry
     gkfs::preload::register_registry();
 
     ld_network_service.reset();

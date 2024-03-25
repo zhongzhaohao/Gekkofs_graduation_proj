@@ -734,6 +734,7 @@ forward_get_dirents(const string& path) {
 
     auto send_error = err != 0;
     auto open_dir = make_shared<gkfs::filemap::OpenDir>(path);
+    std::set<std::pair<std::string, gkfs::filemap::FileType>>dir_record; //only used for / to solve metadata consistency
     // wait for RPC responses
     for(std::size_t i = 0; i < handles.size(); ++i) {
 
@@ -793,7 +794,10 @@ forward_get_dirents(const string& path) {
             auto name = std::string(names_ptr);
             // number of characters in entry + \0 terminator
             names_ptr += name.size() + 1;
-
+            if(path == "/"){ //only for / to avoid repetition
+                if(dir_record.count({name,ftype})) continue;
+                dir_record.insert({name,ftype});
+            }
             open_dir->add(name, ftype);
         }
     }
