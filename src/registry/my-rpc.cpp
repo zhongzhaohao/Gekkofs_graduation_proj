@@ -23,11 +23,7 @@ static int merge_files(){
 }
 
 /**
- * @brief Responds with general file system meta information requested on client
- * startup.
- * @internal
- * Most notably this is where the client gets the information on which path
- * @endinterals
+ * @brief Responds with merged hostfile and hostconfigfile 
  * @param handle Mercury RPC handle
  * @return Mercury error code to Mercury
  */
@@ -55,7 +51,7 @@ rpc_srv_registry_request(hg_handle_t handle)
             }
             std::priority_queue<fs_info> all_fs_info; // save fs (priority and daemons vector) sorted by the priority of fs
             std::set<std::string> all_daemons;//用来检查重复daemons，适用于多层融合系统情况
-            //search the hfiles and hcfiles of merge_flows and merge them to merge_hfile and merge_hcfile
+            //读取flows对应的host文件和hostconfig文件，并有序保存到优先队列all_fs_info中
             for(int i = 0 ; i < flow_arr.size(); i ++){
                 if(!job_flows.count(flow_arr[i])) {
                     std::cout<< "we can't find flow names " << flow_arr[i] <<std::endl;
@@ -93,7 +89,7 @@ rpc_srv_registry_request(hg_handle_t handle)
                 hcf.close();
                 hf.close();
             }
-        //写入文件
+        //写入文件 
         std::ofstream hcf(hcfile);
         std::ofstream hf(hfile);
         unsigned int prior = 1;
@@ -126,6 +122,11 @@ rpc_srv_registry_request(hg_handle_t handle)
 }
 DEFINE_MARGO_RPC_HANDLER(rpc_srv_registry_request)
 
+/**
+ * @brief Record work_flow : its hostfile and hostconfigfile to a map
+ * @param handle Mercury RPC handle
+ * @return Mercury error code to Mercury
+ */
 hg_return_t
 rpc_srv_registry_register(hg_handle_t handle)
 {

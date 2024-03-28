@@ -53,18 +53,21 @@ SimpleHashDistributor::localhost() const {
     return localhost_;
 }
 
+/* 融合后的系统的hash索引文件逻辑修改为，对于原有文件，采用forward_stat查询在某个系统中，并用全局变量pathfs记录
+*   否则，其为融合后系统新产生的文件，存储位置为localfs，即存储到本节点上
+*/
 host_t
 SimpleHashDistributor::locate_fs(const std::string& path) const{
     
     unsigned int fs = localfs_;
     if(pathfs_ && pathfs_->count(path)) fs= (*pathfs_)[path];
-    //std::cout<< "locate_fs hash path:"<<path<< " gives: "<< fs << std::endl;
+    std::cout<< "locate_fs hash path:"<<path<< " gives: "<< fs << std::endl;
     return fs;
 }
 
 host_t
 SimpleHashDistributor::locate(const std::string& path, unsigned int hostnum) const{
-    //std::cout<< "locate hash path:"<<path<< " gives: "<< str_hash(path) % hostnum << std::endl;
+    std::cout<< "locate hash path:"<<path<< " gives: "<< str_hash(path) % hostnum << std::endl;
     return str_hash(path) % hostnum;
 }
 
@@ -76,10 +79,13 @@ SimpleHashDistributor::locate_data(const string& path,
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<< "locate_data hash path:"<<path<<" givers server id:"<<server_id<<std::endl;
+    std::cout<< "locate_data hash path:"<<path<<" givers server id:"<<server_id<<std::endl;
     return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
 }
-
+/*
+*   此函数由daemon调用，pathfs为空，故localfs_为默认值0，host_size_只有一个元素，代表此文件系统的
+*   daemons数量，且此函数仅仅用作chunk hash验证
+*/
 host_t 
 SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
                                    unsigned int hosts_size) {
@@ -93,7 +99,7 @@ SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<< "locate_data hash path:"<<path<<" gives severid:"<<server_id<< " gives: "<<  std::endl;
+    std::cout<< "locate_data hash path:"<<path<<" gives severid:"<<server_id<< " gives: "<<  std::endl;
     return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
 }
 
@@ -103,14 +109,19 @@ host_t
 SimpleHashDistributor::locate_file_metadata(const string& path) const {
     unsigned int server_id = localfs_;
     if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
-    //std::cout<<"path "<<path<<" locate_file_meatadata: gives serverid"<<server_id<<" ";
+    std::cout<<"path "<<path<<" locate_file_meatadata: gives serverid"<<server_id<<" ";
     unsigned int all_daemons = 0;
     for(unsigned int server = 0 ;server < server_id ; server++)
         all_daemons += hosts_size_[server];
-    //std::cout<<"final pos" << str_hash(path) % hosts_size_.at(server_id) + all_daemons << std::endl;
+    std::cout<<"final pos" << str_hash(path) % hosts_size_.at(server_id) + all_daemons << std::endl;
     return str_hash(path) % hosts_size_.at(server_id) + all_daemons;
 }
 
+/**
+*   此处对于数据一致性在/目录的情况做了特殊处理，本来数据一致性在forward_stat处决断，然后加入pathfs
+*   此处的/由于所有系统都存在，所以不能只取一个系统中的/，必须返回全部，此时的一致性弥补在上级函数forward_get_dirents处
+*   对于其余情况，根据forward_stata决断的结果即可
+*/
 ::vector<host_t>
 SimpleHashDistributor::locate_directory_metadata(const string& path) const {
     if(path == "/")

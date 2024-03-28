@@ -62,6 +62,7 @@ forward_get_fs_config() {
     LOG(INFO, "Mountdir: '{}'", CTX->mountdir());
 
     CTX->fs_conf()->rootdir = out.rootdir();
+    std::cout<<"now root dir is: " << out.mountdir() <<std::endl;
     CTX->fs_conf()->atime_state = out.atime_state();
     CTX->fs_conf()->mtime_state = out.mtime_state();
     CTX->fs_conf()->ctime_state = out.ctime_state();

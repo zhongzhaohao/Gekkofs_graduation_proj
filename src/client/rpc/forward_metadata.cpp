@@ -794,7 +794,7 @@ forward_get_dirents(const string& path) {
             auto name = std::string(names_ptr);
             // number of characters in entry + \0 terminator
             names_ptr += name.size() + 1;
-            if(path == "/"){ //only for / to avoid repetition
+            if(path == "/"){ //only for / to avoid repetition hash在/的缺陷在此弥补
                 if(dir_record.count({name,ftype})) continue;
                 dir_record.insert({name,ftype});
             }
