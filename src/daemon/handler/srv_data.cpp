@@ -102,6 +102,7 @@ rpc_srv_write(hg_handle_t handle) {
     out.io_size = 0;
     // Getting some information from margo
     auto ret = margo_get_input(handle, &in);
+    //struct hg_bulk_segment *segments = (in.bulk_handle->desc;
     if(ret != HG_SUCCESS) {
         GKFS_DATA->spdlogger()->error(
                 "{}() Could not get RPC input data with err {}", __func__, ret);

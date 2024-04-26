@@ -81,6 +81,8 @@ private:
     constexpr const static char serialize_end = '\0';
 
     size_t size_;
+    off_t offset_;
+    std::string buf_;
     /*
      * ID of the merge operation that this operand belongs to.
      * This ID is used only in append operations to communicate the starting
@@ -91,9 +93,9 @@ private:
     bool append_;
 
 public:
-    IncreaseSizeOperand(size_t size);
+    IncreaseSizeOperand(size_t size, const std::string& buf, off_t offset);
 
-    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append);
+    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append, const std::string& buf);
 
     explicit IncreaseSizeOperand(const rdb::Slice& serialized_op);
 
@@ -108,6 +110,11 @@ public:
         return size_;
     }
 
+    off_t
+    offset() const {
+        return offset_;
+    }
+
     uint16_t
     merge_id() const {
         return merge_id_;
@@ -116,6 +123,11 @@ public:
     bool
     append() const {
         return append_;
+    }
+
+    std::string 
+    buf() const {
+        return buf_;
     }
 };
 /**

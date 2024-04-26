@@ -1348,8 +1348,8 @@ struct update_metadentry_size {
 
     public:
         input(const std::string& path, uint64_t size, int64_t offset,
-              bool append)
-            : m_path(path), m_size(size), m_offset(offset), m_append(append) {}
+              bool append, const std::string &buf)
+            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(buf) {}
 
         input(input&& rhs) = default;
 
@@ -1364,6 +1364,11 @@ struct update_metadentry_size {
         std::string
         path() const {
             return m_path;
+        }
+
+        std::string
+        buf() const {
+            return m_buf;
         }
 
         uint64_t
@@ -1383,13 +1388,14 @@ struct update_metadentry_size {
 
         explicit input(const rpc_update_metadentry_size_in_t& other)
             : m_path(other.path), m_size(other.size), m_offset(other.offset),
-              m_append(other.append) {}
+              m_append(other.append), m_buf(other.buf) {}
 
         explicit operator rpc_update_metadentry_size_in_t() {
-            return {m_path.c_str(), m_size, m_offset, m_append};
+            return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str()};
         }
 
     private:
+        std::string m_buf;
         std::string m_path;
         uint64_t m_size;
         int64_t m_offset;
@@ -1403,10 +1409,10 @@ struct update_metadentry_size {
         hermes::detail::post_to_mercury(ExecutionContext*);
 
     public:
-        output() : m_err(), m_ret_offset() {}
+        output() : m_err(), m_ret_offset(), m_buf() {}
 
-        output(int32_t err, int64_t ret_size)
-            : m_err(err), m_ret_offset(ret_size) {}
+        output(int32_t err, int64_t ret_size, const std::string& buf)
+            : m_err(err), m_ret_offset(ret_size), m_buf(std::move(buf)) {}
 
         output(output&& rhs) = default;
 
@@ -1421,6 +1427,7 @@ struct update_metadentry_size {
         explicit output(const rpc_update_metadentry_size_out_t& out) {
             m_err = out.err;
             m_ret_offset = out.ret_offset;
+            m_buf = out.buf;
         }
 
         int32_t
@@ -1433,7 +1440,13 @@ struct update_metadentry_size {
             return m_ret_offset;
         }
 
+        std::string
+        buf() const {
+            return m_buf;
+        }
+
     private:
+        std::string m_buf;
         int32_t m_err;
         int64_t m_ret_offset;
     };

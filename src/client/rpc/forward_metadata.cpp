@@ -597,7 +597,7 @@ forward_rename(const string& oldpath, const string& newpath,
  */
 pair<int, off64_t>
 forward_update_metadentry_size(const string& path, const size_t size,
-                               const off64_t offset, const bool append_flag) {
+                               const off64_t offset, const bool append_flag, const std::string& buf) {
 
     auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
     try {
@@ -610,7 +610,7 @@ forward_update_metadentry_size(const string& path, const size_t size,
         auto out = ld_network_service
                            ->post<gkfs::rpc::update_metadentry_size>(
                                    endp, path, size, offset,
-                                   bool_to_merc_bool(append_flag))
+                                   bool_to_merc_bool(append_flag), buf)
                            .get()
                            .at(0);
 

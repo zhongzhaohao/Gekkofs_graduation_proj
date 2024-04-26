@@ -89,5 +89,8 @@ build/
 builds/
 .run/
 
+#dependency lib
+/gekkofs_deps/
+
 # Allow users to provide their own CMake presets
 CMakeUserPresets.json

@@ -28,7 +28,8 @@
 
 #include <common/metadata.hpp>
 #include <config.hpp>
-
+#include <fstream>
+#include <iostream>
 #include <fmt/format.h>
 
 extern "C" {
@@ -71,7 +72,7 @@ gen_unique_id(const std::string& path) {
 
 Metadata::Metadata(const mode_t mode)
     : atime_(), mtime_(), ctime_(), mode_(mode), link_count_(0), size_(0),
-      blocks_(0) {
+      blocks_(0) , buf_(""), use_buf_(1){
     assert(S_ISDIR(mode_) || S_ISREG(mode_));
 }
 
@@ -139,27 +140,45 @@ Metadata::Metadata(const std::string& binary_str) {
         assert(read > 0);
         ptr += read;
     }
-
-#ifdef HAS_SYMLINKS
-    // Read target_path
     assert(*ptr == MSP);
-    target_path_ = ++ptr;
-    // target_path should be there only if this is a link
-    ptr += target_path_.size();
+    use_buf_ = static_cast<bool>(std::stol(++ptr, &read));
+    assert(read > 0);
+    ptr += read;
+
+    assert(*ptr == MSP);
+    buf_ = ++ptr;
+    ptr += buf_.size();
+    bool rnmp = true;
+#ifdef HAS_SYMLINKS
 #ifdef HAS_RENAME
     // Read rename target, we had captured '|' so we need to recover it
-    if(!target_path_.empty()) {
-        auto index = target_path_.find_last_of(MSP);
-        auto size = target_path_.size();
-        target_path_ = target_path_.substr(0, index);
+    if(!buf_.empty()) {
+        auto index = buf_.find_last_of(MSP);
+        auto size = buf_.size();
+        buf_ = buf_.substr(0, index);
         ptr -= (size - index);
+        assert(*ptr == MSP);
+        rename_path_ = ptr + 1;
     }
-    assert(*ptr == MSP);
-    rename_path_ = ++ptr;
-    ptr += rename_path_.size();
+    rnmp = rename_path_.empty();
 #endif // HAS_RENAME
+    // Read target_path
+    if(!buf_.empty()) {
+        auto index = buf_.find_last_of(MSP);
+        auto size = buf_.size() ;
+        buf_ = buf_.substr(0, index);
+        ptr -= (size - index);
+        assert(*ptr == MSP);
+        target_path_ = ++ptr;
+        ptr += target_path_.size();
+        if(!rnmp){
+            auto index = target_path_.find_last_of(MSP);
+            target_path_ = target_path_.substr(0,index);
+        }
+    }
 #endif // HAS_SYMLINKS
-
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    outputFile<< "metadata deserailize here|"<<(int)use_buf_ <<"|"<<size_ << "|" << buf_<< std::endl;
     // we consumed all the binary string
     assert(*ptr == '\0');
 }
@@ -191,7 +210,12 @@ Metadata::serialize() const {
         s += MSP;
         s += fmt::format_int(blocks_).c_str();
     }
-
+    s += MSP;
+    s += fmt::format_int(use_buf_).c_str();
+    s += MSP;
+    if constexpr(gkfs::config::metadata::use_buf){
+        s += buf_;
+    }
 #ifdef HAS_SYMLINKS
     s += MSP;
     s += target_path_;
@@ -200,7 +224,9 @@ Metadata::serialize() const {
     s += rename_path_;
 #endif // HAS_RENAME
 #endif // HAS_SYMLINKS
-
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    outputFile<< "metadata serailize here"<<s<< std::endl;
+    outputFile.close();
     return s;
 }
 
@@ -295,6 +321,26 @@ Metadata::blocks() const {
 void
 Metadata::blocks(blkcnt_t blocks) {
     Metadata::blocks_ = blocks;
+}
+
+bool
+Metadata::use_buf() const {
+    return use_buf_;
+}
+
+void
+Metadata::use_buf(bool use_buf) {
+    Metadata::use_buf_ = use_buf;
+}
+
+std::string
+Metadata::buf() const {
+    return buf_;
+}
+
+void
+Metadata::buf(const std::string& buf) {
+    buf_ = std::move(buf);
 }
 
 #ifdef HAS_SYMLINKS

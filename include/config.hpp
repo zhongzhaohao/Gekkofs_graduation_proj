@@ -66,6 +66,7 @@ constexpr auto dir = "metadata";
 
 // which metadata should be considered apart from size and mode
 // Blocks are used to store the rename status (-1 is a renamed file)
+constexpr auto use_buf = true;
 constexpr auto use_atime = true;
 constexpr auto use_ctime = true;
 constexpr auto use_mtime = true;
@@ -95,6 +96,7 @@ constexpr auto chunk_dir = "chunks";
 
 namespace rpc {
 constexpr auto chunksize = 524288; // in bytes (e.g., 524288 == 512KB)
+constexpr auto smallfilesize = 4096; // in bytes (e.g., 4096 == 4KB)
 // size of preallocated buffer to hold directory entries in rpc call
 constexpr auto dirents_buff_size = (8 * 1024 * 1024); // 8 mega
 /*

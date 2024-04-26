@@ -9,7 +9,7 @@
                 "/home/changqin/gekkofs/external/CLI11/include",
                 "/home/changqin/gekkofs/external/fmt/include",
                 "/home/changqin/gekkofs/external/spdlog/include",
-                "/home/changqin/gekkofs_deps/install/include"
+                "/home/changqin/gekkofs/gekkofs_deps/install/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -421,9 +421,14 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
+        std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+        outputFile<< "at daemon rpc upd size with size:"<<in.size<<" off "<< in.offset <<" buf: "<< in.buf<< std::endl;
         out.ret_offset = gkfs::metadata::update_size(
-                in.path, in.size, in.offset, (in.append == HG_TRUE));
+                in.path, in.size, in.offset, (in.append == HG_TRUE), in.buf);
+        outputFile<< "at daemon rpc upd size end:"<<out.ret_offset<< std::endl;
+        outputFile.close();
         out.err = 0;
+        out.buf = "";
     } catch(const gkfs::metadata::NotFoundException& e) {
         GKFS_DATA->spdlogger()->debug("{}() Entry not found: '{}'", __func__,
                                       in.path);

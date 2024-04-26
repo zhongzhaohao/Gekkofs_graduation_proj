@@ -70,10 +70,12 @@ MERCURY_GEN_PROC(
 
 MERCURY_GEN_PROC(rpc_update_metadentry_size_in_t,
                  ((hg_const_string_t) (path))((hg_uint64_t) (size))(
-                         (hg_int64_t) (offset))((hg_bool_t) (append)))
+                         (hg_int64_t) (offset))((hg_bool_t) (append))(
+                (hg_const_string_t) (buf)))
 
 MERCURY_GEN_PROC(rpc_update_metadentry_size_out_t,
-                 ((hg_int32_t) (err))((hg_int64_t) (ret_offset)))
+                 ((hg_int32_t) (err))((hg_int64_t) (ret_offset))(
+                (hg_const_string_t) (buf)))
 
 MERCURY_GEN_PROC(rpc_get_metadentry_size_out_t,
                  ((hg_int32_t) (err))((hg_int64_t) (ret_size)))

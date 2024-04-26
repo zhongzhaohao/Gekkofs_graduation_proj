@@ -62,7 +62,7 @@ public:
 
     virtual off_t
     increase_size(const std::string& key, size_t size, off_t offset,
-                  bool append) = 0;
+                  bool append, const std::string& buf = "") = 0;
 
     virtual void
     decrease_size(const std::string& key, size_t size) = 0;
@@ -117,9 +117,9 @@ public:
 
     off_t
     increase_size(const std::string& key, size_t size, off_t offset,
-                  bool append) {
+                  bool append, const std::string& buf = "") {
         return static_cast<T&>(*this).increase_size_impl(key, size, offset,
-                                                         append);
+                                                         append, buf);
     }
 
     void

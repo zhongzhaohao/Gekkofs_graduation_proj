@@ -183,7 +183,7 @@ int request_registry(){
     if(!gkfs::utils::CheckMerge(mergeflows,hostfile,hostconfigfile))
         return 0;
     //to do request register to merge fs
-    std::cout<< " now is requesting registry "<<std::endl;
+    //std::cout<< " now is requesting registry "<<std::endl;
     auto err = gkfs::rpc::forward_request_registry(mergeflows,hostconfigfile,hostfile);
     if(err) {
         errno = err;

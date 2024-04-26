@@ -138,7 +138,7 @@ public:
      */
     off_t
     increase_size_impl(const std::string& key, size_t io_size, off_t offset,
-                       bool append);
+                       bool append, const std::string& buf = "");
 
     /**
      * Decreases the size on the metadata

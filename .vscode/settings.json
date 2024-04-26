@@ -78,6 +78,8 @@
         "valarray": "cpp",
         "variant": "cpp",
         "*.ipp": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "*.in": "cpp",
+        "*.inc": "cpp"
     }
 }

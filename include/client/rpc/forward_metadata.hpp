@@ -74,7 +74,7 @@ forward_update_metadentry(
 
 std::pair<int, off64_t>
 forward_update_metadentry_size(const std::string& path, size_t size,
-                               off64_t offset, bool append_flag);
+                               off64_t offset, bool append_flag, const std::string& buf = "");
 
 std::pair<int, off64_t>
 forward_get_metadentry_size(const std::string& path);

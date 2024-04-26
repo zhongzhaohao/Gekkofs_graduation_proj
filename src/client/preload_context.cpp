@@ -36,6 +36,7 @@
 
 #include <common/env_util.hpp>
 #include <common/path_util.hpp>
+#include <common/metadata.hpp>
 #include <config.hpp>
 
 #include <hermes.hpp>
@@ -45,6 +46,7 @@
 extern "C" {
 #include <libsyscall_intercept_hook_point.h>
 #include <syscall.h>
+
 }
 
 namespace gkfs {
@@ -171,6 +173,11 @@ PreloadContext::fspriority(const std::vector<unsigned int>& hconfig) {
 std::map<std::string, unsigned int>&
 PreloadContext::pathfs() {
     return pathfs_;
+}
+
+std::map<std::string, gkfs::metadata::Metadata>&
+PreloadContext::pathmeta() {
+    return pathmeta_;
 }
 
 void

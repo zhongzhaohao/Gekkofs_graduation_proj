@@ -219,7 +219,9 @@ get_metadata(const string& path, bool follow_links) {
         }
     }
 #endif
-    return gkfs::metadata::Metadata{attr};
+    auto md = gkfs::metadata::Metadata{attr};
+    CTX->pathmeta()[path] = md;
+    return md;
 }
 
 

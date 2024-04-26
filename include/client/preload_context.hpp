@@ -37,6 +37,7 @@
 #include <vector>
 #include <string>
 #include <config.hpp>
+#include <common/metadata.hpp>
 
 #include <bitset>
 
@@ -96,6 +97,7 @@ private:
     std::vector<unsigned int> hostsconfig_;
     std::vector<unsigned int> fspriority_;
     std::map<std::string, unsigned int> pathfs_;
+    std::map<std::string, gkfs::metadata::Metadata> pathmeta_;
 
     uint64_t local_host_id_;
     uint64_t local_fs_id_;
@@ -166,8 +168,11 @@ public:
     fspriority(const std::vector<unsigned int>& hostsconfig);
 
 
+    std::map<std::string, gkfs::metadata::Metadata>&
+    pathmeta(); 
+
     std::map<std::string, unsigned int>&
-    pathfs() ; 
+    pathfs(); 
 
     void
     clear_hosts();

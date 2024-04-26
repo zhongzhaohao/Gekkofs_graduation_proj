@@ -333,7 +333,7 @@ ParallaxBackend::update_impl(const std::string& old_key,
  */
 off_t
 ParallaxBackend::increase_size_impl(const std::string& key, size_t io_size,
-                                    off_t offset, bool append) {
+                                    off_t offset, bool append, const std::string& buf = "") {
     lock_guard<recursive_mutex> lock_guard(parallax_mutex_);
     off_t out_offset = -1;
     auto value = get(key);

@@ -105,7 +105,7 @@ update(const std::string& path, Metadata& md);
  * @return starting offset for I/O operation
  */
 off_t
-update_size(const std::string& path, size_t io_size, off_t offset, bool append);
+update_size(const std::string& path, size_t io_size, off_t offset, bool append, const std::string& buf = "");
 
 /**
  * @brief Remove metadentry if exists
