@@ -177,8 +177,8 @@ Metadata::Metadata(const std::string& binary_str) {
         }
     }
 #endif // HAS_SYMLINKS
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "metadata deserailize here|"<<(int)use_buf_ <<"|"<<size_ << "|" << buf_<< std::endl;
+    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    //outputFile<< "metadata deserailize here|"<<(int)use_buf_ <<"|"<<size_ << "|" << buf_<< std::endl;
     // we consumed all the binary string
     assert(*ptr == '\0');
 }
@@ -224,9 +224,9 @@ Metadata::serialize() const {
     s += rename_path_;
 #endif // HAS_RENAME
 #endif // HAS_SYMLINKS
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "metadata serailize here"<<s<< std::endl;
-    outputFile.close();
+    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    //outputFile<< "metadata serailize here"<<s<< std::endl;
+    //outputFile.close();
     return s;
 }
 

@@ -72,8 +72,8 @@ IncreaseSizeOperand::IncreaseSizeOperand(const size_t size,
     : size_(size), merge_id_(merge_id), append_(append), buf_(std::move(buf) ), offset_(0) {}
 
 IncreaseSizeOperand::IncreaseSizeOperand(const rdb::Slice& serialized_op) {
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "serial:"<<serialized_op.data()<< std::endl;
+    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    //outputFile<< "serial:"<<serialized_op.data()<< std::endl;
     size_t read = 0, rr = 0;
     // Parse size
     size_ = std::stoul(serialized_op.data(), &read);
@@ -94,9 +94,9 @@ IncreaseSizeOperand::IncreaseSizeOperand(const rdb::Slice& serialized_op) {
     }
     assert(serialized_op[read + rr + 1] == serialize_sep);
     buf_ = std::string(serialized_op.data() + read + 2 + rr , size_);
-    outputFile<< "deseral"<<fmt::format("{}{}{}{}{}{}{}{}", size_, serialize_sep, merge_id_, serialize_sep, offset_,serialize_sep, buf_,
-                           serialize_end)<< std::endl;
-    outputFile.close();
+    //<< "deseral"<<fmt::format("{}{}{}{}{}{}{}{}", size_, serialize_sep, merge_id_, serialize_sep, offset_,serialize_sep, buf_,
+    //                       serialize_end)<< std::endl;
+    //outputFile.close();
 }
 
 OperandID
@@ -236,9 +236,9 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
     md.size(fsize);
     md.buf(buf);
     md.use_buf(use_buf);
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "at merge with final md :"<<md.serialize()<< std::endl;
-    outputFile.close();
+    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    //outputFile<< "at merge with final md :"<<md.serialize()<< std::endl;
+    //outputFile.close();
     merge_out->new_value = md.serialize();
     return true;
 }
