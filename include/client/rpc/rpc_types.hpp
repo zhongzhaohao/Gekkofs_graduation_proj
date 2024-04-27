@@ -1349,7 +1349,7 @@ struct update_metadentry_size {
     public:
         input(const std::string& path, uint64_t size, int64_t offset,
               bool append, const std::string &buf)
-            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(buf) {}
+            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(std::move(buf)) {}
 
         input(input&& rhs) = default;
 
@@ -1388,7 +1388,7 @@ struct update_metadentry_size {
 
         explicit input(const rpc_update_metadentry_size_in_t& other)
             : m_path(other.path), m_size(other.size), m_offset(other.offset),
-              m_append(other.append), m_buf(other.buf) {}
+              m_append(other.append), m_buf(std::move(other.buf)) {}
 
         explicit operator rpc_update_metadentry_size_in_t() {
             return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str()};
@@ -1427,7 +1427,7 @@ struct update_metadentry_size {
         explicit output(const rpc_update_metadentry_size_out_t& out) {
             m_err = out.err;
             m_ret_offset = out.ret_offset;
-            m_buf = out.buf;
+            m_buf = std::move(out.buf);
         }
 
         int32_t
