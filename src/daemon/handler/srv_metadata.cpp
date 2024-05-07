@@ -42,7 +42,7 @@
 
 #include <common/rpc/rpc_types.hpp>
 #include <common/statistics/stats.hpp>
-
+#include <chrono>
 using namespace std;
 
 namespace {
@@ -145,7 +145,7 @@ rpc_srv_stat(hg_handle_t handle) {
                 e.what());
         out.err = EBUSY;
     }
-
+    auto mid = std::chrono::steady_clock::now();
     auto hret = margo_respond(handle, &out);
     if(hret != HG_SUCCESS) {
         GKFS_DATA->spdlogger()->error("{}() Failed to respond", __func__);
@@ -421,14 +421,16 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
-        //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-        //outputFile<< "at daemon rpc upd size with size:"<<in.size<<" off "<< in.offset <<" buf: "<< in.buf<< std::endl;
-        std::string cpy(in.buf,in.size);
-        //outputFile<< "at daemon rpc with cpy"<<cpy<< std::endl;
+        std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+        outputFile<< "at daemon rpc upd size with size:"<<in.size<<" off "<< in.offset <<" buf: "<< in.buf<< std::endl;
+        auto size = in.size;
+        if(in.size + in.offset > gkfs::config::rpc::smallfilesize) size = 0;
+        std::string cpy(in.buf,size);
+        outputFile<< "at daemon rpc with cpy"<<cpy<< std::endl;
         out.ret_offset = gkfs::metadata::update_size(
                 in.path, in.size, in.offset, (in.append == HG_TRUE), cpy);
         //outputFile<< "at daemon rpc upd size end:"<<out.ret_offset<< std::endl;
-        //outputFile.close();
+        outputFile.close();
         out.err = 0;
         out.buf = "";
     } catch(const gkfs::metadata::NotFoundException& e) {

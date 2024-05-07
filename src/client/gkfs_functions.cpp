@@ -40,6 +40,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <chrono>
 extern "C" {
 #include <dirent.h> // used for file types in the getdents{,64}() functions
 #include <linux/kernel.h> // used for definition of alignment macros
@@ -508,6 +509,7 @@ gkfs_rename(const string& old_path, const string& new_path) {
 int
 gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
     //std::cout<<"gkfs_stat here"<<std::endl;
+    auto start = std::chrono::steady_clock::now();
     auto md = gkfs::utils::get_metadata(path, follow_links);
     if(!md) {
         return -1;
@@ -529,6 +531,9 @@ gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
 #endif
     gkfs::utils::metadata_to_stat(path, *md, *buf);
     clear_all_pathfs();
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Execution time at gkfs_stat: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }
 
@@ -548,7 +553,7 @@ gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
 int
 gkfs_statx(int dirfs, const std::string& path, int flags, unsigned int mask,
            struct statx* buf, bool follow_links) {
-    //std::cout<<"gkfs_statx here"<<std::endl;
+    auto start = std::chrono::steady_clock::now();
     auto md = gkfs::utils::get_metadata(path, follow_links);
 
     if(!md) {
@@ -596,6 +601,11 @@ gkfs_statx(int dirfs, const std::string& path, int flags, unsigned int mask,
 
     buf->stx_btime = buf->stx_atime;
     clear_all_pathfs();
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Execution time at gkfs_statx: " << duration.count() << " milliseconds" << std::endl;
+    if(duration.count() > 20)
+    std::cout<< path<<std::endl;
     return 0;
 }
 
@@ -893,7 +903,7 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
 
     //outputFile << "\nhere is count and off:" <<count << " " << offset<<std::endl; 
-    
+    auto start = std::chrono::steady_clock::now();
     if(file->type() != gkfs::filemap::FileType::regular) {
         assert(file->type() == gkfs::filemap::FileType::directory);
         LOG(WARNING, "Cannot write to directory");
@@ -914,6 +924,7 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     auto ret_offset = gkfs::rpc::forward_update_metadentry_size(
             *path, count, offset, is_append, str_buf);
     auto err = ret_offset.first;
+    auto mid = std::chrono::steady_clock::now();
     if(err) {
         LOG(ERROR, "update_metadentry_size() failed with err '{}'", err);
         errno = err;
@@ -966,6 +977,12 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     }
     clear_all_pathfs();
     //outputFile.close();
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start);
+    auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid);
+    std::cout << "Execution time at gkfs_pwrite: " << duration.count() << " milliseconds "<<  duration1.count() << " milliseconds "<< std::endl;
+    if(duration.count() > 20)
+    std::cout<< file->path()<<" md size: "<< md.size() <<" count "<<count<< "offset "<< offset<< " new size "<< new_size<<std::endl;
     return ret_write.second; // return written size
 }
 
@@ -1074,6 +1091,7 @@ gkfs_writev(int fd, const struct iovec* iov, int iovcnt) {
 ssize_t
 gkfs_pread(std::shared_ptr<gkfs::filemap::OpenFile> file, char* buf,
            size_t count, off64_t offset) {
+    auto start = std::chrono::steady_clock::now();
     if(file->type() != gkfs::filemap::FileType::regular) {
         assert(file->type() == gkfs::filemap::FileType::directory);
         LOG(WARNING, "Cannot read from directory");
@@ -1109,6 +1127,9 @@ gkfs_pread(std::shared_ptr<gkfs::filemap::OpenFile> file, char* buf,
     // XXX check that we don't try to read past end of the file
     //outputFile.close();
     clear_all_pathfs();
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Execution time at gkfs_pread: " << duration.count() << " milliseconds" << std::endl;
     return ret.second; // return read size
 }
 

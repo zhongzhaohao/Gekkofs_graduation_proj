@@ -35,6 +35,7 @@
 #include <common/path_util.hpp>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <daemon/backend/metadata/rocksdb_backend.hpp>
 extern "C" {
 #include <sys/stat.h>
@@ -219,7 +220,8 @@ RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
     //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
     //if(append) outputFile<< "true"<< std::endl;else outputFile<< "false"<< std::endl;
     //outputFile<< "at daemon increase with size:"<<io_size<<" off "<< offset <<" buf: "<< buf<< std::endl;
-    
+    auto start = std::chrono::steady_clock::now();
+    auto end = std::chrono::steady_clock::now();
     if(append) {
         auto merge_id = gkfs::metadata::gen_unique_id(key);
         // no offset needed because new size is current file size + io_size

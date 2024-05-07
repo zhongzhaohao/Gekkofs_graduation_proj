@@ -30,7 +30,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
-
+#include <chrono>
 using namespace std;
 
 namespace gkfs::metadata {
@@ -171,7 +171,10 @@ CreateOperand::serialize_params() const {
 bool
 MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
                                    MergeOperationOutput* merge_out) const {
-
+    std::cout<<"here is full merge" <<std::endl;
+    auto start = std::chrono::steady_clock::now();
+    auto ss = std::chrono::steady_clock::now();
+    auto end = std::chrono::steady_clock::now();
     string prev_md_value;
     auto ops_it = merge_in.operand_list.cbegin();
     if(merge_in.existing_value == nullptr) {
@@ -192,47 +195,57 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
     bool use_buf = md.use_buf();
     std::string buf = "";
     if(use_buf) buf = md.buf();
-
+    buf.resize(gkfs::config::rpc::smallfilesize);
+    int cnt = 0;
     for(; ops_it != merge_in.operand_list.cend(); ++ops_it) {
+        cnt ++;
         const rdb::Slice& serialized_op = *ops_it;
         assert(serialized_op.size() >= 2);
         auto operand_id = MergeOperand::get_id(serialized_op);
         auto parameters = MergeOperand::get_params(serialized_op);
-
+        ss = std::chrono::steady_clock::now();
         if(operand_id == OperandID::increase_size) {
             auto op = IncreaseSizeOperand(parameters);
             if(op.append()) {
+                std::cout<< "op append true" <<std::endl;
                 auto curr_offset = fsize;
                 // append mode, just increment file size
                 fsize += op.size();
-                if(use_buf) buf += op.buf();
+                if(use_buf && fsize <= gkfs::config::rpc::smallfilesize) std::copy(op.buf().begin(),op.buf().end(), buf.begin() + curr_offset );
                 // save the offset where this append operation should start
                 // it is retrieved later in RocksDBBackend::increase_size_impl()
+                auto mid = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(mid - ss);
+                std::cout << "Execution time at fullmerge round " << cnt <<" serial time : " << duration.count() << " milliseconds"<< std::endl;
                 GKFS_METADATA_MOD->append_offset_reserve_put(op.merge_id(),
                                                              curr_offset);
             } else {
                 auto n_fsize = op.size() + op.offset();
                 fsize = ::max(n_fsize, fsize);
-                if(use_buf){
-                    if(n_fsize < fsize)
-                        buf = buf.substr(0, op.offset()) + op.buf() + buf.substr(n_fsize, fsize); // 嵌入式写
-                    else
-                        buf = buf.substr(0, op.offset()) + op.buf(); //超出式写
+                if(use_buf && fsize <= gkfs::config::rpc::smallfilesize){
+                    std::copy(op.buf().begin(),op.buf().end(), buf.begin() + op.offset());
                 }
+                auto mid = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(mid - ss);
+                std::cout << "Execution time at fullmerge round " << cnt <<" serial time : " << duration.count() << " milliseconds"<< std::endl;
+
             }
         } else if(operand_id == OperandID::decrease_size) {
             auto op = DecreaseSizeOperand(parameters);
             assert(op.size() < fsize); // we assume no concurrency here
             fsize = op.size();
-            if(use_buf) buf = buf.substr(0,fsize);
         } else if(operand_id == OperandID::create) {
             continue;
         } else {
             throw ::runtime_error("Unrecognized merge operand ID: " +
                                   (char) operand_id);
         }
+        end = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - ss);
+        std::cout << "Execution time at fullmerge round" << cnt <<" : " << duration.count() << " milliseconds with count: "<<cnt << std::endl;
     }
-    if(fsize > gkfs::config::rpc::smallfilesize) use_buf = false;
+    if(fsize > gkfs::config::rpc::smallfilesize) {use_buf = false;buf.resize(0);}
+    else buf.resize(fsize);
     md.size(fsize);
     md.buf(buf);
     md.use_buf(use_buf);
@@ -240,6 +253,9 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
     //outputFile<< "at merge with final md :"<<md.serialize()<< std::endl;
     //outputFile.close();
     merge_out->new_value = md.serialize();
+    end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Execution time at fullmerge: " << duration.count() << " milliseconds with count: "<<cnt << std::endl;
     return true;
 }
 
