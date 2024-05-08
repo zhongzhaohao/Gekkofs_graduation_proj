@@ -128,7 +128,7 @@ forward_getSuccessResponseThread(void* data){
  */
 int
 forward_stat(const std::string& path, string& attr) {
-
+    std::cout<<"forward_stat here with "<<path<<std::endl;
     auto hostsconfig_array = CTX->hostsconfig();  //文件系统配置文件数组
     auto priority_array = CTX->fspriority();
     int hostsconfig_array_length = hostsconfig_array.size();
@@ -613,7 +613,7 @@ forward_update_metadentry_size(const string& path, const size_t size,
         auto out = ld_network_service
                            ->post<gkfs::rpc::update_metadentry_size>(
                                    endp, path, size, offset,
-                                   bool_to_merc_bool(append_flag), buf)
+                                   bool_to_merc_bool(append_flag), buf, buf.size())
                            .get()
                            .at(0);
 

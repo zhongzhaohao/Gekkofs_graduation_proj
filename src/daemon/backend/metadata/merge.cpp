@@ -62,21 +62,24 @@ MergeOperand::get_params(const rdb::Slice& serialized_op) {
     return {serialized_op.data() + 2, serialized_op.size() - 2};
 }
 
-IncreaseSizeOperand::IncreaseSizeOperand(const size_t size, const std::string& buf, const off_t offset)
-    : size_(size), merge_id_(0), append_(false), buf_(std::move(buf)), offset_(offset) {}
+IncreaseSizeOperand::IncreaseSizeOperand(const size_t size, const std::string& buf, const off_t offset, const size_t bsize)
+    : size_(size), merge_id_(0), append_(false), buf_(std::move(buf)), offset_(offset), bsize_(bsize) {}
 
 IncreaseSizeOperand::IncreaseSizeOperand(const size_t size,
                                          const uint16_t merge_id,
                                          const bool append,
-                                         const std::string& buf)
-    : size_(size), merge_id_(merge_id), append_(append), buf_(std::move(buf) ), offset_(0) {}
+                                         const std::string& buf, const size_t bsize)
+    : size_(size), merge_id_(merge_id), append_(append), buf_(std::move(buf)), offset_(0), bsize_(bsize) {}
 
 IncreaseSizeOperand::IncreaseSizeOperand(const rdb::Slice& serialized_op) {
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    //outputFile<< "serial:"<<serialized_op.data()<< std::endl;
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    outputFile<< "serial:"<<serialized_op.data()<< std::endl;
     size_t read = 0, rr = 0;
+    bsize_ = std::stoul(serialized_op.data(), &rr);
+    assert(serialized_op[rr] == serialize_sep);
     // Parse size
-    size_ = std::stoul(serialized_op.data(), &read);
+    size_ = std::stoul(serialized_op.data() + rr + 1, &read);
+    read += rr + 1;
     assert(serialized_op[read] == serialize_sep);
     append_ = true;
     if(serialized_op[read + 1] == serialize_sep) {
@@ -93,10 +96,10 @@ IncreaseSizeOperand::IncreaseSizeOperand(const rdb::Slice& serialized_op) {
         merge_id_ = 0;
     }
     assert(serialized_op[read + rr + 1] == serialize_sep);
-    buf_ = std::string(serialized_op.data() + read + 2 + rr , size_);
-    //<< "deseral"<<fmt::format("{}{}{}{}{}{}{}{}", size_, serialize_sep, merge_id_, serialize_sep, offset_,serialize_sep, buf_,
-    //                       serialize_end)<< std::endl;
-    //outputFile.close();
+    buf_ = std::string(serialized_op.data() + read + 2 + rr , bsize_);
+    outputFile<< "deseral"<<fmt::format("{}{}{}{}{}{}{}{}{}",bsize_,size_, serialize_sep, merge_id_, serialize_sep, offset_,serialize_sep, buf_,
+                           serialize_end)<< std::endl;
+    outputFile.close();
 }
 
 OperandID
@@ -108,10 +111,10 @@ string
 IncreaseSizeOperand::serialize_params() const {
     // serialize_end avoids rogue characters in the serialized string
     if(append_)
-        return fmt::format("{}{}{}{}{}", size_, serialize_sep, merge_id_, serialize_sep, buf_,
+        return fmt::format("{}{}{}{}{}{}{}", bsize_, serialize_sep, size_, serialize_sep, merge_id_, serialize_sep, buf_,
                            serialize_end);
     else {
-        return fmt::format("{}{}{}{}{}{}", size_, serialize_sep, serialize_sep, offset_, serialize_sep, buf_,
+        return fmt::format("{}{}{}{}{}{}{}{}", bsize_, serialize_sep, size_, serialize_sep, serialize_sep, offset_, serialize_sep, buf_,
                            serialize_end);
     }
 }
@@ -171,7 +174,7 @@ CreateOperand::serialize_params() const {
 bool
 MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
                                    MergeOperationOutput* merge_out) const {
-
+    std::cout<<"here is merge" << std::endl;
     string prev_md_value;
     auto ops_it = merge_in.operand_list.cbegin();
     if(merge_in.existing_value == nullptr) {
@@ -187,25 +190,34 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
     }
 
     Metadata md{prev_md_value};
-
+    std::cout<<"here is first md " <<md.serialize()<<std::endl;
     size_t fsize = md.size();
     bool use_buf = md.use_buf();
     std::string buf = "";
     if(use_buf) buf = md.buf();
-
+    int cnt = 0;
+    std::cout<< "buf before resize is " << buf<< std::endl;
+    buf.resize(gkfs::config::rpc::smallfilesize);
     for(; ops_it != merge_in.operand_list.cend(); ++ops_it) {
+        cnt ++;
         const rdb::Slice& serialized_op = *ops_it;
         assert(serialized_op.size() >= 2);
         auto operand_id = MergeOperand::get_id(serialized_op);
         auto parameters = MergeOperand::get_params(serialized_op);
-
+        std::cout<<"here is "<<cnt<<" op " <<parameters.ToString()<<std::endl;
         if(operand_id == OperandID::increase_size) {
             auto op = IncreaseSizeOperand(parameters);
+            std::cout<<"op bsize "<< op.bsize() << " with op buf: "<< op.buf()<<"with op buf cap "<< op.buf().capacity()<<std::endl;
             if(op.append()) {
                 auto curr_offset = fsize;
                 // append mode, just increment file size
                 fsize += op.size();
-                if(use_buf) buf += op.buf();
+                if(use_buf && fsize <= gkfs::config::rpc::smallfilesize) {
+                    assert(op.bsize() == op.size());
+                    //std::cout<<"here copy "<< op.buf() << "with size and real size" << op.buf().size() << ","<< op.size()<<std::endl;
+                    buf.replace(curr_offset, op.bsize(), op.buf());
+                    //std::copy(op.buf().begin(), op.buf().begin() + op.bsize(), buf.begin() + curr_offset));
+                }
                 // save the offset where this append operation should start
                 // it is retrieved later in RocksDBBackend::increase_size_impl()
                 GKFS_METADATA_MOD->append_offset_reserve_put(op.merge_id(),
@@ -213,33 +225,38 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
             } else {
                 auto n_fsize = op.size() + op.offset();
                 fsize = ::max(n_fsize, fsize);
-                if(use_buf){
-                    if(n_fsize < fsize)
-                        buf = buf.substr(0, op.offset()) + op.buf() + buf.substr(n_fsize, fsize); // 嵌入式写
-                    else
-                        buf = buf.substr(0, op.offset()) + op.buf(); //超出式写
+                if(use_buf && fsize <= gkfs::config::rpc::smallfilesize){
+                    assert(op.bsize() == op.size());
+                    assert(op.bsize() == op.buf().size());
+                    std::cout<<"xiahere copy "<< op.buf() << "with size and real size off" << op.buf().size() << ","<< op.size()<< ","<<op.offset()<<std::endl;
+                    buf.replace(op.offset(), op.bsize(), op.buf());
+                    //std::copy(op.buf().begin(), op.buf().begin() + op.bsize(), buf.begin() + op.offset());
                 }
             }
+            //std::cout<<"buf after copy "<<buf <<std::endl;
         } else if(operand_id == OperandID::decrease_size) {
             auto op = DecreaseSizeOperand(parameters);
             assert(op.size() < fsize); // we assume no concurrency here
             fsize = op.size();
-            if(use_buf) buf = buf.substr(0,fsize);
         } else if(operand_id == OperandID::create) {
             continue;
         } else {
             throw ::runtime_error("Unrecognized merge operand ID: " +
                                   (char) operand_id);
         }
+        std::cout<<"here is "<<cnt<<" op end with buf "<<buf <<std::endl;
     }
-    if(fsize > gkfs::config::rpc::smallfilesize) use_buf = false;
+    if(fsize > gkfs::config::rpc::smallfilesize) {use_buf = false;buf.resize(0);}
+    else buf.resize(fsize);
     md.size(fsize);
+    std::cout<<"buf after merge is like " <<buf << " with size "<<buf.size()<<std::endl;
     md.buf(buf);
     md.use_buf(use_buf);
     //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
     //outputFile<< "at merge with final md :"<<md.serialize()<< std::endl;
     //outputFile.close();
     merge_out->new_value = md.serialize();
+    std::cout<<"here end merge with md "<<md.serialize() << std::endl;
     return true;
 }
 

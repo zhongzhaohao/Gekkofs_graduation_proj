@@ -138,8 +138,8 @@ MetadataDB::update(const std::string& old_key, const std::string& new_key,
 
 off_t
 MetadataDB::increase_size(const std::string& key, size_t io_size, off_t offset,
-                          bool append, const std::string& buf = "") {
-    return backend_->increase_size(key, io_size, offset, append, buf);
+                          bool append, size_t bsize, const std::string& buf = "") {
+    return backend_->increase_size(key, io_size, offset, append, bsize, buf);
 }
 
 void

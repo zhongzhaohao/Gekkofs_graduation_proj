@@ -1348,8 +1348,8 @@ struct update_metadentry_size {
 
     public:
         input(const std::string& path, uint64_t size, int64_t offset,
-              bool append, const std::string &buf)
-            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(std::move(buf)) {}
+              bool append, const std::string &buf, uint64_t bsize)
+            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(std::move(buf)), m_bsize(bsize) {}
 
         input(input&& rhs) = default;
 
@@ -1376,6 +1376,11 @@ struct update_metadentry_size {
             return m_size;
         }
 
+        uint64_t
+        bsize() const {
+            return m_bsize;
+        }
+
         int64_t
         offset() const {
             return m_offset;
@@ -1388,16 +1393,17 @@ struct update_metadentry_size {
 
         explicit input(const rpc_update_metadentry_size_in_t& other)
             : m_path(other.path), m_size(other.size), m_offset(other.offset),
-              m_append(other.append), m_buf(std::move(other.buf)) {}
+              m_append(other.append), m_buf(std::move(other.buf)), m_bsize(other.bsize) {}
 
         explicit operator rpc_update_metadentry_size_in_t() {
-            return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str()};
+            return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str(), m_bsize};
         }
 
     private:
         std::string m_buf;
         std::string m_path;
         uint64_t m_size;
+        uint64_t m_bsize;
         int64_t m_offset;
         bool m_append;
     };

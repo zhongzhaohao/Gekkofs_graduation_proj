@@ -146,39 +146,36 @@ Metadata::Metadata(const std::string& binary_str) {
     ptr += read;
 
     assert(*ptr == MSP);
-    buf_ = ++ptr;
-    ptr += buf_.size();
-    bool rnmp = true;
+    unsigned int size = static_cast<unsigned int>(std::stoul(++ptr, &read));
+    assert(read > 0);
+    ptr += read;
+
+    assert(*ptr == MSP);ptr ++;
+    buf_ = std::string(ptr, size);
+    ptr += size;
+
 #ifdef HAS_SYMLINKS
+    // Read target_path
+    assert(*ptr == MSP);
+    target_path_ = ++ptr;
+    // target_path should be there only if this is a link
+    ptr += target_path_.size();
 #ifdef HAS_RENAME
     // Read rename target, we had captured '|' so we need to recover it
-    if(!buf_.empty()) {
-        auto index = buf_.find_last_of(MSP);
-        auto size = buf_.size();
-        buf_ = buf_.substr(0, index);
+    if(!target_path_.empty()) {
+        auto index = target_path_.find_last_of(MSP);
+        auto size = target_path_.size();
+        target_path_ = target_path_.substr(0, index);
         ptr -= (size - index);
-        assert(*ptr == MSP);
-        rename_path_ = ptr + 1;
     }
-    rnmp = rename_path_.empty();
+    assert(*ptr == MSP);
+    rename_path_ = ++ptr;
+    ptr += rename_path_.size();
 #endif // HAS_RENAME
-    // Read target_path
-    if(!buf_.empty()) {
-        auto index = buf_.find_last_of(MSP);
-        auto size = buf_.size() ;
-        buf_ = buf_.substr(0, index);
-        ptr -= (size - index);
-        assert(*ptr == MSP);
-        target_path_ = ++ptr;
-        ptr += target_path_.size();
-        if(!rnmp){
-            auto index = target_path_.find_last_of(MSP);
-            target_path_ = target_path_.substr(0,index);
-        }
-    }
 #endif // HAS_SYMLINKS
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    //outputFile<< "metadata deserailize here|"<<(int)use_buf_ <<"|"<<size_ << "|" << buf_<< std::endl;
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    outputFile<< "metadata raw"<<binary_str<< std::endl;
+    outputFile.close();
     // we consumed all the binary string
     assert(*ptr == '\0');
 }
@@ -212,8 +209,11 @@ Metadata::serialize() const {
     }
     s += MSP;
     s += fmt::format_int(use_buf_).c_str();
+
     s += MSP;
     if constexpr(gkfs::config::metadata::use_buf){
+        s += fmt::format_int(buf_.size()).c_str();
+        s += MSP;
         s += buf_;
     }
 #ifdef HAS_SYMLINKS
@@ -224,9 +224,10 @@ Metadata::serialize() const {
     s += rename_path_;
 #endif // HAS_RENAME
 #endif // HAS_SYMLINKS
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    //outputFile<< "metadata serailize here"<<s<< std::endl;
-    //outputFile.close();
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    outputFile<< "metadata after ser "<<s<< std::endl;
+    outputFile<< "metadata after with buf "<<buf_<< std::endl;
+    outputFile.close();
     return s;
 }
 
@@ -340,7 +341,7 @@ Metadata::buf() const {
 
 void
 Metadata::buf(const std::string& buf) {
-    buf_ = std::move(buf);
+    buf_ = buf;
 }
 
 #ifdef HAS_SYMLINKS

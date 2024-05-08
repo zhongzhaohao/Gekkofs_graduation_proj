@@ -91,11 +91,12 @@ private:
      */
     uint16_t merge_id_;
     bool append_;
+    size_t bsize_;
 
 public:
-    IncreaseSizeOperand(size_t size, const std::string& buf, off_t offset);
+    IncreaseSizeOperand(size_t size, const std::string& buf, off_t offset, size_t bsize);
 
-    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append, const std::string& buf);
+    IncreaseSizeOperand(size_t size, uint16_t merge_id, bool append, const std::string& buf, size_t bsize);
 
     explicit IncreaseSizeOperand(const rdb::Slice& serialized_op);
 
@@ -108,6 +109,11 @@ public:
     size_t
     size() const {
         return size_;
+    }
+
+    size_t
+    bsize() const {
+        return bsize_;
     }
 
     off_t

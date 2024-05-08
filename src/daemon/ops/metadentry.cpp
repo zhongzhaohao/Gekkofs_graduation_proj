@@ -99,8 +99,8 @@ update(const string& path, Metadata& md) {
  * @endinternal
  */
 off_t
-update_size(const string& path, size_t io_size, off64_t offset, bool append, const std::string& buf) {
-    return GKFS_DATA->mdb()->increase_size(path, io_size, offset, append, buf);
+update_size(const string& path, size_t io_size, off64_t offset, bool append, size_t bsize, const std::string& buf) {
+    return GKFS_DATA->mdb()->increase_size(path, io_size, offset, append, bsize, buf);
 }
 
 void

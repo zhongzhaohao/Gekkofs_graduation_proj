@@ -99,6 +99,21 @@ static void clear_one_pathfs(std::string path){
         CTX->pathfs().erase(path);
     }
 }
+static void update_pathmeta(std::string path, size_t new_size, off_t offset, std::string& str_buf, bool is_append){
+    if(CTX->pathmeta().count(path)){
+        auto md = CTX->pathmeta()[path];
+        string ori_buf = md.buf();
+        off_t off = is_append? md.size() : offset;
+        if(new_size > gkfs::config::rpc::smallfilesize) {
+            md.use_buf(false);
+        } else if(md.use_buf()){
+            ori_buf.resize(new_size); 
+            std::copy(str_buf.begin(), str_buf.end(), ori_buf.begin() + off); 
+            md.buf(ori_buf);
+        }
+        CTX->pathmeta()[path] = md;
+    }
+}
 static void clear_all_pathfs(){
     if(CTX->pathfs().size() > 128)  CTX->pathfs().clear();
     if(CTX->pathmeta().size() > 16) CTX->pathmeta().clear();
@@ -507,7 +522,7 @@ gkfs_rename(const string& old_path, const string& new_path) {
  */
 int
 gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
-    //std::cout<<"gkfs_stat here"<<std::endl;
+    std::cout<<"gkfs_stat here with "<< path<<std::endl;
     auto md = gkfs::utils::get_metadata(path, follow_links);
     if(!md) {
         return -1;
@@ -548,7 +563,7 @@ gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
 int
 gkfs_statx(int dirfs, const std::string& path, int flags, unsigned int mask,
            struct statx* buf, bool follow_links) {
-    //std::cout<<"gkfs_statx here"<<std::endl;
+    std::cout<<"gkfs_statx here with "<< path <<std::endl;
     auto md = gkfs::utils::get_metadata(path, follow_links);
 
     if(!md) {
@@ -890,7 +905,8 @@ gkfs_dup2(const int oldfd, const int newfd) {
 ssize_t
 gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
             size_t count, off64_t offset, bool update_pos) {
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
+    std::cout<< "here is gkfs_pwrite "<<count << " " << offset<< std::endl;
+    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
 
     //outputFile << "\nhere is count and off:" <<count << " " << offset<<std::endl; 
     
@@ -936,7 +952,7 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     //写回
     if(new_size > gkfs::config::rpc::smallfilesize && md.size()) {
         auto write_back = gkfs::rpc::forward_write(*path, md.buf().c_str(), 0, md.size());
-        //outputFile << "here we write back" <<md.buf()<<std::endl; 
+        outputFile << "here we write back" <<md.serialize()<<std::endl; 
         if(write_back.first) {
             //outputFile << "here we write back error" <<std::endl; 
             errno = err;
@@ -965,7 +981,10 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
             ret_write.second, count);
     }
     clear_all_pathfs();
-    //outputFile.close();
+    outputFile<< "gkfs pwrite update meta from " << md.serialize() << std::endl;
+    update_pathmeta(*path, new_size, offset, str_buf, is_append);
+    outputFile<< "to " << CTX->pathmeta()[*path].serialize() << std::endl;
+    outputFile.close();
     return ret_write.second; // return written size
 }
 

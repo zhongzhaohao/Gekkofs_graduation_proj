@@ -126,7 +126,7 @@ public:
      */
     off_t
     increase_size(const std::string& key, size_t io_size, off_t offset,
-                  bool append, const std::string& buf);
+                  bool append, size_t bsize, const std::string& buf);
 
     /**
      * @brief Decreases only the size part of the metadata entry via a RocksDB
