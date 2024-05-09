@@ -96,9 +96,7 @@ RocksDBBackend::throw_status_excpt(const rdb::Status& s) {
 std::string
 RocksDBBackend::get_impl(const std::string& key) const {
     std::string val;
-    std::cout<< "here is get impl with key " << key <<std::endl;
     auto s = db_->Get(rdb::ReadOptions(), key, &val);
-    std::cout<< "here is get impl with val " << val <<std::endl;
     if(!s.ok()) {
         throw_status_excpt(s);
     }
@@ -217,17 +215,11 @@ off_t
 RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
                                    off_t offset, bool append, size_t bsize, const std::string& buf) {
     off_t out_offset = -1;
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    //if(append) outputFile<< "true"<< std::endl;else outputFile<< "false"<< std::endl;
-    //outputFile<< "at daemon increase with size:"<<io_size<<" off "<< offset <<" buf: "<< buf<< std::endl;
-    
     if(append) {
         auto merge_id = gkfs::metadata::gen_unique_id(key);
         // no offset needed because new size is current file size + io_size
         auto uop = IncreaseSizeOperand(io_size, merge_id, append, buf, bsize);
-        //outputFile<< "at daemon increase still noraml227"<< std::endl;
         auto s = db_->Merge(write_opts_, key, uop.serialize());
-        //outputFile<< "at daemon increase still noraml229"<< std::endl;
         if(!s.ok()) {
             throw_status_excpt(s);
         } else {
@@ -247,17 +239,12 @@ RocksDBBackend::increase_size_impl(const std::string& key, size_t io_size,
     } else {
         // In the standard case we simply add the I/O request size to the
         // offset.
-        //outputFile<< "at daemon increase still noraml247"<< std::endl;
         auto uop = IncreaseSizeOperand(io_size, buf, offset, bsize);
-        //outputFile<< "at daemon increase still noraml248"<< std::endl;
         auto s = db_->Merge(write_opts_, key, uop.serialize());
-        //outputFile<< "at daemon increase still noraml249"<< std::endl;
         if(!s.ok()) {
             throw_status_excpt(s);
         }
     }
-    //outputFile<< "at daemon increase still noraml"<< std::endl;
-    //outputFile.close();
     return out_offset;
 }
 

@@ -200,7 +200,6 @@ namespace gkfs::utils {
 optional<gkfs::metadata::Metadata>
 get_metadata(const string& path, bool follow_links) {
     std::string attr;
-    //std::cout<<"get_metatdata here"<<std::endl;
     auto err = gkfs::rpc::forward_stat(path, attr);
     if(err) {
         errno = err;

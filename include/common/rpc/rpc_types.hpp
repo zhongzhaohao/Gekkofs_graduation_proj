@@ -46,7 +46,7 @@ MERCURY_GEN_PROC(rpc_mk_node_in_t,
 MERCURY_GEN_PROC(rpc_path_only_in_t, ((hg_const_string_t) (path)))
 
 MERCURY_GEN_PROC(rpc_stat_out_t,
-                 ((hg_int32_t) (err))((hg_const_string_t) (db_val)))
+                 ((hg_int32_t) (err))((hg_int64_t) (size))((hg_const_string_t) (db_val)))
 
 MERCURY_GEN_PROC(rpc_rm_node_in_t, ((hg_const_string_t) (path)))
 

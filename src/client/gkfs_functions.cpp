@@ -102,6 +102,7 @@ static void clear_one_pathfs(std::string path){
 static void update_pathmeta(std::string path, size_t new_size, off_t offset, std::string& str_buf, bool is_append){
     if(CTX->pathmeta().count(path)){
         auto md = CTX->pathmeta()[path];
+        if(!md.use_buf()) return ;
         string ori_buf = md.buf();
         off_t off = is_append? md.size() : offset;
         if(new_size > gkfs::config::rpc::smallfilesize) {
@@ -522,7 +523,6 @@ gkfs_rename(const string& old_path, const string& new_path) {
  */
 int
 gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
-    std::cout<<"gkfs_stat here with "<< path<<std::endl;
     auto md = gkfs::utils::get_metadata(path, follow_links);
     if(!md) {
         return -1;
@@ -563,7 +563,6 @@ gkfs_stat(const string& path, struct stat* buf, bool follow_links) {
 int
 gkfs_statx(int dirfs, const std::string& path, int flags, unsigned int mask,
            struct statx* buf, bool follow_links) {
-    std::cout<<"gkfs_statx here with "<< path <<std::endl;
     auto md = gkfs::utils::get_metadata(path, follow_links);
 
     if(!md) {
@@ -905,11 +904,7 @@ gkfs_dup2(const int oldfd, const int newfd) {
 ssize_t
 gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
             size_t count, off64_t offset, bool update_pos) {
-    std::cout<< "here is gkfs_pwrite "<<count << " " << offset<< std::endl;
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
 
-    //outputFile << "\nhere is count and off:" <<count << " " << offset<<std::endl; 
-    
     if(file->type() != gkfs::filemap::FileType::regular) {
         assert(file->type() == gkfs::filemap::FileType::directory);
         LOG(WARNING, "Cannot write to directory");
@@ -924,8 +919,6 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     std::string str_buf = "";
     size_t new_size = is_append? count + md.size(): max(count + offset, md.size());
     if(md.use_buf() && new_size <= gkfs::config::rpc::smallfilesize) str_buf.assign(buf,count);
-    //outputFile << "here we got str_buf at gkfs_pwrite: " <<str_buf<<std::endl; 
-    //outputFile << "here we got new_size gkfs_pwrite: " <<new_size<<std::endl; 
 
     auto ret_offset = gkfs::rpc::forward_update_metadentry_size(
             *path, count, offset, is_append, str_buf);
@@ -952,14 +945,15 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     //写回
     if(new_size > gkfs::config::rpc::smallfilesize && md.size()) {
         auto write_back = gkfs::rpc::forward_write(*path, md.buf().c_str(), 0, md.size());
-        outputFile << "here we write back" <<md.serialize()<<std::endl; 
         if(write_back.first) {
-            //outputFile << "here we write back error" <<std::endl; 
+            LOG(WARNING, "gkfs::rpc::forward_write() failed with err '{}'", err);
             errno = err;
             return -1;
         }
         if(write_back.second != md.size()){
-            //outputFile << "here we write back with size not match" << write_back.second << "  "<<md.size()  <<std::endl; 
+            LOG(WARNING,
+            "gkfs::rpc::forward_write() wrote '{}' bytes instead of '{}'",
+            write_back.second, md.size());
         }
     } 
     auto ret_write = (new_size <= gkfs::config::rpc::smallfilesize)? make_pair(0,(off_t)count) : gkfs::rpc::forward_write(*path, buf, offset, count);
@@ -972,19 +966,14 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     if(update_pos) {
         // Update offset in file descriptor in the file map
         file->pos(offset + ret_write.second);
-        //outputFile << "upd pos" << offset + ret_write.second<<std::endl; 
     }
     if(static_cast<size_t>(ret_write.second) != count) {
-        //outputFile << "we really find sth not match" <<std::endl; 
         LOG(WARNING,
             "gkfs::rpc::forward_write() wrote '{}' bytes instead of '{}'",
             ret_write.second, count);
     }
     clear_all_pathfs();
-    outputFile<< "gkfs pwrite update meta from " << md.serialize() << std::endl;
     update_pathmeta(*path, new_size, offset, str_buf, is_append);
-    outputFile<< "to " << CTX->pathmeta()[*path].serialize() << std::endl;
-    outputFile.close();
     return ret_write.second; // return written size
 }
 
@@ -1105,7 +1094,6 @@ gkfs_pread(std::shared_ptr<gkfs::filemap::OpenFile> file, char* buf,
     if constexpr(gkfs::config::io::zero_buffer_before_read) {
         memset(buf, 0, sizeof(char) * count);
     }
-    //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
     add_one_pathfs(file->path());
     auto md = CTX->pathmeta()[file->path()];
     pair<int, ssize_t> ret;
@@ -1113,7 +1101,6 @@ gkfs_pread(std::shared_ptr<gkfs::filemap::OpenFile> file, char* buf,
         auto real_offset = min((size_t)offset, md.size());
         auto real_count = min(md.size(), offset + count) - real_offset;
         ret.second = md.buf().copy(buf, real_count, real_offset);
-        //outputFile << "now gkfs_pread read real o c and in oc("<<offset<<"," << count<< ")" << "(" << real_offset<< "," << real_count<<")"<< std::endl;
         ret.first = 0;
     }
     else{
@@ -1126,7 +1113,6 @@ gkfs_pread(std::shared_ptr<gkfs::filemap::OpenFile> file, char* buf,
         return -1;
     }
     // XXX check that we don't try to read past end of the file
-    //outputFile.close();
     clear_all_pathfs();
     return ret.second; // return read size
 }

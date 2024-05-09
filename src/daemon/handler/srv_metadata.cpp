@@ -132,6 +132,7 @@ rpc_srv_stat(hg_handle_t handle) {
         // get the metadata
         val = gkfs::metadata::get_str(in.path);
         out.db_val = val.c_str();
+        out.size = val.size();
         out.err = 0;
         GKFS_DATA->spdlogger()->debug("{}() Sending output mode '{}'", __func__,
                                       out.db_val);
@@ -145,7 +146,6 @@ rpc_srv_stat(hg_handle_t handle) {
                 e.what());
         out.err = EBUSY;
     }
-
     auto hret = margo_respond(handle, &out);
     if(hret != HG_SUCCESS) {
         GKFS_DATA->spdlogger()->error("{}() Failed to respond", __func__);
@@ -421,14 +421,9 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
-        std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-        outputFile<< "at daemon rpc upd size with size:"<<in.size<<" off "<< in.offset <<" buf: "<< in.buf<< std::endl;
         std::string cpy(in.buf,in.bsize);
-        outputFile<< "at daemon rpc with in.bsize "<<in.bsize <<" cpy: "<<cpy<< std::endl;
         out.ret_offset = gkfs::metadata::update_size(
                 in.path, in.size, in.offset, (in.append == HG_TRUE), in.bsize, cpy);
-        //outputFile<< "at daemon rpc upd size end:"<<out.ret_offset<< std::endl;
-        //outputFile.close();
         out.err = 0;
         out.buf = "";
     } catch(const gkfs::metadata::NotFoundException& e) {

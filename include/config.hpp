@@ -96,7 +96,7 @@ constexpr auto chunk_dir = "chunks";
 
 namespace rpc {
 constexpr auto chunksize = 524288; // in bytes (e.g., 524288 == 512KB)
-constexpr auto smallfilesize = 2048; // in bytes (e.g., 4096 == 4KB)
+constexpr auto smallfilesize = 4000; // in bytes (e.g., 4096 == 4KB)
 // size of preallocated buffer to hold directory entries in rpc call
 constexpr auto dirents_buff_size = (8 * 1024 * 1024); // 8 mega
 /*

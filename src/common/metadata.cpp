@@ -144,16 +144,15 @@ Metadata::Metadata(const std::string& binary_str) {
     use_buf_ = static_cast<bool>(std::stol(++ptr, &read));
     assert(read > 0);
     ptr += read;
-
+    
     assert(*ptr == MSP);
     unsigned int size = static_cast<unsigned int>(std::stoul(++ptr, &read));
     assert(read > 0);
     ptr += read;
-
+    
     assert(*ptr == MSP);ptr ++;
     buf_ = std::string(ptr, size);
     ptr += size;
-
 #ifdef HAS_SYMLINKS
     // Read target_path
     assert(*ptr == MSP);
@@ -173,9 +172,7 @@ Metadata::Metadata(const std::string& binary_str) {
     ptr += rename_path_.size();
 #endif // HAS_RENAME
 #endif // HAS_SYMLINKS
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "metadata raw"<<binary_str<< std::endl;
-    outputFile.close();
+
     // we consumed all the binary string
     assert(*ptr == '\0');
 }
@@ -224,10 +221,6 @@ Metadata::serialize() const {
     s += rename_path_;
 #endif // HAS_RENAME
 #endif // HAS_SYMLINKS
-    std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-    outputFile<< "metadata after ser "<<s<< std::endl;
-    outputFile<< "metadata after with buf "<<buf_<< std::endl;
-    outputFile.close();
     return s;
 }
 
@@ -341,7 +334,7 @@ Metadata::buf() const {
 
 void
 Metadata::buf(const std::string& buf) {
-    buf_ = buf;
+    buf_ = std::move(buf);
 }
 
 #ifdef HAS_SYMLINKS

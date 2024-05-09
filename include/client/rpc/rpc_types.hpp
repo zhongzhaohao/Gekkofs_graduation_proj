@@ -682,8 +682,8 @@ struct stat {
     public:
         output() : m_err(), m_db_val() {}
 
-        output(int32_t err, const std::string& db_val)
-            : m_err(err), m_db_val(db_val) {}
+        output(int32_t err, int64_t size, const std::string& db_val)
+            : m_err(err), m_size(size), m_db_val(db_val) {}
 
         output(output&& rhs) = default;
 
@@ -697,15 +697,20 @@ struct stat {
 
         explicit output(const rpc_stat_out_t& out) {
             m_err = out.err;
-
+            m_size = out.size;
             if(out.db_val != nullptr) {
-                m_db_val = out.db_val;
+                m_db_val.assign(out.db_val,m_size);
             }
         }
 
         int32_t
         err() const {
             return m_err;
+        }
+
+        int64_t
+        size() const {
+            return m_size;
         }
 
         std::string
@@ -715,6 +720,7 @@ struct stat {
 
     private:
         int32_t m_err;
+        int64_t m_size;
         std::string m_db_val;
     };
 };

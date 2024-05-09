@@ -128,7 +128,6 @@ forward_getSuccessResponseThread(void* data){
  */
 int
 forward_stat(const std::string& path, string& attr) {
-    std::cout<<"forward_stat here with "<<path<<std::endl;
     auto hostsconfig_array = CTX->hostsconfig();  //文件系统配置文件数组
     auto priority_array = CTX->fspriority();
     int hostsconfig_array_length = hostsconfig_array.size();
@@ -607,9 +606,6 @@ forward_update_metadentry_size(const string& path, const size_t size,
         // TODO(amiranda): hermes will eventually provide a post(endpoint)
         // returning one result and a broadcast(endpoint_set) returning a
         // result_set. When that happens we can remove the .at(0) :/
-        //std::ofstream outputFile("/home/changqin/abc.txt",std::ios::app | std::ios::binary);
-        //outputFile << "\nhere is size and buf at forward upd mmm size:" <<size << " " << buf<<std::endl; 
-        //outputFile.close();
         auto out = ld_network_service
                            ->post<gkfs::rpc::update_metadentry_size>(
                                    endp, path, size, offset,
