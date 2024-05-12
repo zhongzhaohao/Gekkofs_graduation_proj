@@ -44,6 +44,12 @@ bool_to_merc_bool(bool state);
 std::string
 get_my_hostname(bool short_hostname = false);
 
+std::string
+encode_string(std::string& input);
+
+std::string
+decode_string(std::string& input);
+
 #ifdef GKFS_ENABLE_UNUSED_FUNCTIONS
 std::string
 get_host_by_name(const std::string& hostname);

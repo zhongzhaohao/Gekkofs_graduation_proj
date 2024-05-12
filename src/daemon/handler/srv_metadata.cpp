@@ -41,6 +41,7 @@
 #include <daemon/ops/metadentry.hpp>
 
 #include <common/rpc/rpc_types.hpp>
+#include <common/rpc/rpc_util.hpp>
 #include <common/statistics/stats.hpp>
 
 using namespace std;
@@ -131,8 +132,8 @@ rpc_srv_stat(hg_handle_t handle) {
     try {
         // get the metadata
         val = gkfs::metadata::get_str(in.path);
+        val = gkfs::rpc::encode_string(val);
         out.db_val = val.c_str();
-        out.size = val.size();
         out.err = 0;
         GKFS_DATA->spdlogger()->debug("{}() Sending output mode '{}'", __func__,
                                       out.db_val);
@@ -421,11 +422,11 @@ rpc_srv_update_metadentry_size(hg_handle_t handle) {
             in.path, in.size, in.offset, in.append);
 
     try {
-        std::string cpy(in.buf,in.bsize);
+        std::string cpy(in.buf);
+        cpy = gkfs::rpc::decode_string(cpy);
         out.ret_offset = gkfs::metadata::update_size(
-                in.path, in.size, in.offset, (in.append == HG_TRUE), in.bsize, cpy);
+                in.path, in.size, in.offset, (in.append == HG_TRUE), cpy.size(), cpy);
         out.err = 0;
-        out.buf = "";
     } catch(const gkfs::metadata::NotFoundException& e) {
         GKFS_DATA->spdlogger()->debug("{}() Entry not found: '{}'", __func__,
                                       in.path);

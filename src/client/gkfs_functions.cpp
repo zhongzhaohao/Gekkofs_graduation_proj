@@ -37,6 +37,7 @@
 #include <client/open_dir.hpp>
 
 #include <common/path_util.hpp>
+#include <common/rpc/rpc_util.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -921,7 +922,7 @@ gkfs_pwrite(std::shared_ptr<gkfs::filemap::OpenFile> file, const char* buf,
     if(md.use_buf() && new_size <= gkfs::config::rpc::smallfilesize) str_buf.assign(buf,count);
 
     auto ret_offset = gkfs::rpc::forward_update_metadentry_size(
-            *path, count, offset, is_append, str_buf);
+            *path, count, offset, is_append, gkfs::rpc::encode_string(str_buf));
     auto err = ret_offset.first;
     if(err) {
         LOG(ERROR, "update_metadentry_size() failed with err '{}'", err);

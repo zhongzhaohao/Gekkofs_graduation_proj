@@ -682,8 +682,8 @@ struct stat {
     public:
         output() : m_err(), m_db_val() {}
 
-        output(int32_t err, int64_t size, const std::string& db_val)
-            : m_err(err), m_size(size), m_db_val(db_val) {}
+        output(int32_t err, const std::string& db_val)
+            : m_err(err), m_db_val(db_val) {}
 
         output(output&& rhs) = default;
 
@@ -697,20 +697,15 @@ struct stat {
 
         explicit output(const rpc_stat_out_t& out) {
             m_err = out.err;
-            m_size = out.size;
+
             if(out.db_val != nullptr) {
-                m_db_val.assign(out.db_val,m_size);
+                m_db_val = out.db_val;
             }
         }
 
         int32_t
         err() const {
             return m_err;
-        }
-
-        int64_t
-        size() const {
-            return m_size;
         }
 
         std::string
@@ -720,7 +715,6 @@ struct stat {
 
     private:
         int32_t m_err;
-        int64_t m_size;
         std::string m_db_val;
     };
 };
@@ -1354,8 +1348,8 @@ struct update_metadentry_size {
 
     public:
         input(const std::string& path, uint64_t size, int64_t offset,
-              bool append, const std::string &buf, uint64_t bsize)
-            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(std::move(buf)), m_bsize(bsize) {}
+              bool append, const std::string &buf)
+            : m_path(path), m_size(size), m_offset(offset), m_append(append), m_buf(std::move(buf)) {}
 
         input(input&& rhs) = default;
 
@@ -1382,11 +1376,6 @@ struct update_metadentry_size {
             return m_size;
         }
 
-        uint64_t
-        bsize() const {
-            return m_bsize;
-        }
-
         int64_t
         offset() const {
             return m_offset;
@@ -1399,17 +1388,16 @@ struct update_metadentry_size {
 
         explicit input(const rpc_update_metadentry_size_in_t& other)
             : m_path(other.path), m_size(other.size), m_offset(other.offset),
-              m_append(other.append), m_buf(std::move(other.buf)), m_bsize(other.bsize) {}
+              m_append(other.append), m_buf(std::move(other.buf)) {}
 
         explicit operator rpc_update_metadentry_size_in_t() {
-            return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str(), m_bsize};
+            return {m_path.c_str(), m_size, m_offset, m_append, m_buf.c_str()};
         }
 
     private:
         std::string m_buf;
         std::string m_path;
         uint64_t m_size;
-        uint64_t m_bsize;
         int64_t m_offset;
         bool m_append;
     };
@@ -1421,10 +1409,10 @@ struct update_metadentry_size {
         hermes::detail::post_to_mercury(ExecutionContext*);
 
     public:
-        output() : m_err(), m_ret_offset(), m_buf() {}
+        output() : m_err(), m_ret_offset() {}
 
         output(int32_t err, int64_t ret_size, const std::string& buf)
-            : m_err(err), m_ret_offset(ret_size), m_buf(std::move(buf)) {}
+            : m_err(err), m_ret_offset(ret_size) {}
 
         output(output&& rhs) = default;
 
@@ -1439,7 +1427,6 @@ struct update_metadentry_size {
         explicit output(const rpc_update_metadentry_size_out_t& out) {
             m_err = out.err;
             m_ret_offset = out.ret_offset;
-            m_buf = std::move(out.buf);
         }
 
         int32_t
@@ -1452,13 +1439,7 @@ struct update_metadentry_size {
             return m_ret_offset;
         }
 
-        std::string
-        buf() const {
-            return m_buf;
-        }
-
     private:
-        std::string m_buf;
         int32_t m_err;
         int64_t m_ret_offset;
     };

@@ -27,6 +27,7 @@
 */
 
 #include <common/rpc/rpc_util.hpp>
+#include <iostream>
 
 extern "C" {
 #include <unistd.h>
@@ -72,6 +73,45 @@ get_my_hostname(bool short_hostname) {
     } else
         return ""s;
 }
+
+/**
+ * Encode string to avoid illegal char
+ * @return
+ */
+string
+encode_string(string& input) {
+    const char hexmap[] = "0123456789ABCDEF";
+    std::string result = "";
+    result.reserve(input.length() * 2);
+    for (char c : input) {
+        // 将字符的 ASCII 码转换为两个十六进制字母表示
+        unsigned char uc = static_cast<unsigned char>(c);
+        result.push_back(hexmap[uc >> 4]);
+        result.push_back(hexmap[uc & 0xF]);
+    }
+    return result;
+}
+
+/**
+ * Decode string to its origin
+ * @return
+ */
+string
+decode_string(string& input) {
+    std::string result = "";
+    result.reserve(input.length() / 2);
+    for (std::string::size_type i = 0; i < input.length(); i += 2) {
+        // 将每两个十六进制字符还原为原始字符
+        unsigned char c = 0;
+        if (input[i] >= '0' && input[i] <= '9')       c = (input[i] - '0') << 4;
+        else if (input[i] >= 'A' && input[i] <= 'F')  c = (input[i] - 'A' + 10) << 4;
+        if (input[i + 1] >= '0' && input[i + 1] <= '9')      c |= (input[i + 1] - '0');
+        else if (input[i + 1] >= 'A' && input[i + 1] <= 'F') c |= (input[i + 1] - 'A' + 10);
+        result.push_back(c);
+    }
+    return result;
+}
+
 
 #ifdef GKFS_ENABLE_UNUSED_FUNCTIONS
 string

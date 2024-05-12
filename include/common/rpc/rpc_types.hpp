@@ -46,7 +46,7 @@ MERCURY_GEN_PROC(rpc_mk_node_in_t,
 MERCURY_GEN_PROC(rpc_path_only_in_t, ((hg_const_string_t) (path)))
 
 MERCURY_GEN_PROC(rpc_stat_out_t,
-                 ((hg_int32_t) (err))((hg_int64_t) (size))((hg_const_string_t) (db_val)))
+                 ((hg_int32_t) (err))((hg_const_string_t) (db_val)))
 
 MERCURY_GEN_PROC(rpc_rm_node_in_t, ((hg_const_string_t) (path)))
 
@@ -71,11 +71,10 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(rpc_update_metadentry_size_in_t,
                  ((hg_const_string_t) (path))((hg_uint64_t) (size))(
                          (hg_int64_t) (offset))((hg_bool_t) (append))(
-                (hg_const_string_t) (buf)) ((hg_uint64_t) (bsize)))
+                (hg_const_string_t) (buf)) )
 
 MERCURY_GEN_PROC(rpc_update_metadentry_size_out_t,
-                 ((hg_int32_t) (err))((hg_int64_t) (ret_offset))(
-                (hg_const_string_t) (buf)))
+                 ((hg_int32_t) (err))((hg_int64_t) (ret_offset)))
 
 MERCURY_GEN_PROC(rpc_get_metadentry_size_out_t,
                  ((hg_int32_t) (err))((hg_int64_t) (ret_size)))

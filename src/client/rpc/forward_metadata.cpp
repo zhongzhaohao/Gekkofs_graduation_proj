@@ -110,6 +110,7 @@ forward_getSuccessResponseThread(void* data){
             LOG(DEBUG, "Got response success: {}", out.err());
             if(!out.err()){
                 statfs_args->attr = out.db_val();
+                statfs_args->attr = gkfs::rpc::decode_string(statfs_args->attr);
             }
             statfs_args->result = out.err();
         } catch(const std::exception& ex) {
@@ -212,6 +213,7 @@ forward_stat(const std::string& path, string& attr) {
                 return out.err();
             }
             attr = out.db_val();
+            attr = gkfs::rpc::decode_string(attr);
         } catch(const std::exception& ex) {
             LOG(ERROR, "while getting rpc output");
             return EBUSY;
@@ -597,7 +599,6 @@ forward_rename(const string& oldpath, const string& newpath,
 pair<int, off64_t>
 forward_update_metadentry_size(const string& path, const size_t size,
                                const off64_t offset, const bool append_flag, const std::string& buf) {
-
     auto endp = CTX->hosts().at(CTX->distributor()->locate_file_metadata(path));
     try {
         LOG(DEBUG, "Sending RPC ...");
@@ -609,7 +610,7 @@ forward_update_metadentry_size(const string& path, const size_t size,
         auto out = ld_network_service
                            ->post<gkfs::rpc::update_metadentry_size>(
                                    endp, path, size, offset,
-                                   bool_to_merc_bool(append_flag), buf, buf.size())
+                                   bool_to_merc_bool(append_flag), buf)
                            .get()
                            .at(0);
 
