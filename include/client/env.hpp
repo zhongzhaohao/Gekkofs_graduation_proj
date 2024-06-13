@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -45,18 +45,21 @@ static constexpr auto LOG_SYSCALL_FILTER = ADD_PREFIX("LOG_SYSCALL_FILTER");
 #endif
 
 static constexpr auto LOG_OUTPUT = ADD_PREFIX("LOG_OUTPUT");
+static constexpr auto LOG_PER_PROCESS = ADD_PREFIX("LOG_PER_PROCESS");
 static constexpr auto LOG_OUTPUT_TRUNC = ADD_PREFIX("LOG_OUTPUT_TRUNC");
 static constexpr auto CWD = ADD_PREFIX("CWD");
 static constexpr auto HOSTS_FILE = ADD_PREFIX("HOSTS_FILE");
+/* --Multiple GekkoFS-- */
 static constexpr auto WORK_FLOW = ADD_PREFIX("WORK_FLOW");
 static constexpr auto MERGE = ADD_PREFIX("MERGE");
 static constexpr auto MERGE_FLOWS = ADD_PREFIX("MERGE_FLOWS");
 static constexpr auto REGISTRY_FILE = ADD_PREFIX("REGISTRY_FILE");
 static constexpr auto HOSTS_CONFIG_FILE = ADD_PREFIX("HOSTS_CONFIG_FILE");
+/* --Multiple GekkoFS-- */
 #ifdef GKFS_ENABLE_FORWARDING
 static constexpr auto FORWARDING_MAP_FILE = ADD_PREFIX("FORWARDING_MAP_FILE");
 #endif
-
+static constexpr auto NUM_REPL = ADD_PREFIX("NUM_REPL");
 } // namespace gkfs::env
 
 #undef ADD_PREFIX

@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -89,9 +89,9 @@ MERCURY_GEN_PROC(
         rpc_read_data_in_t,
         ((hg_const_string_t) (path))((int64_t) (offset))(
                 (hg_uint64_t) (host_id))((hg_uint64_t) (host_size))(
-                (hg_uint64_t) (chunk_n))((hg_uint64_t) (chunk_start))(
-                (hg_uint64_t) (chunk_end))((hg_uint64_t) (total_chunk_size))(
-                (hg_bulk_t) (bulk_handle)))
+                (hg_const_string_t) (wbitset))((hg_uint64_t) (chunk_n))(
+                (hg_uint64_t) (chunk_start))((hg_uint64_t) (chunk_end))(
+                (hg_uint64_t) (total_chunk_size))((hg_bulk_t) (bulk_handle)))
 
 MERCURY_GEN_PROC(rpc_data_out_t, ((int32_t) (err))((hg_size_t) (io_size)))
 
@@ -99,9 +99,9 @@ MERCURY_GEN_PROC(
         rpc_write_data_in_t,
         ((hg_const_string_t) (path))((int64_t) (offset))(
                 (hg_uint64_t) (host_id))((hg_uint64_t) (host_size))(
-                (hg_uint64_t) (chunk_n))((hg_uint64_t) (chunk_start))(
-                (hg_uint64_t) (chunk_end))((hg_uint64_t) (total_chunk_size))(
-                (hg_bulk_t) (bulk_handle)))
+                (hg_const_string_t) (wbitset))((hg_uint64_t) (chunk_n))(
+                (hg_uint64_t) (chunk_start))((hg_uint64_t) (chunk_end))(
+                (hg_uint64_t) (total_chunk_size))((hg_bulk_t) (bulk_handle)))
 
 MERCURY_GEN_PROC(rpc_get_dirents_in_t,
                  ((hg_const_string_t) (path))((hg_bulk_t) (bulk_handle)))
@@ -118,6 +118,15 @@ MERCURY_GEN_PROC(
                 (hg_bool_t) (blocks_state))((hg_uint32_t) (uid))(
                 (hg_uint32_t) (gid)))
 
+
+MERCURY_GEN_PROC(rpc_chunk_stat_in_t, ((hg_int32_t) (dummy)))
+
+MERCURY_GEN_PROC(
+        rpc_chunk_stat_out_t,
+        ((hg_int32_t) (err))((hg_uint64_t) (chunk_size))(
+                (hg_uint64_t) (chunk_total))((hg_uint64_t) (chunk_free)))
+
+//registry
 MERCURY_GEN_PROC(
         rpc_registry_request_out_t,
         ((hg_int32_t) (err)))
@@ -129,12 +138,5 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
         rpc_registry_register_in_t,
         ((hg_const_string_t) (work_flow))((hg_const_string_t) (hcfile))((hg_const_string_t) (hfile)))
-
-MERCURY_GEN_PROC(rpc_chunk_stat_in_t, ((hg_int32_t) (dummy)))
-
-MERCURY_GEN_PROC(
-        rpc_chunk_stat_out_t,
-        ((hg_int32_t) (err))((hg_uint64_t) (chunk_size))(
-                (hg_uint64_t) (chunk_total))((hg_uint64_t) (chunk_free)))
 
 #endif // LFS_RPC_TYPES_HPP

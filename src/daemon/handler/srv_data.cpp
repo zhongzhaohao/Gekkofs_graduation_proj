@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -40,6 +40,7 @@
 #include <daemon/ops/data.hpp>
 
 #include <common/rpc/rpc_types.hpp>
+#include <common/rpc/rpc_util.hpp>
 #include <common/rpc/distributor.hpp>
 #include <common/arithmetic/arithmetic.hpp>
 #include <common/statistics/stats.hpp>
@@ -51,8 +52,8 @@
 #define AGIOS_WRITE            1
 #define AGIOS_SERVER_ID_IGNORE 0
 #endif
-
 using namespace std;
+
 
 namespace {
 
@@ -115,6 +116,8 @@ rpc_srv_write(hg_handle_t handle) {
             __func__, in.path, in.chunk_start, in.chunk_end, in.chunk_n,
             in.total_chunk_size, bulk_size, in.offset);
 
+    std::vector<uint8_t> write_ops_vect =
+            gkfs::rpc::decompress_bitset(in.wbitset);
 
 #ifdef GKFS_ENABLE_AGIOS
     int* data;
@@ -228,9 +231,9 @@ rpc_srv_write(hg_handle_t handle) {
         chnk_id_file <= in.chunk_end && chnk_id_curr < in.chunk_n;
         chnk_id_file++) {
         // Continue if chunk does not hash to this host
-#ifndef GKFS_ENABLE_FORWARDING
-        if(RPC_DATA->distributor()->locate_data(in.path, chnk_id_file,
-                                                host_size) != host_id) {
+
+        if(!(gkfs::rpc::get_bitset(write_ops_vect,
+                                   chnk_id_file - in.chunk_start))) {
             GKFS_DATA->spdlogger()->trace(
                     "{}() chunkid '{}' ignored as it does not match to this host with id '{}'. chnk_id_curr '{}'",
                     __func__, chnk_id_file, host_id, chnk_id_curr);
@@ -240,7 +243,6 @@ rpc_srv_write(hg_handle_t handle) {
         if(GKFS_DATA->enable_chunkstats()) {
             GKFS_DATA->stats()->add_write(in.path, chnk_id_file);
         }
-#endif
 
         chnk_ids_host[chnk_id_curr] =
                 chnk_id_file; // save this id to host chunk list
@@ -417,7 +419,8 @@ rpc_srv_read(hg_handle_t handle) {
             "{}() path: '{}' chunk_start '{}' chunk_end '{}' chunk_n '{}' total_chunk_size '{}' bulk_size: '{}' offset: '{}'",
             __func__, in.path, in.chunk_start, in.chunk_end, in.chunk_n,
             in.total_chunk_size, bulk_size, in.offset);
-
+    std::vector<uint8_t> read_bitset_vect =
+            gkfs::rpc::decompress_bitset(in.wbitset);
 #ifdef GKFS_ENABLE_AGIOS
     int* data;
     ABT_eventual eventual = ABT_EVENTUAL_NULL;
@@ -485,10 +488,9 @@ rpc_srv_read(hg_handle_t handle) {
                 __func__);
         return gkfs::rpc::cleanup_respond(&handle, &in, &out, &bulk_handle);
     }
-#ifndef GKFS_ENABLE_FORWARDING
+
     auto const host_id = in.host_id;
-    auto const host_size = in.host_size;
-#endif
+
     auto path = make_shared<string>(in.path);
     // chnk_ids used by this host
     vector<uint64_t> chnk_ids_host(in.chunk_n);
@@ -519,9 +521,11 @@ rpc_srv_read(hg_handle_t handle) {
         chnk_id_file <= in.chunk_end && chnk_id_curr < in.chunk_n;
         chnk_id_file++) {
         // Continue if chunk does not hash to this host
-#ifndef GKFS_ENABLE_FORWARDING
-        if(RPC_DATA->distributor()->locate_data(in.path, chnk_id_file,
-                                                host_size) != host_id) {
+
+        // We only check if we are not using replicas
+
+        if(!(gkfs::rpc::get_bitset(read_bitset_vect,
+                                   chnk_id_file - in.chunk_start))) {
             GKFS_DATA->spdlogger()->trace(
                     "{}() chunkid '{}' ignored as it does not match to this host with id '{}'. chnk_id_curr '{}'",
                     __func__, chnk_id_file, host_id, chnk_id_curr);
@@ -530,7 +534,7 @@ rpc_srv_read(hg_handle_t handle) {
         if(GKFS_DATA->enable_chunkstats()) {
             GKFS_DATA->stats()->add_read(in.path, chnk_id_file);
         }
-#endif
+
 
         chnk_ids_host[chnk_id_curr] =
                 chnk_id_file; // save this id to host chunk list
@@ -597,6 +601,10 @@ rpc_srv_read(hg_handle_t handle) {
         GKFS_DATA->spdlogger()->warn(
                 "{}() Not all chunks were detected!!! Size left {}", __func__,
                 chnk_size_left_host);
+
+    if(chnk_size_left_host == in.total_chunk_size)
+        return HG_CANCELED;
+
     /*
      * 4. Read task results and accumulate in out.io_size
      */

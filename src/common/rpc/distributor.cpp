@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -27,13 +27,20 @@
 */
 
 #include <common/rpc/distributor.hpp>
-#include<iostream>
+
 using namespace std;
 
 namespace gkfs {
 
 namespace rpc {
-
+/**
+ * --Multiple GekkoFS--
+ * Client distributor construction
+ * @param localhost local daemon id
+ * @param hosts_size vector: hostsize of each GekkoFS
+ * @param pathfs cache: save GekkoFS id where path exists
+ * @param localfs id of GekkoFS having local daemon
+ */
 SimpleHashDistributor::SimpleHashDistributor(host_t localhost,
                                              std::vector<unsigned int> hosts_size,
                                              std::map<std::string, unsigned int>* pathfs,
@@ -48,91 +55,109 @@ SimpleHashDistributor::SimpleHashDistributor(host_t localhost,
 
 SimpleHashDistributor::SimpleHashDistributor() {}
 
+/* unused */
+unsigned int
+SimpleHashDistributor::hosts_size() const {
+    return 0;
+}
+
 host_t
 SimpleHashDistributor::localhost() const {
     return localhost_;
 }
 
-/* 融合后的系统的hash索引文件逻辑修改为，对于原有文件，采用forward_stat查询在某个系统中，并用全局变量pathfs记录
-*   否则，其为融合后系统新产生的文件，存储位置为localfs，即存储到本节点上
-*/
+/**
+ * --Multiple GekkoFS--
+ * Locate GekkoFS where path exists
+ * Two possible fs: local GekkoFS id, FS id in cache(saved by forward_stat)
+ * @param path
+ */
 host_t
 SimpleHashDistributor::locate_fs(const std::string& path) const{
-    
     unsigned int fs = localfs_;
     if(pathfs_ && pathfs_->count(path)) fs= (*pathfs_)[path];
-    std::cout<< "locate_fs hash path:"<<path<< " gives: "<< fs << std::endl;
     return fs;
 }
 
+/**
+ * --Multiple GekkoFS--
+ * Only used for forward_getSuccessThread
+ */
 host_t
-SimpleHashDistributor::locate(const std::string& path, unsigned int hostnum) const{
-    std::cout<< "locate hash path:"<<path<< " gives: "<< str_hash(path) % hostnum << std::endl;
-    return str_hash(path) % hostnum;
+SimpleHashDistributor::locate(const std::string& path, unsigned int hostnum, const int num_copy) const{
+    return (str_hash(path) + num_copy) % hostnum;
 }
 
+/**
+ * --Multiple GekkoFS--
+ * Locate host(daemon) id for data
+ * Only used at Client: first locate fs id, second locate host(daemon) id
+ */
 host_t
-SimpleHashDistributor::locate_data(const string& path,
-                                   const chunkid_t& chnk_id) const {
-    unsigned int server_id = localfs_;
-    if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
-    unsigned int all_daemons = 0;
-    for(unsigned int server = 0 ;server < server_id ; server++)
-        all_daemons += hosts_size_[server];
-    std::cout<< "locate_data hash path:"<<path<<" givers server id:"<<server_id<<std::endl;
-    return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
-}
-/*
-*   此函数由daemon调用，pathfs为空，故localfs_为默认值0，host_size_只有一个元素，代表此文件系统的
-*   daemons数量，且此函数仅仅用作chunk hash验证
-*/
-host_t 
 SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
-                                   unsigned int hosts_size) {
+                                   const int num_copy) const {
+    unsigned int fs_id = localfs_;
+    if(pathfs_ && pathfs_->count(path)) fs_id = (*pathfs_)[path];
+    unsigned int prefix_hosts = 0;
+    for(unsigned int fs = 0 ;fs < fs_id ; fs++)
+        prefix_hosts += hosts_size_[fs];
+    return (str_hash(path + ::to_string(chnk_id)) + num_copy) % hosts_size_.at(fs_id) + prefix_hosts;
+}
+
+/**
+ * --Multiple GekkoFS--
+ * Locate host(daemon) id for data
+ * Only used at Daemon: pathfs_ is nullptr, localfs_ is default 0, host_size_ length is 1
+ */
+host_t
+SimpleHashDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
+                                   unsigned int hosts_size,
+                                   const int num_copy) {
     if(hosts_size_.at(0) != hosts_size) {
         hosts_size_.at(0) = hosts_size;
         all_hosts_ = std::vector<unsigned int>(hosts_size);
         ::iota(all_hosts_.begin(), all_hosts_.end(), 0);
     }
-    unsigned int server_id = localfs_;
-    if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
-    unsigned int all_daemons = 0;
-    for(unsigned int server = 0 ;server < server_id ; server++)
-        all_daemons += hosts_size_[server];
-    std::cout<< "locate_data hash path:"<<path<<" gives severid:"<<server_id<< " gives: "<<  std::endl;
-    return str_hash(path + ::to_string(chnk_id)) % hosts_size_.at(server_id) + all_daemons;
-}
-
-
-
-host_t
-SimpleHashDistributor::locate_file_metadata(const string& path) const {
-    unsigned int server_id = localfs_;
-    if(pathfs_ && pathfs_->count(path)) server_id = (*pathfs_)[path];
-    std::cout<<"path "<<path<<" locate_file_meatadata: gives serverid"<<server_id<<" ";
-    unsigned int all_daemons = 0;
-    for(unsigned int server = 0 ;server < server_id ; server++)
-        all_daemons += hosts_size_[server];
-    std::cout<<"final pos" << str_hash(path) % hosts_size_.at(server_id) + all_daemons << std::endl;
-    return str_hash(path) % hosts_size_.at(server_id) + all_daemons;
+    unsigned int fs_id = localfs_;
+    if(pathfs_ && pathfs_->count(path)) fs_id = (*pathfs_)[path];
+    unsigned int prefix_hosts = 0;
+    for(unsigned int fs = 0 ;fs < fs_id ; fs++)
+        prefix_hosts += hosts_size_[fs];
+    return (str_hash(path + ::to_string(chnk_id)) + num_copy) % hosts_size_.at(fs_id) + prefix_hosts;
 }
 
 /**
-*   此处对于数据一致性在/目录的情况做了特殊处理，本来数据一致性在forward_stat处决断，然后加入pathfs
-*   此处的/由于所有系统都存在，所以不能只取一个系统中的/，必须返回全部，此时的一致性弥补在上级函数forward_get_dirents处
-*   对于其余情况，根据forward_stata决断的结果即可
-*/
+ * --Multiple GekkoFS--
+ * Locate host(daemon) id for metadata
+ * Only used at Client: first locate fs id, second locate host(daemon) id
+ */
+host_t
+SimpleHashDistributor::locate_file_metadata(const string& path,
+                                            const int num_copy) const {
+    unsigned int fs_id = localfs_;
+    if(pathfs_ && pathfs_->count(path)) fs_id = (*pathfs_)[path];
+    unsigned int prefix_hosts = 0;
+    for(unsigned int fs = 0 ;fs < fs_id ; fs++)
+        prefix_hosts += hosts_size_[fs];
+    return (str_hash(path) + num_copy) % hosts_size_.at(fs_id) + prefix_hosts;
+}
+
+/**
+ * --Multiple GekkoFS--
+ * Locate host(daemon) ids for dir metadata
+ * Only used at Client
+ */
 ::vector<host_t>
 SimpleHashDistributor::locate_directory_metadata(const string& path) const {
     if(path == "/")
         return all_hosts_;
     if(pathfs_ && pathfs_->count(path)){
-        unsigned int server_id = (*pathfs_)[path];
-        unsigned int all_daemons = 0;
-        for(unsigned int server = 0 ;server < server_id ; server++)
-            all_daemons += hosts_size_[server];
-        vector<host_t> target_hosts(all_hosts_.begin() + all_daemons, 
-                                    all_hosts_.begin() + all_daemons + hosts_size_[server_id]);
+        unsigned int fs_id = (*pathfs_)[path];
+        unsigned int prefix_hosts = 0;
+        for(unsigned int fs = 0 ;fs < fs_id ; fs++)
+            prefix_hosts += hosts_size_[fs];
+        vector<host_t> target_hosts(all_hosts_.begin() + prefix_hosts, 
+                                    all_hosts_.begin() + prefix_hosts + hosts_size_[fs_id]);
         return target_hosts;   
     } 
     return all_hosts_;
@@ -146,14 +171,20 @@ LocalOnlyDistributor::localhost() const {
     return localhost_;
 }
 
+unsigned int
+LocalOnlyDistributor::hosts_size() const {
+    return hosts_size_;
+}
+
 host_t
-LocalOnlyDistributor::locate_data(const string& path,
-                                  const chunkid_t& chnk_id) const {
+LocalOnlyDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
+                                  const int num_copy) const {
     return localhost_;
 }
 
 host_t
-LocalOnlyDistributor::locate_file_metadata(const string& path) const {
+LocalOnlyDistributor::locate_file_metadata(const string& path,
+                                           const int num_copy) const {
     return localhost_;
 }
 
@@ -173,23 +204,31 @@ ForwarderDistributor::localhost() const {
     return fwd_host_;
 }
 
+unsigned int
+ForwarderDistributor::hosts_size() const {
+    return hosts_size_;
+}
+
 host_t
 ForwarderDistributor::locate_data(const std::string& path,
-                                  const chunkid_t& chnk_id) const {
+                                  const chunkid_t& chnk_id,
+                                  const int num_copy) const {
     return fwd_host_;
 }
 
 host_t
 ForwarderDistributor::locate_data(const std::string& path,
                                   const chunkid_t& chnk_id,
-                                  unsigned int host_size) {
+                                  unsigned int host_size, const int num_copy) {
     return fwd_host_;
 }
 
 host_t
-ForwarderDistributor::locate_file_metadata(const std::string& path) const {
-    return str_hash(path) % hosts_size_;
+ForwarderDistributor::locate_file_metadata(const std::string& path,
+                                           const int num_copy) const {
+    return (str_hash(path) + num_copy) % hosts_size_;
 }
+
 
 std::vector<host_t>
 ForwarderDistributor::locate_directory_metadata(const std::string& path) const {
@@ -276,21 +315,26 @@ GuidedDistributor::localhost() const {
     return localhost_;
 }
 
+unsigned int
+GuidedDistributor::hosts_size() const {
+    return hosts_size_;
+}
+
 host_t
 GuidedDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
-                               unsigned int hosts_size) {
+                               unsigned int hosts_size, const int num_copy) {
     if(hosts_size_ != hosts_size) {
         hosts_size_ = hosts_size;
         all_hosts_ = std::vector<unsigned int>(hosts_size);
         ::iota(all_hosts_.begin(), all_hosts_.end(), 0);
     }
 
-    return (locate_data(path, chnk_id));
+    return (locate_data(path, chnk_id, num_copy));
 }
 
 host_t
-GuidedDistributor::locate_data(const string& path,
-                               const chunkid_t& chnk_id) const {
+GuidedDistributor::locate_data(const string& path, const chunkid_t& chnk_id,
+                               const int num_copy) const {
     auto it = map_interval.find(path);
     if(it != map_interval.end()) {
         auto it_f = it->second.first.IsInsideInterval(chnk_id);
@@ -308,13 +352,15 @@ GuidedDistributor::locate_data(const string& path,
     }
 
     auto locate = path + ::to_string(chnk_id);
-    return str_hash(locate) % hosts_size_;
+    return (str_hash(locate) + num_copy) % hosts_size_;
 }
 
 host_t
-GuidedDistributor::locate_file_metadata(const string& path) const {
-    return str_hash(path) % hosts_size_;
+GuidedDistributor::locate_file_metadata(const string& path,
+                                        const int num_copy) const {
+    return (str_hash(path) + num_copy) % hosts_size_;
 }
+
 
 ::vector<host_t>
 GuidedDistributor::locate_directory_metadata(const string& path) const {

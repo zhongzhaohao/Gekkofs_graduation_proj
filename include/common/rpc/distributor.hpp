@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -50,20 +50,24 @@ public:
     virtual host_t
     locate_fs(const std::string& path) const = 0;
 
-
     virtual host_t
-    locate(const std::string& path, unsigned int hostnum) const = 0;
+    locate(const std::string& path, unsigned int hostnum, const int num_copy) const = 0;
 
-    virtual host_t
-    locate_data(const std::string& path, const chunkid_t& chnk_id) const = 0;
-    // TODO: We need to pass hosts_size in the server side, because the number
-    // of servers are not defined (in startup)
     virtual host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id,
-                unsigned int hosts_size) = 0;
+                const int num_copy) const = 0;
+    // TODO: We need to pass hosts_size in the server side, because the number
+    // of servers are not defined (in startup)
+
+    virtual unsigned int
+    hosts_size() const = 0;
 
     virtual host_t
-    locate_file_metadata(const std::string& path) const = 0;
+    locate_data(const std::string& path, const chunkid_t& chnk_id,
+                unsigned int hosts_size, const int num_copy) = 0;
+
+    virtual host_t
+    locate_file_metadata(const std::string& path, const int num_copy) const = 0;
 
     virtual std::vector<host_t>
     locate_directory_metadata(const std::string& path) const = 0;
@@ -82,29 +86,31 @@ private:
 public:
     SimpleHashDistributor();
 
-    SimpleHashDistributor(host_t localhost, std::vector<unsigned int> hosts_size, std::map<std::string, unsigned int> * pathfs,
-                         host_t localfs);
+    SimpleHashDistributor(host_t localhost, std::vector<unsigned int> hosts_size, std::map<std::string, unsigned int> * pathfs, host_t localfs);
 
+    unsigned int
+    hosts_size() const override;
+    
     host_t
     locate_fs(const std::string& path) const override;
 
     host_t
-    locate(const std::string& path, unsigned int hostnum) const override;
-
+    locate(const std::string& path, unsigned int hostnum, const int num_copy) const override;
+    
     host_t
     localhost() const override;
 
     host_t
-    locate_data(const std::string& path,
-                const chunkid_t& chnk_id) const override;
+    locate_data(const std::string& path, const chunkid_t& chnk_id,
+                const int num_copy) const override;
 
     host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id,
-                unsigned int host_size);
-    
+                unsigned int host_size, const int num_copy);
 
     host_t
-    locate_file_metadata(const std::string& path) const override;
+    locate_file_metadata(const std::string& path,
+                         const int num_copy) const override;
 
     std::vector<host_t>
     locate_directory_metadata(const std::string& path) const override;
@@ -113,6 +119,7 @@ public:
 class LocalOnlyDistributor : public Distributor {
 private:
     host_t localhost_;
+    unsigned int hosts_size_{0};
 
 public:
     explicit LocalOnlyDistributor(host_t localhost);
@@ -120,12 +127,16 @@ public:
     host_t
     localhost() const override;
 
-    host_t
-    locate_data(const std::string& path,
-                const chunkid_t& chnk_id) const override;
+    unsigned int
+    hosts_size() const override;
 
     host_t
-    locate_file_metadata(const std::string& path) const override;
+    locate_data(const std::string& path, const chunkid_t& chnk_id,
+                const int num_copy) const override;
+
+    host_t
+    locate_file_metadata(const std::string& path,
+                         const int num_copy) const override;
 
     std::vector<host_t>
     locate_directory_metadata(const std::string& path) const override;
@@ -134,7 +145,7 @@ public:
 class ForwarderDistributor : public Distributor {
 private:
     host_t fwd_host_;
-    unsigned int hosts_size_;
+    unsigned int hosts_size_{0};
     std::vector<host_t> all_hosts_;
     std::hash<std::string> str_hash;
 
@@ -144,16 +155,20 @@ public:
     host_t
     localhost() const override final;
 
-    host_t
-    locate_data(const std::string& path,
-                const chunkid_t& chnk_id) const override final;
+    unsigned int
+    hosts_size() const override;
 
     host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id,
-                unsigned int host_size) override final;
+                const int num_copy) const override final;
 
     host_t
-    locate_file_metadata(const std::string& path) const override;
+    locate_data(const std::string& path, const chunkid_t& chnk_id,
+                unsigned int host_size, const int num_copy) override final;
+
+    host_t
+    locate_file_metadata(const std::string& path,
+                         const int num_copy) const override;
 
     std::vector<host_t>
     locate_directory_metadata(const std::string& path) const override;
@@ -193,16 +208,20 @@ public:
     host_t
     localhost() const override;
 
-    host_t
-    locate_data(const std::string& path,
-                const chunkid_t& chnk_id) const override;
+    unsigned int
+    hosts_size() const override;
 
     host_t
     locate_data(const std::string& path, const chunkid_t& chnk_id,
-                unsigned int host_size);
+                const int num_copy) const override;
 
     host_t
-    locate_file_metadata(const std::string& path) const override;
+    locate_data(const std::string& path, const chunkid_t& chnk_id,
+                unsigned int host_size, const int num_copy);
+
+    host_t
+    locate_file_metadata(const std::string& path,
+                         const int num_copy) const override;
 
     std::vector<host_t>
     locate_directory_metadata(const std::string& path) const override;

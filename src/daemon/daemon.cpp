@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -498,7 +498,8 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
         rpc_protocol = opts.rpc_protocol;
         if(rpc_protocol != gkfs::rpc::protocol::ofi_verbs &&
            rpc_protocol != gkfs::rpc::protocol::ofi_sockets &&
-           rpc_protocol != gkfs::rpc::protocol::ofi_psm2) {
+           rpc_protocol != gkfs::rpc::protocol::ofi_psm2 &&
+	   rpc_protocol != gkfs::rpc::protocol::na_ucx) {
             throw runtime_error(fmt::format(
                     "Given RPC protocol '{}' not supported. Check --help for supported protocols.",
                     rpc_protocol));
@@ -532,7 +533,7 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
 
     GKFS_DATA->rpc_protocol(rpc_protocol);
     GKFS_DATA->bind_addr(fmt::format("{}://{}", rpc_protocol, addr));
-    //std::cout<<"bind_addr: "<<GKFS_DATA->bind_addr()<<std::endl;
+
     string hosts_file;
     if(desc.count("--hosts-file")) {
         hosts_file = opts.hosts_file;
@@ -787,7 +788,6 @@ main(int argc, const char* argv[]) {
     desc.add_option(
                 "--output-stats", opts.stats_file,
                 "Creates a thread that outputs the server stats each 10s to the specified file.");
-                    
     #ifdef GKFS_ENABLE_PROMETHEUS
     desc.add_flag(
                 "--enable-prometheus",
@@ -814,7 +814,7 @@ main(int argc, const char* argv[]) {
 #else
         cout << "Debug: OFF" << endl;
 #endif
-#if CREATE_CHECK_PARENTS
+#if GKFS_CREATE_CHECK_PARENTS
         cout << "Create check parents: ON" << endl;
 #else
         cout << "Create check parents: OFF" << endl;
@@ -829,7 +829,7 @@ main(int argc, const char* argv[]) {
 
     // parse all input parameters and populate singleton structures
     try {
-        parse_input(opts, desc);//save all the paras to GKFS_DATA
+        parse_input(opts, desc);
     } catch(const std::exception& e) {
         cerr << fmt::format("Parsing arguments failed: '{}'. Exiting.",
                             e.what());

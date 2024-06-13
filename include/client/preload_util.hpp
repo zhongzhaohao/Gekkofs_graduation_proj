@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -86,6 +86,11 @@ load_forwarding_map();
 std::vector<std::pair<std::string, std::string>>
 read_hosts_file();
 
+void
+connect_to_hosts(const std::vector<std::pair<std::string, std::string>>& hosts);
+
+/* --Multiple GekkoFS-- */
+
 std::pair<std::vector<unsigned int>, std::vector<unsigned int>>
 read_hosts_config_file();
 
@@ -100,10 +105,9 @@ CheckMerge(std::string &workflows,std::string &hostfile,
            std::string &hostconfigfile);
 
 void
-connect_to_hosts(const std::vector<std::pair<std::string, std::string>>& hosts);
-
-void
 connect_to_registry(const std::string addr);
+
+/* --Multiple GekkoFS-- */
 
 } // namespace gkfs::utils
 

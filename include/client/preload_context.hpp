@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -77,7 +77,8 @@ enum class RelativizeStatus { internal, external, fd_unknown, fd_not_a_dir };
  */
 class PreloadContext {
 
-    static auto constexpr MIN_INTERNAL_FD = MAX_OPEN_FDS - MAX_INTERNAL_FDS;
+    static auto constexpr MIN_INTERNAL_FD =
+            GKFS_MAX_OPEN_FDS - GKFS_MAX_INTERNAL_FDS;
     static auto constexpr MAX_USER_FDS = MIN_INTERNAL_FD;
 
 private:
@@ -91,25 +92,28 @@ private:
     std::vector<std::string> mountdir_components_;
     std::string mountdir_;
 
-    std::vector<hermes::endpoint> hosts_;
-    hermes::endpoint registry_;
-    std::vector<unsigned int> hostsconfig_;
-    std::vector<unsigned int> fspriority_;
-    std::map<std::string, unsigned int> pathfs_;
+    /* --Multiple GekkoFS-- */
+    hermes::endpoint registry_; // Registry endp
+    std::vector<unsigned int> hostsconfig_; // Host(Daemon) size of Each GekkoFS
+    std::vector<unsigned int> fspriority_;  // FsPriority of Each GekkoFS -- used for data consistency
+    std::map<std::string, unsigned int> pathfs_; // Cache of GekkoFS id where path exists
+    uint64_t local_fs_id_; // Id of GekkoFS having local host(daemon)
+    /* --Multiple GekkoFS-- */
 
+    std::vector<hermes::endpoint> hosts_;
     uint64_t local_host_id_;
-    uint64_t local_fs_id_;
     uint64_t fwd_host_id_;
     std::string rpc_protocol_;
     bool auto_sm_{false};
 
     bool interception_enabled_;
 
-    std::bitset<MAX_INTERNAL_FDS> internal_fds_;
+    std::bitset<GKFS_MAX_INTERNAL_FDS> internal_fds_;
     mutable std::mutex internal_fds_mutex_;
     bool internal_fds_must_relocate_;
     std::bitset<MAX_USER_FDS> protected_fds_;
     std::string hostname;
+    int replicas_;
 
 public:
     static PreloadContext*
@@ -147,6 +151,8 @@ public:
     void
     hosts(const std::vector<hermes::endpoint>& addrs);
 
+    /* --Multiple GekkoFS-- */
+    
     const hermes::endpoint
     registry() const;
 
@@ -169,6 +175,13 @@ public:
     std::map<std::string, unsigned int>&
     pathfs() ; 
 
+    uint64_t
+    local_fs_id() const;
+
+    void
+    local_fs_id(uint64_t id);
+    /* --Multiple GekkoFS-- */
+
     void
     clear_hosts();
 
@@ -177,12 +190,6 @@ public:
 
     void
     local_host_id(uint64_t id);
-
-    uint64_t
-    local_fs_id() const;
-
-    void
-    local_fs_id(uint64_t id);
 
     uint64_t
     fwd_host_id() const;
@@ -249,6 +256,12 @@ public:
 
     std::string
     get_hostname();
+
+    void
+    set_replicas(const int repl);
+
+    int
+    get_replicas();
 };
 
 } // namespace preload

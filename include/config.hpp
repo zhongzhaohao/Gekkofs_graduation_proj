@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -66,9 +66,9 @@ constexpr auto dir = "metadata";
 
 // which metadata should be considered apart from size and mode
 // Blocks are used to store the rename status (-1 is a renamed file)
-constexpr auto use_atime = true;
-constexpr auto use_ctime = true;
-constexpr auto use_mtime = true;
+constexpr auto use_atime = false;
+constexpr auto use_ctime = false;
+constexpr auto use_mtime = false;
 constexpr auto use_link_cnt = false;
 #ifdef HAS_RENAME
 constexpr auto use_blocks = true;

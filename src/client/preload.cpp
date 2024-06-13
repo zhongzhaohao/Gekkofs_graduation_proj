@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -37,6 +37,8 @@
 #include <common/rpc/distributor.hpp>
 #include <common/common_defs.hpp>
 
+#include <ctime>
+#include <cstdlib>
 #include <fstream>
 
 #include <hermes.hpp>
@@ -88,7 +90,6 @@ init_hermes_client() {
         }
 
         opts |= hermes::process_may_fork;
-
         ld_network_service = std::make_unique<hermes::async_engine>(
                 hermes::get_transport_type(CTX->rpc_protocol()), opts);
         ld_network_service->run();
@@ -173,17 +174,15 @@ log_prog_name() {
 } // namespace
 
 namespace gkfs::preload {
-
 /**
+ * --Multiple GekkoFS--
  * This function is only called in init_envrionment before reading hostfile and hostconfigfile 
- * and request registry to generate merge hostfile and hostconfigfile
+ * Request Registry to auto generate hostfile and hostconfigfile if in need
  */
 int request_registry(){
     string mergeflows,hostfile,hostconfigfile;
     if(!gkfs::utils::CheckMerge(mergeflows,hostfile,hostconfigfile))
         return 0;
-    //to do request register to merge fs
-    std::cout<< " now is requesting registry "<<std::endl;
     auto err = gkfs::rpc::forward_request_registry(mergeflows,hostconfigfile,hostfile);
     if(err) {
         errno = err;
@@ -192,41 +191,48 @@ int request_registry(){
     return 0;
 }
 
-
 /**
  * This function is only called in the preload constructor and initializes
- * the file system client，包括读取hostfile，设置守护进程通信方式，
+ * the file system client
  */
 void
 init_environment() {
+    /* --Multiple GekkoFS-- 
+    * Load registry address
+    * Initialize RPC
+    * Connect to Registry
+    * Request merge to Registry
+    * Load host(daemon) addresses
+    * Load Each GekkoFS Config
+    * Connect to hosts(daemons) */
 
     string registry_addr = "";
     try {
         LOG(INFO, "Loading registry address...");
-        registry_addr = gkfs::utils::read_registry_file();// proto://url，此时已经把上下文rpc通信协议变量设置好了
+        registry_addr = gkfs::utils::read_registry_file();
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to load hosts addresses: "s + e.what());
     }   
     // initialize Hermes interface to Mercury
     LOG(INFO, "Initializing RPC subsystem...");
-    if(!init_hermes_client()) { //指定通讯方式，打开mercury异步事件处理引擎
+    if(!init_hermes_client()) { 
         exit_error_msg(EXIT_FAILURE, "Unable to initialize RPC subsystem");
     }
     try {
-        gkfs::utils::connect_to_registry(registry_addr);//find hosts addr and save them to ctx
+        gkfs::utils::connect_to_registry(registry_addr);// find hosts addr and save them to ctx
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to connect to hosts: "s + e.what());
     }
-    //向registry请求融合后
+    // make merge request to Registry
     request_registry();
 
     vector<pair<string, string>> hosts{};
     pair<vector<unsigned int>,vector<unsigned int>> hosts_config{};
     try {
         LOG(INFO, "Loading peer addresses...");
-        hosts = gkfs::utils::read_hosts_file();//name , proto://url，此时已经把上下文rpc通信协议变量设置好了
+        hosts = gkfs::utils::read_hosts_file();
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to load hosts addresses: "s + e.what());
@@ -239,19 +245,15 @@ init_environment() {
                        "Failed to load system config: "s + e.what());
     }
     CTX->hostsconfig(hosts_config.first);
-    //std::cout<< "here to print hc" <<std::endl;
-    //for(auto hc : hosts_config.first){
-    //     std::cout << hc << " " ;
-    // }
-    //std:: cout <<std::endl;
     CTX->fspriority(hosts_config.second);
-    
+
     try {
         gkfs::utils::connect_to_hosts(hosts);//find hosts addr and save them to ctx
     } catch(const std::exception& e) {
         exit_error_msg(EXIT_FAILURE,
                        "Failed to connect to hosts: "s + e.what());
     }
+    /* --Multiple GekkoFS-- */
 
     /* Setup distributor */
 #ifdef GKFS_ENABLE_FORWARDING
@@ -279,7 +281,7 @@ init_environment() {
     CTX->distributor(distributor);
 #endif
 
-    //printf("%ld",(unsigned int)(&(CTX->pathfs())));
+
     LOG(INFO, "Retrieving file system configuration...");
 
     if(!gkfs::rpc::forward_get_fs_config()) {
@@ -287,14 +289,24 @@ init_environment() {
                 EXIT_FAILURE,
                 "Unable to fetch file system configurations from daemon process through RPC.");
     }
+    // Initialize random number generator and seed for replica selection
+    // in case of failure, a new replica will be selected
+    if(CTX->get_replicas() > 0) {
+        srand(time(nullptr));
+    }
 
     LOG(INFO, "Environment initialization successful.");
 }
 
+/**
+ * --Multiple GekkoFS--
+ * This function is only called at preload library destruction
+ * Register current work flow to Registry
+ */
 int register_registry(){
     string workflow,hostfile,hostconfigfile;
     gkfs::utils::read_env(workflow,hostfile,hostconfigfile);
-    //makring register request to registry
+    //making register request to registry
     auto err = gkfs::rpc::forward_register_registry(workflow,hostconfigfile,hostfile);
     if(err) {
         errno = err;
@@ -327,16 +339,19 @@ init_preload() {
     // happens during our internal initialization, there's no way for us to
     // control this creation and the fd will be created in the
     // [0, MAX_USER_FDS) range rather than in our private
-    // [MAX_USER_FDS, MAX_OPEN_FDS) range. To prevent this for our internal
+    // [MAX_USER_FDS, GKFS_MAX_OPEN_FDS) range.
+    // with MAX_USER_FDS = GKFS_MAX_OPEN_FDS - GKFS_MAX_INTERNAL_FDS
+    // To prevent this for our internal
     // initialization code, we forcefully occupy the user fd range to force
     // such modules to create fds in our private range.
-    CTX->protect_user_fds();//把所有0-max user fds中的文件描述符全部占用，这样新生成的文件描述符只能在私有范围内产生
+    CTX->protect_user_fds();
 
     log_prog_name();
-    gkfs::path::init_cwd();//修正上下文工作目录为当前进程的环境目录
+    gkfs::path::init_cwd();
 
     LOG(DEBUG, "Current working directory: '{}'", CTX->cwd());
-    gkfs::preload::init_environment();//读了hostfile，并
+    LOG(DEBUG, "Number of replicas : '{}'", CTX->get_replicas());
+    gkfs::preload::init_environment();
     CTX->enable_interception();
 
     CTX->unprotect_user_fds();
@@ -347,8 +362,8 @@ init_preload() {
 
     gkfs::preload::start_interception();
     errno = oerrno;
-
 }
+
 /**
  * Called last when preload library is used with the LD_PRELOAD environment
  * variable
@@ -362,7 +377,7 @@ destroy_preload() {
     CTX->clear_hosts();
     LOG(DEBUG, "Peer information deleted");
     //register work flow to registry
-    gkfs::preload::register_registry();
+    gkfs::preload::register_registry();/*--Multiple GekkoFS--*/
 
     ld_network_service.reset();
     LOG(DEBUG, "RPC subsystem shut down");

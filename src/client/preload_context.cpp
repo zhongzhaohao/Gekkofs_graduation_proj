@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -65,6 +65,8 @@ PreloadContext::PreloadContext()
     char host[255];
     gethostname(host, 255);
     hostname = host;
+    PreloadContext::set_replicas(
+            std::stoi(gkfs::env::get_var(gkfs::env::NUM_REPL, "0")));
 }
 
 void
@@ -75,6 +77,10 @@ PreloadContext::init_logging() {
 
     const std::string log_output = gkfs::env::get_var(
             gkfs::env::LOG_OUTPUT, gkfs::config::log::client_log_path);
+
+    const bool log_per_process =
+            gkfs::env::get_var(gkfs::env::LOG_PER_PROCESS).empty() ? false
+                                                                   : true;
 
 #ifdef GKFS_DEBUG_BUILD
     // atoi returns 0 if no int conversion can be performed, which works
@@ -92,7 +98,8 @@ PreloadContext::init_logging() {
 
     const bool log_trunc = (!trunc_val.empty() && trunc_val[0] != '0');
 
-    gkfs::log::create_global_logger(log_opts, log_output, log_trunc
+    gkfs::log::create_global_logger(log_opts, log_output, log_per_process,
+                                    log_trunc
 #ifdef GKFS_DEBUG_BUILD
                                     ,
                                     log_filter, log_verbosity
@@ -138,6 +145,7 @@ PreloadContext::hosts(const std::vector<hermes::endpoint>& endpoints) {
     hosts_ = endpoints;
 }
 
+/* --Multiple GekkoFS-- */
 const hermes::endpoint
 PreloadContext::registry() const {
     return registry_;
@@ -173,6 +181,17 @@ PreloadContext::pathfs() {
     return pathfs_;
 }
 
+uint64_t
+PreloadContext::local_fs_id() const {
+    return local_fs_id_;
+}
+
+void
+PreloadContext::local_fs_id(uint64_t id) {
+    local_fs_id_ = id;
+}
+/* --Multiple GekkoFS-- */
+
 void
 PreloadContext::clear_hosts() {
     hosts_.clear();
@@ -186,16 +205,6 @@ PreloadContext::local_host_id() const {
 void
 PreloadContext::local_host_id(uint64_t id) {
     local_host_id_ = id;
-}
-
-uint64_t
-PreloadContext::local_fs_id() const {
-    return local_fs_id_;
-}
-
-void
-PreloadContext::local_fs_id(uint64_t id) {
-    local_fs_id_ = id;
 }
 
 uint64_t
@@ -361,7 +370,7 @@ PreloadContext::register_internal_fd(int fd) {
 
     if(static_cast<std::size_t>(pos) == internal_fds_.size()) {
         throw std::runtime_error(
-                "Internal GekkoFS file descriptors exhausted, increase MAX_INTERNAL_FDS in "
+                "Internal GekkoFS file descriptors exhausted, increase GKFS_MAX_INTERNAL_FDS in "
                 "CMake, rebuild GekkoFS and try again.");
     }
     internal_fds_.reset(pos);
@@ -436,7 +445,7 @@ PreloadContext::is_internal_fd(int fd) const {
     std::lock_guard<std::mutex> lock(internal_fds_mutex_);
     return !internal_fds_.test(pos);
 }
-//把所有0-max user fds中的文件描述符全部占用
+
 void
 PreloadContext::protect_user_fds() {
 
@@ -490,6 +499,16 @@ PreloadContext::unprotect_user_fds() {
 std::string
 PreloadContext::get_hostname() {
     return hostname;
+}
+
+void
+PreloadContext::set_replicas(const int repl) {
+    replicas_ = repl;
+}
+
+int
+PreloadContext::get_replicas() {
+    return replicas_;
 }
 
 } // namespace preload

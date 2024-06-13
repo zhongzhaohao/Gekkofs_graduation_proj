@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -65,7 +65,13 @@ constexpr auto ofi_sockets = "ofi+sockets";
 constexpr auto ofi_tcp = "ofi+tcp";
 constexpr auto ofi_verbs = "ofi+verbs";
 constexpr auto na_sm = "na+sm";
+constexpr auto na_ucx = "ucx+all";
 } // namespace protocol
 } // namespace gkfs::rpc
+
+namespace gkfs::config::syscall::stat {
+// Number 512-byte blocks allocated as it is in the linux kernel (struct_stat.h)
+constexpr auto st_nblocksize = 512;
+} // namespace gkfs::config::syscall::stat
 
 #endif // GEKKOFS_COMMON_DEFS_HPP

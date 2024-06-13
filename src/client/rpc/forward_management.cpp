@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -45,24 +45,34 @@ forward_get_fs_config() {
     auto endp = CTX->hosts().at(CTX->local_host_id());
     gkfs::rpc::fs_config::output out;
 
-    try {
-        LOG(DEBUG, "Retrieving file system configurations from daemon");
-        // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that we
-        // can retry for RPC_TRIES (see old commits with margo)
-        // TODO(amiranda): hermes will eventually provide a post(endpoint)
-        // returning one result and a broadcast(endpoint_set) returning a
-        // result_set. When that happens we can remove the .at(0) :/
-        out = ld_network_service->post<gkfs::rpc::fs_config>(endp).get().at(0);
-    } catch(const std::exception& ex) {
-        LOG(ERROR, "Retrieving fs configurations from daemon");
-        return false;
+    bool found = false;
+    size_t idx = 0;
+    while(!found && idx <= CTX->hosts().size()) {
+        try {
+            LOG(DEBUG, "Retrieving file system configurations from daemon");
+            // TODO(amiranda): add a post() with RPC_TIMEOUT to hermes so that
+            // we can retry for RPC_TRIES (see old commits with margo)
+            // TODO(amiranda): hermes will eventually provide a post(endpoint)
+            // returning one result and a broadcast(endpoint_set) returning a
+            // result_set. When that happens we can remove the .at(0) :/
+            out = ld_network_service->post<gkfs::rpc::fs_config>(endp).get().at(
+                    0);
+            found = true;
+        } catch(const std::exception& ex) {
+            LOG(ERROR,
+                "Retrieving fs configurations from daemon, possible reattempt at peer: {}",
+                idx);
+            endp = CTX->hosts().at(idx++);
+        }
     }
+
+    if(!found)
+        return false;
 
     CTX->mountdir(out.mountdir());
     LOG(INFO, "Mountdir: '{}'", CTX->mountdir());
 
     CTX->fs_conf()->rootdir = out.rootdir();
-    std::cout<<"now root dir is: " << out.mountdir() <<std::endl;
     CTX->fs_conf()->atime_state = out.atime_state();
     CTX->fs_conf()->mtime_state = out.mtime_state();
     CTX->fs_conf()->ctime_state = out.ctime_state();
@@ -76,6 +86,13 @@ forward_get_fs_config() {
     return true;
 }
 
+/**
+ * --Multiple GekkoFS--
+ * Request Registry to auto merge workflows
+ * @param flows workflows to merge with ; as a delimiter
+ * @param hcfile target hostconfigfile of Merge GekkoFS for Registry to generate
+ * @param hfile target hostfile of Merge GekkoFS for Registry to generate
+ */
 int
 forward_request_registry(std::string flows, std::string hcfile, std::string hfile) {
 
@@ -103,6 +120,13 @@ forward_request_registry(std::string flows, std::string hcfile, std::string hfil
 
 }
 
+/**
+ * --Multiple GekkoFS--
+ * Register current workflow to Registry
+ * @param work_flow current workflow name
+ * @param hcfile current GekkoFS hostconfigfile
+ * @param hfile current GekkoFS hostfile
+ */
 int
 forward_register_registry(std::string work_flow, std::string hcfile, std::string hfile) {
 
@@ -118,7 +142,6 @@ forward_register_registry(std::string work_flow, std::string hcfile, std::string
         // result_set. When that happens we can remove the .at(0) :/
 
         auto out = ld_network_service->post<gkfs::rpc::registry_register>(endp,in).get().at(0);
-        
         LOG(DEBUG, "Got response success: {}", out.err());
 
         return out.err() ? out.err() : 0;

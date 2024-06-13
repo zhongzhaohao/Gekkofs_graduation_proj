@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -36,8 +36,8 @@
 void
 hermes::detail::register_user_request_types() {
     (void) registered_requests().add<gkfs::rpc::fs_config>();
-    (void) registered_requests().add<gkfs::rpc::registry_request>();
-    (void) registered_requests().add<gkfs::rpc::registry_register>();
+    (void) registered_requests().add<gkfs::rpc::registry_request>();// --Multiple GekkoFS--
+    (void) registered_requests().add<gkfs::rpc::registry_register>();// --Multiple GekkoFS--
     (void) registered_requests().add<gkfs::rpc::create>();
     (void) registered_requests().add<gkfs::rpc::stat>();
     (void) registered_requests().add<gkfs::rpc::remove_metadata>();

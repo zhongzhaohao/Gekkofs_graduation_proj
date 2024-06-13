@@ -23,7 +23,9 @@ static int merge_files(){
 }
 
 /**
- * @brief Responds with merged hostfile and hostconfigfile 
+ * @brief Responds to merge request from client 
+ * with merge GekkoFS information written into hostfile and hostconfigfile
+ * @internal
  * @param handle Mercury RPC handle
  * @return Mercury error code to Mercury
  */
@@ -45,13 +47,13 @@ rpc_srv_registry_request(hg_handle_t handle)
     try {
             std::stringstream ss(flows);
             std::string flow;
-            //以;隔开flows，flow_arr 存储所有请求合并的work flow
+            //Separate the flows with; , flow_arr stores all the work flows to be soon merged
             while (std::getline(ss, flow, ';')) {
                 flow_arr.push_back(flow);
             }
-            std::priority_queue<fs_info> all_fs_info; // save fs (priority and daemons vector) sorted by the priority of fs
-            std::set<std::string> all_daemons;//用来检查重复daemons，适用于多层融合系统情况
-            //读取flows对应的host文件和hostconfig文件，并有序保存到优先队列all_fs_info中
+            std::priority_queue<fs_info> all_fs_info; // save fs information (priority and daemons vector) sorted by the priority of fs
+            std::set<std::string> all_daemons;//check for duplicate daemons and suitable for multi-layer fusion GekkoFS
+            //search the hfiles and hcfiles of merge_flows and merge them to merge_hfile and merge_hcfile
             for(int i = 0 ; i < flow_arr.size(); i ++){
                 if(!job_flows.count(flow_arr[i])) {
                     std::cout<< "we can't find flow names " << flow_arr[i] <<std::endl;
@@ -63,7 +65,7 @@ rpc_srv_registry_request(hg_handle_t handle)
 
                 if (hcf.is_open() && hf.is_open()) {
                     std::string line;
-                    while (std::getline(hcf, line)) { //every line contains two number : fs daemons count and fs priority 
+                    while (std::getline(hcf, line)) { //every line contains two number: fs daemons count and fs priority 
                         struct fs_info fsinfo;
                         fsinfo.priority = i;
 
@@ -72,7 +74,7 @@ rpc_srv_registry_request(hg_handle_t handle)
                         ss>> fsdaemons >> fspriority;
                         fsinfo.post_priority = fspriority;
 
-                        for (int k = 0; k < fsdaemons; ++k) { //save all daemons addrs of this fs 
+                        for (int k = 0; k < fsdaemons; ++k) { //save all daemon addrs of this fs 
                             if (std::getline(hf, line)) { //every line contains a daemon addr
                                 if(all_daemons.count(line))
                                     continue;
@@ -89,7 +91,7 @@ rpc_srv_registry_request(hg_handle_t handle)
                 hcf.close();
                 hf.close();
             }
-        //写入文件 
+        //写入文件
         std::ofstream hcf(hcfile);
         std::ofstream hf(hfile);
         unsigned int prior = 1;
@@ -123,14 +125,15 @@ rpc_srv_registry_request(hg_handle_t handle)
 DEFINE_MARGO_RPC_HANDLER(rpc_srv_registry_request)
 
 /**
- * @brief Record work_flow : its hostfile and hostconfigfile to a map
+ * @brief Responds to workflow register from client, save system info where workflow is located
+ * @internal
  * @param handle Mercury RPC handle
  * @return Mercury error code to Mercury
  */
 hg_return_t
 rpc_srv_registry_register(hg_handle_t handle)
 {
-    //std::cout<< "succeed in getting flows hfile hcfile\n" <<std::endl;
+    std::cout<< "succeed in getting flows hfile hcfile " <<std::endl;
     rpc_registry_register_in_t in;
     rpc_err_out_t out;
 
@@ -141,7 +144,8 @@ rpc_srv_registry_register(hg_handle_t handle)
     auto hfile = in.hfile;
     auto hcfile = in.hcfile;
     try {
-        //将工作流所在系统的hostconfigfile 和 hostfile存储起来
+        //Store the hostconfigfile and hostfile of the system where the workflow is located
+        std::cout<< flow<<" " << hcfile <<" "<< hfile <<std::endl;
         job_flows[flow] = {hcfile,hfile} ;
     } catch(const std::exception& e) {
         out.err = -1;

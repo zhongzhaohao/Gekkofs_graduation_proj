@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -111,6 +111,8 @@ extract_protocol(const string& uri) {
         protocol = gkfs::rpc::protocol::ofi_psm2;
     } else if(uri.find(gkfs::rpc::protocol::ofi_verbs) != string::npos) {
         protocol = gkfs::rpc::protocol::ofi_verbs;
+    } else if(uri.find(gkfs::rpc::protocol::na_ucx) != string::npos) {
+    	protocol = gkfs::rpc::protocol::na_ucx;
     }
     // check for shared memory protocol. Can be plain shared memory or real ofi
     // protocol + auto_sm
@@ -165,15 +167,17 @@ load_hostfile(const std::string& path) {
             throw runtime_error(
                     fmt::format("unrecognized line format: '{}'", line));
         }
-        host = match[1];//changqin...
-        uri = match[2];//ofi+sockets://192.....
+        host = match[1];
+        uri = match[2];
         hosts.emplace_back(host, uri);
     }
     if(hosts.empty()) {
         throw runtime_error(
                 "Hosts file found but no suitable addresses could be extracted");
     }
-    //extract_protocol(hosts[0].second);//protocol at 0 -- 
+    /* --Multiple GekkoFS-- 
+    *  Protocol is extracted in Registry Connection */
+    //extract_protocol(hosts[0].second);
     // sort hosts so that data always hashes to the same place during restart
     //std::sort(hosts.begin(), hosts.end());
     // remove rootdir suffix from host after sorting as no longer required
@@ -200,17 +204,26 @@ namespace gkfs::utils {
 optional<gkfs::metadata::Metadata>
 get_metadata(const string& path, bool follow_links) {
     std::string attr;
-    //std::cout<<"get_metatdata here"<<std::endl;
-    auto err = gkfs::rpc::forward_stat(path, attr);
+    auto err = gkfs::rpc::forward_stat(path, attr, 0);
+    // TODO: retry on failure
+
     if(err) {
-        errno = err;
-        return {};
+        auto copy = 1;
+        while(copy < CTX->get_replicas() + 1 && err) {
+            LOG(ERROR, "Retrying Stat on replica {} {}", copy, follow_links);
+            err = gkfs::rpc::forward_stat(path, attr, copy);
+            copy++;
+        }
+        if(err) {
+            errno = err;
+            return {};
+        }
     }
 #ifdef HAS_SYMLINKS
     if(follow_links) {
         gkfs::metadata::Metadata md{attr};
         while(md.is_link()) {
-            err = gkfs::rpc::forward_stat(md.target_path(), attr);
+            err = gkfs::rpc::forward_stat(md.target_path(), attr, 0);
             if(err) {
                 errno = err;
                 return {};
@@ -269,9 +282,10 @@ metadata_to_stat(const std::string& path, const gkfs::metadata::Metadata& md,
     if(CTX->fs_conf()->link_cnt_state) {
         attr.st_nlink = md.link_count();
     }
-    if(CTX->fs_conf()->blocks_state) { // last one will not encounter a
-                                       // delimiter anymore
+    if(CTX->fs_conf()->blocks_state) {
         attr.st_blocks = md.blocks();
+    } else {
+        attr.st_blocks = md.size() / gkfs::config::syscall::stat::st_nblocksize;
     }
     return 0;
 }
@@ -351,6 +365,13 @@ load_forwarding_map() {
 }
 #endif
 
+/**
+ * --Mulitple GekkoFS--
+ * Read environment variables
+ * @param workflow 
+ * @param hostfile 
+ * @param hostconfigfile
+ */
 void read_env(string &workflow,string &hostfile,string &hostconfigfile){
     hostfile = gkfs::env::get_var(gkfs::env::HOSTS_FILE,
                                   gkfs::config::hostfile_path);  
@@ -360,18 +381,28 @@ void read_env(string &workflow,string &hostfile,string &hostconfigfile){
                                   "default_job");//todo default name of work flow
 }
 
-bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile){
+/**
+ * --Mulitple GekkoFS--
+ * Check whether making merge request to Registry
+ * @param mergeflows flows to merge
+ * @param hostfile  hostfile to generate
+ * @param hostconfigfile hostconfigfile to generate
+ * @return bool
+ */
+bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile) {
+
     auto merge = gkfs::env::get_var(gkfs::env::MERGE,
                                   gkfs::config::merge_default);
-    std::transform(merge.begin(),merge.end(),merge.begin(),::tolower);
     hostfile = gkfs::env::get_var(gkfs::env::HOSTS_FILE,
                                   gkfs::config::hostfile_path);  
     hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
                                   gkfs::config::hostfile_config_path);
     mergeflows = gkfs::env::get_var(gkfs::env::MERGE_FLOWS,
                                   "");
-    bool hfexist = !access(hostfile.c_str(),F_OK);
-    bool hcexist = !access(hostconfigfile.c_str(),F_OK);
+
+    bool hfexist = !access(hostfile.c_str(), F_OK);
+    bool hcexist = !access(hostconfigfile.c_str(), F_OK);
+    std::transform(merge.begin(), merge.end(), merge.begin(), ::tolower);
     if(merge == "on"){
         if(hfexist && hcexist) return false;
         if(!hfexist && !hcexist) {
@@ -385,10 +416,15 @@ bool CheckMerge(string &mergeflows,string &hostfile,string &hostconfigfile){
     return false;
 }
 
+/**
+ * --Mulitple GekkoFS--
+ * Get Registry Address
+ * Set rpc protocol
+ * @return string
+ */
 string
 read_registry_file() {
     string registryfile;
-    //first para is env host file path ,second is ./hosts.txt, return a path
     registryfile = gkfs::env::get_var(gkfs::env::REGISTRY_FILE,
                                   gkfs::config::registryfile_path);
     
@@ -400,18 +436,48 @@ read_registry_file() {
     }
     extract_protocol(addr);
     LOG(INFO, "Getting registry addr: {}",addr);
-    //std::cout<<"Getting registry addr: "<<addr<<std::endl;
     return addr;
+}
+
+/**
+ * --Mulitple GekkoFS--
+ * Get HostSize(number of daemon) and FsPriority of Each GekkoFS
+ * @return pair<hostsize_vector, priority_vector>
+ */
+pair<vector<unsigned int>,vector<unsigned int> >
+read_hosts_config_file() {
+    string hostconfigfile;
+    hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
+                                  gkfs::config::hostfile_config_path);
+    ifstream lf(hostconfigfile);
+    string line;
+    vector<unsigned int> hcfile,fspriority;
+    while (getline(lf, line)){
+        std::istringstream iss(line);
+        unsigned int x,y;
+        if(!(iss >> x >> y)){
+            throw runtime_error(fmt::format("Invalid file format: '{}'", hostconfigfile));
+        }
+        hcfile.push_back(x);
+        fspriority.push_back(y);
+    }
+    
+    if(hcfile.empty()) {
+        throw runtime_error(fmt::format("HostConfigfile empty: '{}'", hostconfigfile));
+    }
+
+    LOG(INFO, "Hosts config pool size: {}", hcfile.size());
+    return {hcfile,fspriority};
 }
 
 vector<pair<string, string>>
 read_hosts_file() {
     string hostfile;
-    //first para is env host file path ,second is ./hosts.txt, return a path
+
     hostfile = gkfs::env::get_var(gkfs::env::HOSTS_FILE,
                                   gkfs::config::hostfile_path);
-    
-    vector<pair<string, string>> hosts;// name , protoc://socket
+
+    vector<pair<string, string>> hosts;
     try {
         hosts = load_hostfile(hostfile);
     } catch(const exception& e) {
@@ -427,35 +493,6 @@ read_hosts_file() {
     return hosts;
 }
 
-pair<vector<unsigned int>,vector<unsigned int> >
-read_hosts_config_file() {
-    string hostconfigfile;
-    //first para is env host file path ,second is ./hosts.txt, return a path
-    hostconfigfile = gkfs::env::get_var(gkfs::env::HOSTS_CONFIG_FILE,
-                                  gkfs::config::hostfile_config_path);
-    //std::cout<< "hcfile path " << hostconfigfile <<std::endl;
-    ifstream lf(hostconfigfile);
-    string line;
-    vector<unsigned int> hcfile,fspriority;
-    while (getline(lf, line)){
-        std::istringstream iss(line);
-        //std::cout<<"line in hcfile" << line <<std::endl;
-        unsigned int x,y;
-        if(!(iss >> x >> y)){
-            throw runtime_error(fmt::format("Invalid file format: '{}'", hostconfigfile));
-        }
-        hcfile.push_back(x);
-        fspriority.push_back(y);
-    }
-    
-    if(hcfile.empty()) {
-        throw runtime_error(fmt::format("HostConfigfile empty: '{}'", hostconfigfile));
-    }
-
-    LOG(INFO, "Hosts config pool size: {}", hcfile.size());
-    //std::cout<<"succeed in reading "<<hostconfigfile<<" hostfonfig "<<hcfile.size()<<std::endl;
-    return {hcfile,fspriority};
-}
 /**
  * Connects to daemons and lookup Mercury URI addresses via Hermes
  * @param hosts vector<pair<hostname, Mercury URI address>>
@@ -494,7 +531,6 @@ connect_to_hosts(const vector<pair<string, string>>& hosts) {
     for(const auto& id : host_ids) {
         const auto& hostname = hosts.at(id).first;
         const auto& uri = hosts.at(id).second;
-       //std::cout<< "id:"<< id<<" hostname + uri" << hostname<<" " << uri<<std::endl;
         addrs[id] = lookup_endpoint(uri);
         LOG(DEBUG, "Found peer: {}", addrs[id].to_string());
     }
@@ -516,16 +552,15 @@ connect_to_hosts(const vector<pair<string, string>>& hosts) {
 }
 
 /**
- * Connects to registry and lookup Mercury URI addresses via Hermes
- * @param hosts vector<pair<hostname, Mercury URI address>>
- * @throws std::runtime_error through lookup_endpoint()
+ * --Multiple GekkoFS--
+ * Connect to registry --- lookup Mercury URI addresses via Hermes
+ * @param addr Registry Address
  */
 void
 connect_to_registry(std::string addr) {
     hermes::endpoint endp = lookup_endpoint(addr);
     LOG(DEBUG, "Found registry: {}", endp.to_string());
     CTX->registry(endp);
-    //std::cout<<"now is endp of registry" << endp.to_string()<<endl;
 }
 
 } // namespace gkfs::utils

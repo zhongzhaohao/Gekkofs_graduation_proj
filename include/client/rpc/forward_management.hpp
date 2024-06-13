@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -29,19 +29,20 @@
 
 #ifndef GEKKOFS_CLIENT_FORWARD_MNGMNT_HPP
 #define GEKKOFS_CLIENT_FORWARD_MNGMNT_HPP
-
 #include <string>
-
 namespace gkfs::rpc {
 
 bool
 forward_get_fs_config();
+
+/* --Multiple GekkoFS-- */
 
 int
 forward_request_registry(std::string flows, std::string hcfile, std::string hfile);
 
 int
 forward_register_registry(std::string work_flow, std::string hcfile, std::string hfile);
+/* --Multiple GekkoFS-- */
 
 } // namespace gkfs::rpc
 

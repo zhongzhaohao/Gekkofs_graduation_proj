@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -180,6 +180,10 @@ MetadataMergeOperator::FullMergeV2(const MergeOperationInput& merge_in,
         assert(serialized_op.size() >= 2);
         auto operand_id = MergeOperand::get_id(serialized_op);
         auto parameters = MergeOperand::get_params(serialized_op);
+
+        if constexpr(gkfs::config::metadata::use_mtime) {
+            md.update_mtime_now();
+        }
 
         if(operand_id == OperandID::increase_size) {
             auto op = IncreaseSizeOperand(parameters);
