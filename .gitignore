@@ -88,6 +88,8 @@ test/build/
 build/
 builds/
 .run/
+.vscode/
+gekkofs_deps/
 
 # Allow users to provide their own CMake presets
 CMakeUserPresets.json
