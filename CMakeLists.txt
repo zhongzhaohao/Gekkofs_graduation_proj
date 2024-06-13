@@ -1,6 +1,6 @@
 ################################################################################
-# Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain            #
-# Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany          #
+# Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany          #
 #                                                                              #
 # This software was partially supported by the                                 #
 # EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).    #
@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(
     GekkoFS
-    VERSION 0.9.1
+    VERSION 0.9.2
 )
 
 enable_testing()
@@ -121,7 +121,7 @@ include(gkfs-utils)
 ################################################################################
 include(gkfs-options)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS 0)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 
 # ##############################################################################
@@ -174,7 +174,7 @@ endif()
 if(GKFS_ENABLE_ROCKSDB)
     message(STATUS "[${PROJECT_NAME}] Checking for RocksDB")
     add_compile_definitions(GKFS_ENABLE_ROCKSDB)
-    find_package(RocksDB 6.26.1 REQUIRED)
+    find_package(RocksDB REQUIRED)
     message(STATUS "[${PROJECT_NAME}] RocksDB version ${RocksDB_VERSION}")
     message(STATUS "[${PROJECT_NAME}] RocksDB location ${RocksDB_DIR}")
 endif()
@@ -266,17 +266,17 @@ if (GKFS_RENAME_SUPPORT)
     add_definitions(-DHAS_RENAME)
 endif ()
 
-if(MAX_INTERNAL_FDS)
-    add_definitions(-DMAX_INTERNAL_FDS=${MAX_INTERNAL_FDS})
+if(GKFS_MAX_INTERNAL_FDS)
+    add_definitions(-DGKFS_MAX_INTERNAL_FDS=${GKFS_MAX_INTERNAL_FDS})
 endif()
 
-if(MAX_OPEN_FDS)
-    add_definitions(-DMAX_OPEN_FDS=${MAX_OPEN_FDS})
+if(GKFS_MAX_OPEN_FDS)
+    add_definitions(-DGKFS_MAX_OPEN_FDS=${GKFS_MAX_OPEN_FDS})
 endif()
 
-if(ENABLE_CLIENT_LOG)
+if(GKFS_ENABLE_CLIENT_LOG)
     add_definitions(-DGKFS_ENABLE_LOGGING)
-    add_definitions(-DLIBGKFS_LOG_MESSAGE_SIZE=${CLIENT_LOG_MESSAGE_SIZE})
+    add_definitions(-DLIBGKFS_LOG_MESSAGE_SIZE=${GKFS_CLIENT_LOG_MESSAGE_SIZE})
 endif ()
 
 if(GKFS_ENABLE_UNUSED_FUNCTIONS)
@@ -289,7 +289,7 @@ endif ()
 
 configure_file(include/common/cmake_configure.hpp.in include/common/cmake_configure.hpp)
 
-if(ENABLE_CLIENT_LOG)
+if(GKFS_ENABLE_CLIENT_LOG)
     option(HERMES_LOGGING "" ON)
     option(HERMES_LOGGING_FMT_USE_BUNDLED "" OFF)
     option(HERMES_LOGGING_FMT_HEADER_ONLY "" OFF)
