@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -77,7 +77,8 @@ enum class RelativizeStatus { internal, external, fd_unknown, fd_not_a_dir };
  */
 class PreloadContext {
 
-    static auto constexpr MIN_INTERNAL_FD = MAX_OPEN_FDS - MAX_INTERNAL_FDS;
+    static auto constexpr MIN_INTERNAL_FD =
+            GKFS_MAX_OPEN_FDS - GKFS_MAX_INTERNAL_FDS;
     static auto constexpr MAX_USER_FDS = MIN_INTERNAL_FD;
 
 private:
@@ -99,11 +100,12 @@ private:
 
     bool interception_enabled_;
 
-    std::bitset<MAX_INTERNAL_FDS> internal_fds_;
+    std::bitset<GKFS_MAX_INTERNAL_FDS> internal_fds_;
     mutable std::mutex internal_fds_mutex_;
     bool internal_fds_must_relocate_;
     std::bitset<MAX_USER_FDS> protected_fds_;
     std::string hostname;
+    int replicas_;
 
 public:
     static PreloadContext*
@@ -215,6 +217,12 @@ public:
 
     std::string
     get_hostname();
+
+    void
+    set_replicas(const int repl);
+
+    int
+    get_replicas();
 };
 
 } // namespace preload

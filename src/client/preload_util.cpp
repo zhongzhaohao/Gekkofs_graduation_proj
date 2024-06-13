@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -111,6 +111,8 @@ extract_protocol(const string& uri) {
         protocol = gkfs::rpc::protocol::ofi_psm2;
     } else if(uri.find(gkfs::rpc::protocol::ofi_verbs) != string::npos) {
         protocol = gkfs::rpc::protocol::ofi_verbs;
+    } else if(uri.find(gkfs::rpc::protocol::na_ucx) != string::npos) {
+    	protocol = gkfs::rpc::protocol::na_ucx;
     }
     // check for shared memory protocol. Can be plain shared memory or real ofi
     // protocol + auto_sm
@@ -200,16 +202,26 @@ namespace gkfs::utils {
 optional<gkfs::metadata::Metadata>
 get_metadata(const string& path, bool follow_links) {
     std::string attr;
-    auto err = gkfs::rpc::forward_stat(path, attr);
+    auto err = gkfs::rpc::forward_stat(path, attr, 0);
+    // TODO: retry on failure
+
     if(err) {
-        errno = err;
-        return {};
+        auto copy = 1;
+        while(copy < CTX->get_replicas() + 1 && err) {
+            LOG(ERROR, "Retrying Stat on replica {} {}", copy, follow_links);
+            err = gkfs::rpc::forward_stat(path, attr, copy);
+            copy++;
+        }
+        if(err) {
+            errno = err;
+            return {};
+        }
     }
 #ifdef HAS_SYMLINKS
     if(follow_links) {
         gkfs::metadata::Metadata md{attr};
         while(md.is_link()) {
-            err = gkfs::rpc::forward_stat(md.target_path(), attr);
+            err = gkfs::rpc::forward_stat(md.target_path(), attr, 0);
             if(err) {
                 errno = err;
                 return {};
@@ -268,9 +280,10 @@ metadata_to_stat(const std::string& path, const gkfs::metadata::Metadata& md,
     if(CTX->fs_conf()->link_cnt_state) {
         attr.st_nlink = md.link_count();
     }
-    if(CTX->fs_conf()->blocks_state) { // last one will not encounter a
-                                       // delimiter anymore
+    if(CTX->fs_conf()->blocks_state) {
         attr.st_blocks = md.blocks();
+    } else {
+        attr.st_blocks = md.size() / gkfs::config::syscall::stat::st_nblocksize;
     }
     return 0;
 }

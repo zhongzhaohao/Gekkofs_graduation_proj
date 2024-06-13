@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -37,6 +37,8 @@
 #include <common/rpc/distributor.hpp>
 #include <common/common_defs.hpp>
 
+#include <ctime>
+#include <cstdlib>
 #include <fstream>
 
 #include <hermes.hpp>
@@ -88,7 +90,6 @@ init_hermes_client() {
         }
 
         opts |= hermes::process_may_fork;
-
         ld_network_service = std::make_unique<hermes::async_engine>(
                 hermes::get_transport_type(CTX->rpc_protocol()), opts);
         ld_network_service->run();
@@ -238,6 +239,11 @@ init_environment() {
                 EXIT_FAILURE,
                 "Unable to fetch file system configurations from daemon process through RPC.");
     }
+    // Initialize random number generator and seed for replica selection
+    // in case of failure, a new replica will be selected
+    if(CTX->get_replicas() > 0) {
+        srand(time(nullptr));
+    }
 
     LOG(INFO, "Environment initialization successful.");
 }
@@ -266,7 +272,9 @@ init_preload() {
     // happens during our internal initialization, there's no way for us to
     // control this creation and the fd will be created in the
     // [0, MAX_USER_FDS) range rather than in our private
-    // [MAX_USER_FDS, MAX_OPEN_FDS) range. To prevent this for our internal
+    // [MAX_USER_FDS, GKFS_MAX_OPEN_FDS) range.
+    // with MAX_USER_FDS = GKFS_MAX_OPEN_FDS - GKFS_MAX_INTERNAL_FDS
+    // To prevent this for our internal
     // initialization code, we forcefully occupy the user fd range to force
     // such modules to create fds in our private range.
     CTX->protect_user_fds();
@@ -275,6 +283,7 @@ init_preload() {
     gkfs::path::init_cwd();
 
     LOG(DEBUG, "Current working directory: '{}'", CTX->cwd());
+    LOG(DEBUG, "Number of replicas : '{}'", CTX->get_replicas());
     gkfs::preload::init_environment();
     CTX->enable_interception();
 

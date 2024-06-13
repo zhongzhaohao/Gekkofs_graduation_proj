@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -35,6 +35,9 @@ extern "C" {
 }
 
 #include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 namespace gkfs::rpc {
 
@@ -48,6 +51,18 @@ get_my_hostname(bool short_hostname = false);
 std::string
 get_host_by_name(const std::string& hostname);
 #endif
+
+bool
+get_bitset(const std::vector<uint8_t>& data, const uint16_t position);
+
+void
+set_bitset(std::vector<uint8_t>& data, const uint16_t position);
+
+std::string
+compress_bitset(const std::vector<uint8_t>& bytes);
+
+std::vector<uint8_t>
+decompress_bitset(const std::string& compressedString);
 
 } // namespace gkfs::rpc
 

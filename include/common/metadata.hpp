@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string>
+#include <cstdint>
 
 namespace gkfs::metadata {
 
@@ -62,6 +63,8 @@ private:
 #endif
 #endif
 
+    void
+    init_time();
 
 public:
     Metadata() = default;
@@ -80,11 +83,12 @@ public:
     std::string
     serialize() const;
 
+    // currently unused
     void
-    init_ACM_time();
+    update_atime_now();
 
     void
-    update_ACM_time(bool a, bool c, bool m);
+    update_mtime_now();
 
     // Getter and Setter
     time_t

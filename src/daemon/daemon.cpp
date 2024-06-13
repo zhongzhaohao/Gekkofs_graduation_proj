@@ -1,6 +1,6 @@
 /*
-  Copyright 2018-2022, Barcelona Supercomputing Center (BSC), Spain
-  Copyright 2015-2022, Johannes Gutenberg Universitaet Mainz, Germany
+  Copyright 2018-2024, Barcelona Supercomputing Center (BSC), Spain
+  Copyright 2015-2024, Johannes Gutenberg Universitaet Mainz, Germany
 
   This software was partially supported by the
   EC H2020 funded project NEXTGenIO (Project ID: 671951, www.nextgenio.eu).
@@ -70,7 +70,7 @@ namespace fs = std::filesystem;
 
 static condition_variable shutdown_please; // handler for shutdown signaling
 static mutex mtx; // mutex to wait on shutdown conditional variable
-static bool keep_rootdir = true;
+static bool keep_rootdir = false;
 
 struct cli_options {
     string mountdir;
@@ -498,7 +498,8 @@ parse_input(const cli_options& opts, const CLI::App& desc) {
         rpc_protocol = opts.rpc_protocol;
         if(rpc_protocol != gkfs::rpc::protocol::ofi_verbs &&
            rpc_protocol != gkfs::rpc::protocol::ofi_sockets &&
-           rpc_protocol != gkfs::rpc::protocol::ofi_psm2) {
+           rpc_protocol != gkfs::rpc::protocol::ofi_psm2 &&
+	   rpc_protocol != gkfs::rpc::protocol::na_ucx) {
             throw runtime_error(fmt::format(
                     "Given RPC protocol '{}' not supported. Check --help for supported protocols.",
                     rpc_protocol));
@@ -813,7 +814,7 @@ main(int argc, const char* argv[]) {
 #else
         cout << "Debug: OFF" << endl;
 #endif
-#if CREATE_CHECK_PARENTS
+#if GKFS_CREATE_CHECK_PARENTS
         cout << "Create check parents: ON" << endl;
 #else
         cout << "Create check parents: OFF" << endl;
