@@ -1,0 +1,795 @@
+Not confirmed.
+Detaching from program: /home/changqin/gekkofs/build/src/daemon/gkfs_daemon, process 5385
+[Inferior 1 (process 5385) detached]
+Breakpoint 1 at 0x5635b7c9a0e6: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 120.
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3d5180) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3d6f20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	in ./nptl/futex-internal.c
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	in ./nptl/futex-internal.c
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	in ./nptl/futex-internal.c
+Detaching from program: /home/changqin/gekkofs/build/src/daemon/gkfs_daemon, process 5385
+[Inferior 1 (process 5385) detached]
+Breakpoint 1 at 0x5635b7c9a0e6: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 120.
+Breakpoint 2 at 0x5635b7c99c7f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 65.
+Breakpoint 3 at 0x5635b7c9a603: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 176.
+Breakpoint 4 at 0x5635b7c9aa20: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 232.
+Breakpoint 5 at 0x5635b7c9b207: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 300.
+Breakpoint 6 at 0x5635b7c9b673: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 349.
+Breakpoint 7 at 0x5635b7c9bc1f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 410.
+Breakpoint 8 at 0x5635b7c9c0a8: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 461.
+Breakpoint 9 at 0x5635b7c9c4b1: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 521.
+Breakpoint 10 at 0x5635b7c9d08b: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 680.
+Breakpoint 11 at 0x5635b7c7b5a7: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 93.
+Breakpoint 12 at 0x5635b7c7c79d: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 395.
+Breakpoint 13 at 0x5635b7c7d85e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 645.
+Breakpoint 14 at 0x5635b7c7dc3e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 690.
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3dbe20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3dc800) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3dd1e0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3def80) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+115	 * @endinteral
+116	 * @param handle Mercury RPC handle
+117	 * @return Mercury error code to Mercury
+118	 */
+119	hg_return_t
+120	rpc_srv_stat(hg_handle_t handle) {
+121	    rpc_path_only_in_t in{};
+122	    rpc_stat_out_t out{};
+123	    auto ret = margo_get_input(handle, &in);
+124	    if(ret != HG_SUCCESS)
+121	    rpc_path_only_in_t in{};
+122	    rpc_stat_out_t out{};
+123	    auto ret = margo_get_input(handle, &in);
+124	    if(ret != HG_SUCCESS)
+127	    assert(ret == HG_SUCCESS);
+128	    GKFS_DATA->spdlogger()->debug("{}() path: '{}'", __func__, in.path);
+129	    std::string val;
+133	        val = gkfs::metadata::get_str(in.path);
+134	        out.db_val = val.c_str();
+129	    std::string val;
+130	
+131	    try {
+132	        // get the metadata
+133	        val = gkfs::metadata::get_str(in.path);
+134	        out.db_val = val.c_str();
+135	        out.err = 0;
+136	        GKFS_DATA->spdlogger()->debug("{}() Sending output mode '{}'", __func__,
+137	                                      out.db_val);
+138	    } catch(const gkfs::metadata::NotFoundException& e) {
+135	        out.err = 0;
+136	        GKFS_DATA->spdlogger()->debug("{}() Sending output mode '{}'", __func__,
+149	    auto hret = margo_respond(handle, &out);
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3df960) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e0340) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+115	 * @endinteral
+116	 * @param handle Mercury RPC handle
+117	 * @return Mercury error code to Mercury
+118	 */
+119	hg_return_t
+120	rpc_srv_stat(hg_handle_t handle) {
+121	    rpc_path_only_in_t in{};
+122	    rpc_stat_out_t out{};
+123	    auto ret = margo_get_input(handle, &in);
+124	    if(ret != HG_SUCCESS)
+Breakpoint 15 at 0x5635b7c9a325: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 149.
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e0340) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3e0d20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+516	 * @endinteral
+517	 * @param handle Mercury RPC handle
+518	 * @return Mercury error code to Mercury
+519	 */
+520	hg_return_t
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+522	    rpc_get_dirents_in_t in{};
+523	    rpc_get_dirents_out_t out{};
+524	    out.err = EIO;
+525	    out.dirents_size = 0;
+522	    rpc_get_dirents_in_t in{};
+523	    rpc_get_dirents_out_t out{};
+524	    out.err = EIO;
+525	    out.dirents_size = 0;
+526	    hg_bulk_t bulk_handle = nullptr;
+529	    auto ret = margo_get_input(handle, &in);
+530	    if(ret != HG_SUCCESS) {
+539	    auto hgi = margo_get_info(handle);
+540	    auto mid = margo_hg_info_get_instance(hgi);
+541	    auto bulk_size = margo_bulk_get_size(in.bulk_handle);
+542	    GKFS_DATA->spdlogger()->debug("{}() Got RPC: path '{}' bulk_size '{}' ",
+546	    vector<pair<string, bool>> entries{};
+548	        entries = gkfs::metadata::get_dirents(in.path);
+555	    GKFS_DATA->spdlogger()->trace(
+557	            entries.size());
+555	    GKFS_DATA->spdlogger()->trace(
+559	    if(entries.empty()) {
+566	    size_t tot_names_size = 0;
+567	    for(auto const& e : entries) {
+568	        tot_names_size += e.first.size();
+567	    for(auto const& e : entries) {
+574	            tot_names_size + entries.size() * (sizeof(bool) + sizeof(char));
+575	    if(bulk_size < out_size) {
+587	    ret = margo_bulk_create(mid, 1, nullptr, &out_size, HG_BULK_READ_ONLY,
+589	    if(ret != HG_SUCCESS) {
+597	    ret = margo_bulk_access(bulk_handle, 0, out_size, HG_BULK_READ_ONLY, 1,
+599	    if(ret != HG_SUCCESS || actual_count != 1) {
+606	    GKFS_DATA->spdlogger()->trace(
+608	            __func__, in.path, entries.size(), out_size, out_size);
+606	    GKFS_DATA->spdlogger()->trace(
+611	    auto out_buff_ptr = static_cast<char*>(bulk_buf);
+612	    auto bool_ptr = reinterpret_cast<bool*>(out_buff_ptr);
+613	    auto names_ptr = out_buff_ptr + entries.size();
+615	    for(auto const& e : entries) {
+616	        if(e.first.empty()) {
+621	        *bool_ptr = e.second;
+622	        bool_ptr++;
+624	        const auto name = e.first.c_str();
+625	        ::strcpy(names_ptr, name);
+627	        names_ptr += e.first.size() + 1;
+615	    for(auto const& e : entries) {
+630	    GKFS_DATA->spdlogger()->trace(
+632	            __func__, in.path, entries.size(), out_size);
+630	    GKFS_DATA->spdlogger()->trace(
+634	    ret = margo_bulk_transfer(mid, HG_BULK_PUSH, hgi->addr, in.bulk_handle, 0,
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e1700) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e1700) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Detaching from program: /home/changqin/gekkofs/build/src/daemon/gkfs_daemon, process 5385
+[Inferior 1 (process 5385) detached]
+Breakpoint 1 at 0x5635b7c9a0e6: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 120.
+Breakpoint 2 at 0x5635b7c99c7f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 65.
+Breakpoint 3 at 0x5635b7c9a603: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 176.
+Breakpoint 4 at 0x5635b7c9aa20: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 232.
+Breakpoint 5 at 0x5635b7c9b207: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 300.
+Breakpoint 6 at 0x5635b7c9b673: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 349.
+Breakpoint 7 at 0x5635b7c9bc1f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 410.
+Breakpoint 8 at 0x5635b7c9c0a8: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 461.
+Breakpoint 9 at 0x5635b7c9c4b1: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 521.
+Breakpoint 10 at 0x5635b7c9d08b: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 680.
+Breakpoint 11 at 0x5635b7c7b5a7: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 93.
+Breakpoint 12 at 0x5635b7c7c79d: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 395.
+Breakpoint 13 at 0x5635b7c7d85e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 645.
+Breakpoint 14 at 0x5635b7c7dc3e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 690.
+Breakpoint 15 at 0x5635b7cb4d9d: file /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp, line 60.
+
+Breakpoint 16 at 0x5635b7c9a325: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 149.
+Quit
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e20e0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e2ac0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e34a0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e3e80) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e4860) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e5240) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+#0  (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e5240)
+    at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+#1  0x00005635b7c9e4c3 in _wrapper_for_rpc_srv_stat (handle=0x5635ba3e5240)
+    at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:895
+#2  0x00007fb92e5f13ce in ABTD_ythread_func_wrapper ()
+   from /home/changqin/gekkofs_deps/install/lib/libabt.so.1
+#3  0x00007fb92e5f1571 in make_fcontext ()
+   from /home/changqin/gekkofs_deps/install/lib/libabt.so.1
+#4  0x0000000000000000 in ?? ()
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e5240) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e5c20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e5c20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e6600) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e6600) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3e6fe0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e79c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e79c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e83a0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3e8d80) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e9760) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3e9760) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ea140) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ea140) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3eab20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3eab20) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3eb500) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ebee0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ebee0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Detaching from program: /home/changqin/gekkofs/build/src/daemon/gkfs_daemon, process 5385
+[Inferior 1 (process 5385) detached]
+
+
+
+
+
+Breakpoint 1 at 0x5635b7c9a0e6: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 120.
+Breakpoint 2 at 0x5635b7c99c7f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 65.
+Breakpoint 3 at 0x5635b7c9a603: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 176.
+Breakpoint 4 at 0x5635b7c9aa20: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 232.
+Breakpoint 5 at 0x5635b7c9b207: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 300.
+Breakpoint 6 at 0x5635b7c9b673: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 349.
+Breakpoint 7 at 0x5635b7c9bc1f: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 410.
+Breakpoint 8 at 0x5635b7c9c0a8: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 461.
+Breakpoint 9 at 0x5635b7c9c4b1: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 521.
+Breakpoint 10 at 0x5635b7c9d08b: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 680.
+Breakpoint 11 at 0x5635b7c7b5a7: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 93.
+Breakpoint 12 at 0x5635b7c7c79d: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 395.
+Breakpoint 13 at 0x5635b7c7d85e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 645.
+Breakpoint 14 at 0x5635b7c7dc3e: file /home/changqin/gekkofs/src/daemon/handler/srv_data.cpp, line 690.
+Breakpoint 15 at 0x5635b7cb4d9d: file /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp, line 60.
+Breakpoint 16 at 0x5635b7c9a325: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 149.
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3ec8c0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3ed2a0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3edc80) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+121	    rpc_path_only_in_t in{};
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3edc80) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ee660) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ee660) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3ef040) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3efa20) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f0400) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f0400) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f0de0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f0de0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f17c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f17c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3f21a0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f2b80) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f2b80) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3f3560) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3f3f40) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f4920) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f4920) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f5300) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f5300) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f5ce0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f5ce0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3f66c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f70a0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f70a0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3f7a80) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3f8460) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f8e40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f8e40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f9820) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3f9820) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fa200) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fa200) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3fabe0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fb5c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fb5c0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3fbfa0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba3fc980) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fd360) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+#0  (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fd360)
+    at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+#1  0x00005635b7c9e4c3 in _wrapper_for_rpc_srv_stat (handle=0x5635ba3fd360)
+    at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:895
+#2  0x00007fb92e5f13ce in ABTD_ythread_func_wrapper ()
+   from /home/changqin/gekkofs_deps/install/lib/libabt.so.1
+#3  0x00007fb92e5f1571 in make_fcontext ()
+   from /home/changqin/gekkofs_deps/install/lib/libabt.so.1
+#4  0x0000000000000000 in ?? ()
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fd360) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fdd40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fdd40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fe720) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3fe720) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba3ff100) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ffae0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba3ffae0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba4004c0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Undefined command: "cc".  Try "help".
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba400ea0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba401880) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 28 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba401880) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba402260) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba402260) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba402c40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba402c40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba403620) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+516	 * @endinteral
+517	 * @param handle Mercury RPC handle
+518	 * @return Mercury error code to Mercury
+519	 */
+520	hg_return_t
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+522	    rpc_get_dirents_in_t in{};
+523	    rpc_get_dirents_out_t out{};
+524	    out.err = EIO;
+525	    out.dirents_size = 0;
+522	    rpc_get_dirents_in_t in{};
+523	    rpc_get_dirents_out_t out{};
+524	    out.err = EIO;
+525	    out.dirents_size = 0;
+526	    hg_bulk_t bulk_handle = nullptr;
+529	    auto ret = margo_get_input(handle, &in);
+530	    if(ret != HG_SUCCESS) {
+539	    auto hgi = margo_get_info(handle);
+540	    auto mid = margo_hg_info_get_instance(hgi);
+541	    auto bulk_size = margo_bulk_get_size(in.bulk_handle);
+542	    GKFS_DATA->spdlogger()->debug("{}() Got RPC: path '{}' bulk_size '{}' ",
+546	    vector<pair<string, bool>> entries{};
+548	        entries = gkfs::metadata::get_dirents(in.path);
+555	    GKFS_DATA->spdlogger()->trace(
+557	            entries.size());
+555	    GKFS_DATA->spdlogger()->trace(
+559	    if(entries.empty()) {
+566	    size_t tot_names_size = 0;
+567	    for(auto const& e : entries) {
+568	        tot_names_size += e.first.size();
+567	    for(auto const& e : entries) {
+574	            tot_names_size + entries.size() * (sizeof(bool) + sizeof(char));
+575	    if(bulk_size < out_size) {
+587	    ret = margo_bulk_create(mid, 1, nullptr, &out_size, HG_BULK_READ_ONLY,
+589	    if(ret != HG_SUCCESS) {
+597	    ret = margo_bulk_access(bulk_handle, 0, out_size, HG_BULK_READ_ONLY, 1,
+599	    if(ret != HG_SUCCESS || actual_count != 1) {
+606	    GKFS_DATA->spdlogger()->trace(
+608	            __func__, in.path, entries.size(), out_size, out_size);
+606	    GKFS_DATA->spdlogger()->trace(
+611	    auto out_buff_ptr = static_cast<char*>(bulk_buf);
+612	    auto bool_ptr = reinterpret_cast<bool*>(out_buff_ptr);
+613	    auto names_ptr = out_buff_ptr + entries.size();
+615	    for(auto const& e : entries) {
+616	        if(e.first.empty()) {
+621	        *bool_ptr = e.second;
+622	        bool_ptr++;
+624	        const auto name = e.first.c_str();
+625	        ::strcpy(names_ptr, name);
+627	        names_ptr += e.first.size() + 1;
+615	    for(auto const& e : entries) {
+630	    GKFS_DATA->spdlogger()->trace(
+632	            __func__, in.path, entries.size(), out_size);
+630	    GKFS_DATA->spdlogger()->trace(
+634	    ret = margo_bulk_transfer(mid, HG_BULK_PUSH, hgi->addr, in.bulk_handle, 0,
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Breakpoint 17 at 0x5635b7c9cd22: file /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp, line 634.
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba404000) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba404000) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba4049e0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c4ffb640 (LWP 5427)]
+
+Thread 28 "gkfs_daemon" hit Breakpoint 15, (anonymous namespace)::rpc_srv_get_fs_config (handle=0x5635ba4053c0) at /home/changqin/gekkofs/src/daemon/handler/srv_management.cpp:60
+60	rpc_srv_get_fs_config(hg_handle_t handle) {
+Continuing.
+[Switching to Thread 0x7fb8c63fd640 (LWP 5426)]
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba405da0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba405da0) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba406780) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 27 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba406780) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba407160) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba407160) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+[Switching to Thread 0x7fb8bbbf9640 (LWP 5429)]
+
+Thread 30 "gkfs_daemon" hit Breakpoint 9, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba407b40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:521
+521	rpc_srv_get_dirents(hg_handle_t handle) {
+Continuing.
+
+Thread 30 "gkfs_daemon" hit Breakpoint 17, (anonymous namespace)::rpc_srv_get_dirents (handle=0x5635ba407b40) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:634
+634	    ret = margo_bulk_transfer(mid, HG_BULK_PUSH, hgi->addr, in.bulk_handle, 0,
+Continuing.
+[Switching to Thread 0x7fb8bd7fb640 (LWP 5428)]
+
+Thread 29 "gkfs_daemon" hit Breakpoint 1, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba408520) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:120
+120	rpc_srv_stat(hg_handle_t handle) {
+Continuing.
+
+Thread 29 "gkfs_daemon" hit Breakpoint 16, (anonymous namespace)::rpc_srv_stat (handle=0x5635ba408520) at /home/changqin/gekkofs/src/daemon/handler/srv_metadata.cpp:149
+149	    auto hret = margo_respond(handle, &out);
+Continuing.
+
+Thread 1 "gkfs_daemon" received signal SIGINT, Interrupt.
+[Switching to Thread 0x7fb92e436480 (LWP 5385)]
+__futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x5635b835b348 <shutdown_please+40>) at ./nptl/futex-internal.c:57
+57	./nptl/futex-internal.c: No such file or directory.
+Detaching from program: /home/changqin/gekkofs/build/src/daemon/gkfs_daemon, process 5385
+[Inferior 1 (process 5385) detached]

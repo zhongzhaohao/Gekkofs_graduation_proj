@@ -1,0 +1,12 @@
+prefix=/home/changqin/gekkofs_deps/install
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: margo
+Description: Argobots bindings for Mercury RPC library
+Version: 0.9.6
+URL: https://xgitlab.cels.anl.gov/sds/margo
+Requires: mercury argobots json-c
+Libs: -L${libdir} -lmargo
+Cflags: -I${includedir}
